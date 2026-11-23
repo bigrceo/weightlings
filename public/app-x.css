@@ -1,0 +1,297 @@
+/* The meadow HUD, drawn in the signal-field system (ds.css): corner brackets, dotted rules, scanlines, no blur, no radius.
+   Loaded only by app.html, before ds.css; rules are scoped to body.meadow so they hold against the system's defaults. */
+body.meadow { overflow: hidden; background: #020403; --gutter: 22px; --hud-top: calc(var(--top) + 18px); }
+#world { position: fixed; inset: 0; width: 100vw; height: 100vh; height: 100dvh; image-rendering: pixelated; cursor: grab; touch-action: none; }
+#world.drag { cursor: grabbing; } #world.pt { cursor: pointer; }
+/* #world.cull: the desaturation is drawn inside the canvas (see app.js) */
+.meadow .vig { position: fixed; inset: 0; z-index: 5; pointer-events: none; background: radial-gradient(ellipse at 50% 46%, transparent 48%, rgba(1,3,2,.55) 100%); }
+
+/* ---------- the drawn panel (shared): brackets and scanlines as background layers, so they hold still while content scrolls ---------- */
+.meadow :where(.tools, .count, .round, .minimap, .ask, .drawer, .modal .box) {
+  --bc: var(--trace-2); --bl: 12px;
+  --brk: linear-gradient(var(--bc) 0 0) 0 0 / var(--bl) 1px no-repeat, linear-gradient(var(--bc) 0 0) 0 0 / 1px var(--bl) no-repeat,
+    linear-gradient(var(--bc) 0 0) 100% 0 / var(--bl) 1px no-repeat, linear-gradient(var(--bc) 0 0) 100% 0 / 1px var(--bl) no-repeat,
+    linear-gradient(var(--bc) 0 0) 0 100% / var(--bl) 1px no-repeat, linear-gradient(var(--bc) 0 0) 0 100% / 1px var(--bl) no-repeat,
+    linear-gradient(var(--bc) 0 0) 100% 100% / var(--bl) 1px no-repeat, linear-gradient(var(--bc) 0 0) 100% 100% / 1px var(--bl) no-repeat;
+  background: var(--brk), repeating-linear-gradient(to bottom, var(--scan) 0 1px, transparent 1px 3px), rgba(2, 5, 4, .82);
+  color: var(--fg-2); border: 0; border-radius: 0; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+.meadow .hud { transition: opacity .7s var(--e-out), transform .7s var(--e-out); }
+body.culling .hud, body.culling .watch { opacity: 0; pointer-events: none; }
+.meadow .hud .ds-label em { font-style: normal; color: var(--fg-4); margin-left: 6px; letter-spacing: .16em; }
+.m-only { display: none !important; }
+
+/* ---------- strip, sound, nav on the meadow ---------- */
+.meadow .strip { background: var(--ink-0); border-bottom: 0; color: var(--fg-3); font: 600 10.5px/1 var(--font-text); letter-spacing: .18em; }
+.meadow .strip::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: linear-gradient(90deg, var(--trace) 0 1px, transparent 1px) 0 0 / 3px 1px repeat-x; }
+.meadow .strip .sdot { width: 11px; height: 9px; background: var(--clock); border-radius: 0; box-shadow: none; -webkit-mask: var(--ds-bird) center / contain no-repeat; mask: var(--ds-bird) center / contain no-repeat; animation: ds-hop 1.1s steps(2) infinite; }
+.meadow .strip b { color: var(--fg); font-weight: 600; }
+.meadow .strip .clock { font: 600 13px/1 var(--font-display); letter-spacing: .04em; color: var(--clock); }
+.meadow .strip a { color: var(--fg-3); } .meadow .strip a:hover { color: var(--sig); }
+.meadow .ds-nav { padding-right: calc(var(--gutter) + 46px); }
+.meadow .sound { position: fixed; z-index: 51; right: var(--gutter); top: calc(var(--strip-h) + 11px); width: 32px; height: 32px; border: 0; border-radius: 0; display: grid; place-items: center; color: var(--fg-2); background: rgba(2,4,3,.7); box-shadow: inset 0 0 0 1px var(--trace-2); transition: color var(--t-fast), box-shadow var(--t-med); }
+.meadow .sound:hover { color: var(--sig); box-shadow: inset 0 0 0 1px var(--sig); }
+.meadow .sound svg { width: 15px; }
+
+/* ---------- tools ---------- */
+.meadow .tools { position: fixed; left: var(--gutter); top: var(--hud-top); z-index: 20; width: 184px; padding: 14px 12px 10px; }
+.meadow .tools .hd { padding: 0 4px 12px; }
+.meadow .tools .ic { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding-bottom: 10px; margin-bottom: 6px; background: linear-gradient(90deg, var(--trace-2) 0 1px, transparent 1px) 0 100% / 4px 1px repeat-x; }
+.meadow .tools .ic button { position: relative; height: 36px; display: grid; place-items: center; color: var(--fg-3); background: none; border: 0; border-radius: 0; cursor: pointer; transition: color var(--t-fast), background-color var(--t-med); }
+.meadow .tools .ic button::before { content: ''; position: absolute; inset: 0; pointer-events: none; --tc: var(--trace-2); --tk: 4px;
+  background: linear-gradient(var(--tc) 0 0) 0 0 / var(--tk) 1px no-repeat, linear-gradient(var(--tc) 0 0) 0 0 / 1px var(--tk) no-repeat, linear-gradient(var(--tc) 0 0) 100% 100% / var(--tk) 1px no-repeat, linear-gradient(var(--tc) 0 0) 100% 100% / 1px var(--tk) no-repeat; opacity: 0; transition: opacity var(--t-fast); }
+.meadow .tools .ic button:hover { color: var(--fg); background: rgba(140,255,200,.04); }
+.meadow .tools .ic button:hover::before { opacity: 1; }
+.meadow .tools .ic button.on { color: var(--sig); }
+.meadow .tools .ic button.on::before { opacity: 1; --tc: rgba(92,242,168,.6); }
+.meadow .tools .ic svg { width: 15px; height: 15px; }
+.meadow .tools .tx { position: relative; display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; padding: 10px 6px 9px; font: 600 10px/1 var(--font-text); letter-spacing: .16em; text-transform: uppercase; color: var(--fg-2); background: none; border: 0; border-radius: 0; cursor: pointer; white-space: nowrap; transition: color var(--t-fast); }
+.meadow .tools .tx::before { content: ''; flex: none; width: 5px; height: 1px; background: currentColor; transition: width var(--t-med) var(--e-out); }
+.meadow .tools .tx:hover::before { width: 12px; }
+.meadow .tools .tx:hover { color: var(--fg); }
+.meadow .tools #tWeak:hover { color: var(--die); } .meadow .tools #tLegend:hover { color: var(--clock); }
+.meadow .tools .ic button:focus-visible, .meadow .tools .tx:focus-visible { outline: 1px solid var(--sig); outline-offset: 2px; }
+
+/* ---------- population ---------- */
+.meadow .count { position: fixed; right: var(--gutter); top: var(--hud-top); z-index: 20; width: 156px; padding: 14px 16px 14px; }
+.meadow .count .k { display: flex; }
+.meadow .count #cnt { display: inline-block; margin-top: 12px; --c: var(--fg); }
+.meadow .count #cnt::after { background: var(--sig); }
+.meadow .count .d { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-top: 12px; padding-top: 10px; background: linear-gradient(90deg, var(--trace) 0 1px, transparent 1px) 0 0 / 3px 1px repeat-x; font: 600 10px/1 var(--font-text); letter-spacing: .18em; text-transform: uppercase; color: var(--fg-3); }
+.meadow .count .d b { font: 500 16px/1 var(--font-display); letter-spacing: .01em; color: var(--die); font-variant-numeric: tabular-nums; }
+
+/* ---------- round panel ---------- */
+.meadow .round { position: fixed; right: var(--gutter); top: calc(var(--hud-top) + 132px); z-index: 20; width: 320px; max-height: calc(100vh - var(--hud-top) - 132px - 190px); overflow: auto; padding: 16px 18px; font: 12.5px/1.55 var(--font-text); scrollbar-width: thin; scrollbar-color: var(--fg-4) transparent; }
+.meadow .round:empty { display: none; }
+.meadow .round .q { display: flex; align-items: baseline; gap: 10px; margin: 10px 0 6px; }
+.meadow .round .q .tn { font: 600 20px/1.1 var(--font-display); color: var(--fg); letter-spacing: .01em; }
+.meadow .round .q .in { color: var(--fg-3); font-size: 12px; }
+.meadow .round .q b { margin-left: auto; font: 500 22px/1 var(--font-display); color: var(--clock); font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+.meadow .round .w { color: var(--fg-3); }
+.meadow .round .w a { color: var(--fg-2); text-decoration: none; background: linear-gradient(90deg, var(--trace-3) 0 1px, transparent 1px) 0 100% / 3px 1px repeat-x; padding-bottom: 1px; }
+.meadow .round .w a:hover { color: var(--sig); }
+.meadow .round .c { margin-top: 14px; padding-top: 14px; background: linear-gradient(90deg, var(--trace-2) 0 1px, transparent 1px) 0 0 / 4px 1px repeat-x; }
+.meadow .round .c .n { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 12px 0 8px; color: var(--fg-3); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+.meadow .round .c .n span { display: inline-flex; align-items: baseline; gap: 7px; }
+.meadow .round .c .n .ds-num { --fs: 20px; }
+.meadow .round .lv { margin-top: 14px; padding-top: 14px; width: 100%; background: linear-gradient(90deg, var(--trace-2) 0 1px, transparent 1px) 0 0 / 4px 1px repeat-x; }
+.meadow .round .lv::before { display: none; }
+.meadow .round .lv .ds-mark { margin-right: 2px; }
+.meadow .round .p { position: relative; padding: 7px 0 7px 16px; color: var(--fg-2); background: linear-gradient(90deg, var(--trace) 0 1px, transparent 1px) 0 100% / 3px 1px repeat-x; }
+.meadow .round .p::before { content: ''; position: absolute; left: 0; top: 13px; width: 8px; height: 1px; background: var(--sig); }
+.meadow .round .p.down::before { background: var(--die); }
+
+/* ---------- watch caption: drawn over the world, no box ---------- */
+.meadow .watch { position: fixed; left: 50%; top: calc(var(--hud-top) - 6px); transform: translate(-50%, -6px); z-index: 19; display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; gap: 6px 14px; max-width: min(640px, calc(100vw - 420px)); text-align: center; font: 13px/1.5 var(--font-text); color: var(--fg-2); text-shadow: 0 1px 12px #000, 0 0 3px #000; opacity: 0; pointer-events: none; transition: opacity .4s, transform .4s var(--e-out); }
+.meadow .watch.on { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+.meadow .watch b { font: 600 20px/1 var(--font-display); color: var(--fg); letter-spacing: .01em; box-shadow: inset 0 -1px 0 var(--c, var(--sig)); padding-bottom: 3px; }
+.meadow .watch .m { color: var(--fg-3); } .meadow .watch .m em { font: 500 14px/1 var(--font-display); font-style: normal; color: var(--fg); }
+.meadow .watch .acts { display: flex; gap: 18px; flex-basis: 100%; justify-content: center; }
+.meadow .watch a { font: 600 10px var(--font-text); letter-spacing: .18em; text-transform: uppercase; color: var(--fg); cursor: pointer; padding: 4px 0; background: linear-gradient(90deg, currentColor 0 1px, transparent 1px) 0 100% / 3px 1px repeat-x; opacity: .8; }
+.meadow .watch a:hover { opacity: 1; color: var(--sig); }
+
+/* ---------- minimap ---------- */
+.meadow .minimap { position: fixed; right: var(--gutter); bottom: 22px; z-index: 20; width: 224px; padding: 12px 12px 12px; }
+.meadow .minimap .k { padding: 0 2px 10px; }
+.meadow .minimap canvas { display: block; width: 100%; aspect-ratio: 2 / 1; cursor: crosshair; touch-action: none; image-rendering: pixelated; }
+
+/* ---------- hatch ---------- */
+.meadow .ask { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 20; width: min(600px, calc(100vw - 560px)); min-width: 340px; padding: 14px 16px 12px; }
+.meadow .ask .hd { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.meadow .ask .hd span.s { font: 600 10px var(--font-text); letter-spacing: .16em; text-transform: uppercase; color: var(--fg-4); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.meadow .ask form { margin: 6px 0 8px; padding: 10px 2px 9px; }
+.meadow .ask input { flex: 1; min-width: 0; background: none; border: 0; border-radius: 0; padding: 0; font: 15px/1.4 var(--font-text); color: var(--fg); outline: none; }
+.meadow .ask input::placeholder { color: var(--fg-4); }
+.meadow .ask button.send { width: auto; font-size: 10px; min-height: 32px; padding: 8px 12px 7px; margin: -4px 0; border-radius: 0; }
+.meadow .ask .ft { display: flex; justify-content: space-between; gap: 12px; font: 11.5px/1.5 var(--font-text); color: var(--fg-4); }
+.meadow .ask .ft a { color: var(--fg-2); cursor: pointer; white-space: nowrap; font: 600 10px/1.5 var(--font-text); letter-spacing: .16em; text-transform: uppercase; background: linear-gradient(90deg, currentColor 0 1px, transparent 1px) 0 100% / 3px 1px repeat-x; }
+.meadow .ask .ft a:hover { color: var(--sig); }
+.meadow .answers { max-height: 30vh; overflow: auto; font-size: 13px; color: var(--fg-2); }
+.meadow .answers .a { margin: 8px 0; padding-left: 12px; box-shadow: inset 1px 0 0 var(--sig); }
+
+/* ---------- tooltip ---------- */
+.meadow .tip { position: fixed; left: 0; top: 0; z-index: 30; pointer-events: none; display: none; gap: 10px; padding: 7px 10px 6px; white-space: nowrap; background: rgba(2,4,3,.92); box-shadow: inset 1px 0 0 var(--sig); font: 600 10px/1.2 var(--font-text); letter-spacing: .14em; text-transform: uppercase; color: var(--fg-3); will-change: transform; }
+.meadow .tip b { font: 600 13px/1 var(--font-display); letter-spacing: .02em; text-transform: none; margin-right: 10px; }
+.meadow .tip span + span { margin-left: 10px; color: var(--fg-4); }
+
+/* ---------- cull title: one full-width band, drawn ---------- */
+.meadow #cull { position: fixed; left: 0; right: 0; top: 50%; transform: translateY(-50%); z-index: 55; pointer-events: none; text-align: center; padding: 34px 16px; opacity: 0; visibility: hidden; transition: opacity 1s ease, visibility 0s 1s; text-transform: uppercase; color: var(--fg);
+  background: repeating-linear-gradient(to bottom, rgba(140,255,200,.03) 0 1px, transparent 1px 3px), linear-gradient(180deg, rgba(1,2,2,.5), rgba(1,2,2,.7) 50%, rgba(1,2,2,.5)); }
+.meadow #cull::before, .meadow #cull::after { content: ''; position: absolute; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, var(--trace-3) 0 1px, transparent 1px) 0 0 / 4px 1px repeat-x; transform: scaleX(0); transition: transform 1.4s var(--e-out); }
+.meadow #cull::before { top: 0; } .meadow #cull::after { bottom: 0; background: linear-gradient(90deg, rgba(255,63,142,.7) 0 1px, transparent 1px) 0 0 / 4px 1px repeat-x; transform-origin: 100% 50%; }
+.meadow #cull.on { opacity: 1; visibility: visible; transition: opacity .8s ease; }
+.meadow #cull.on::before, .meadow #cull.on::after { transform: none; }
+.meadow #cull .k { font: 600 12px var(--font-text); letter-spacing: .42em; color: var(--fg-2); min-height: 1em; }
+.meadow #cull .t { font: 600 clamp(28px, 6.4vw, 96px)/1.05 var(--font-display); letter-spacing: .04em; margin: 18px 0 16px; text-shadow: 0 0 40px rgba(0,0,0,.8); transition: letter-spacing 3.4s cubic-bezier(.2,.7,.2,1); }
+.meadow #cull.on .t { letter-spacing: .1em; }
+.meadow #cull .t:empty { display: none; }
+.meadow #cull .t b { font-weight: 500; font-variant-numeric: tabular-nums; }
+.meadow #cull .t b.die { color: var(--die); } .meadow #cull .t b.sig { color: var(--sig); }
+.meadow #cull .t i { font-style: normal; opacity: .3; margin: 0 .12em; }
+.meadow #cull .d { font: 600 12px var(--font-text); letter-spacing: .32em; color: var(--fg-2); min-height: 1em; }
+
+/* ---------- drawer: the subject's file ---------- */
+.meadow .drawer { position: fixed; right: 0; top: 0; bottom: 0; width: min(440px, 100vw); z-index: 70; --bl: 16px;
+  background: var(--brk), repeating-linear-gradient(to bottom, var(--scan) 0 1px, transparent 1px 3px), rgba(2, 5, 4, .99);
+  box-shadow: -1px 0 0 var(--trace); transform: translateX(105%); transition: transform .5s var(--e-out); display: flex; flex-direction: column; font-family: var(--font-text); }
+.meadow .drawer.on { transform: none; }
+.meadow .drawer.dead { --bc: rgba(255,63,142,.5); }
+.meadow .drawer .bar { display: flex; align-items: center; gap: 12px; padding: 14px 14px 14px 22px; background: linear-gradient(90deg, var(--trace-2) 0 1px, transparent 1px) 0 100% / 4px 1px repeat-x; }
+.meadow .drawer .bar .t { display: inline-flex; align-items: center; gap: 9px; font: 600 10px var(--font-text); letter-spacing: .2em; text-transform: uppercase; color: var(--sig); }
+.meadow .drawer .bar .t::before { content: ''; width: 11px; height: 9px; background: currentColor; -webkit-mask: var(--ds-bird) center / contain no-repeat; mask: var(--ds-bird) center / contain no-repeat; animation: ds-hop 1.1s steps(2) infinite; }
+.meadow .drawer.dead .bar .t { color: var(--die); } .meadow .drawer.dead .bar .t::before { transform: rotate(180deg); animation: none; }
+.meadow .drawer .bar .grip { flex: 1; }
+.meadow .drawer .bar .b, .meadow .bx-close, .meadow .modal .mx { width: 32px; height: 32px; border: 0; border-radius: 0; background: none; box-shadow: inset 0 0 0 1px var(--trace-2); color: var(--fg-2); font: 400 20px/1 var(--font-text); cursor: pointer; transition: color var(--t-fast), box-shadow var(--t-med); }
+.meadow .drawer .bar .b:hover, .meadow .bx-close:hover, .meadow .modal .mx:hover { color: var(--sig); box-shadow: inset 0 0 0 1px var(--sig); }
+.meadow .drawer .in { overflow: auto; padding: 18px 22px 28px; flex: 1; font-size: 13.5px; color: var(--fg-2); scrollbar-width: thin; scrollbar-color: var(--fg-4) transparent; overscroll-behavior: contain; }
+/* its brain, at the top of the file */
+.meadow .dplate { --ar: 16 / 10; --t: var(--sig); }
+.meadow .dplate .dph, .meadow .dplate .d3 { position: absolute; inset: 0; width: 100%; height: 100%; }
+.meadow .dplate .dph { transition: opacity .5s var(--e-out); }
+.meadow .dplate .d3 { opacity: 0; transition: opacity .45s var(--e-out); }
+.meadow .dplate.ready .d3 { opacity: 1; } .meadow .dplate.ready .dph { opacity: 0; }
+.meadow .dplate .ds-plate__cap { bottom: 12px; left: 16px; right: 16px; align-items: baseline; }
+.meadow .dplate .ds-plate__cap b { font: 600 12px/1.2 var(--font-display); letter-spacing: .04em; text-transform: none; color: var(--fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 0 6px #000; }
+.meadow .dplate .ds-plate__cap span { color: var(--t); text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 0 6px #000; }
+.meadow .dplate.fail .ds-plate__cap span { color: var(--fg-3); }
+.meadow .brainbtn { margin-top: 10px; justify-content: flex-start; gap: 12px; padding: 12px 16px 11px; }
+.meadow .brainbtn .bt { font: 600 11px/1 var(--font-text); letter-spacing: .2em; }
+.meadow .brainbtn .bs { font: 500 11px/1 var(--font-display); letter-spacing: .06em; color: var(--fg-3); text-transform: none; font-variant-numeric: tabular-nums; }
+.meadow .brainbtn .arr { margin-left: auto; }
+.meadow .dfine { margin: 10px 0 0; font: 400 11px/1.5 var(--font-text); color: var(--fg-4); }
+.meadow .drawer .dname { display: flex; gap: 12px; align-items: center; margin: 26px 0 0; font: 600 30px/1.05 var(--font-display); color: var(--fg); letter-spacing: -.005em; overflow-wrap: anywhere; }
+.meadow .drawer .dname canvas { flex: none; width: 44px; height: 36px; image-rendering: pixelated; }
+.meadow .drawer .ar { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 12px; }
+.meadow .drawer .brain { display: flex; gap: 12px; align-items: center; margin-top: 20px; }
+.meadow .lgo { flex: none; display: grid; place-items: center; width: 42px; height: 42px; background: var(--ink-2); box-shadow: inset 0 0 0 1px var(--trace-2); }
+.meadow .lgo img { width: 26px; height: 26px; object-fit: contain; }
+.meadow .drawer .brain .bn { font: 600 18px/1.2 var(--font-display); color: var(--fg); }
+.meadow .drawer .brain .lab { color: var(--fg-3); font-size: 12px; margin-top: 2px; }
+.meadow .drawer .brain .lab b, .meadow .bx-model span b { font: 500 13px/1 var(--font-display); color: var(--fg-2); font-variant-numeric: tabular-nums; }
+.meadow .drawer .lbl { display: flex; margin: 26px 0 12px; }
+.meadow .drawer .state, .meadow .bx-side .state { font: italic 500 15px/1.5 var(--font-text); color: var(--fg); padding-left: 14px; box-shadow: inset 1px 0 0 var(--sig); }
+.meadow .drawer .state.end, .meadow .bx-side .state.end { font-style: normal; box-shadow: inset 1px 0 0 var(--die); color: #ffb3d1; }
+.meadow .drawer .note, .meadow .bx-side .note { color: var(--fg-4); font-size: 11.5px; margin-top: 12px; }
+.meadow .trait { display: grid; grid-template-columns: 96px 1fr 34px; align-items: center; gap: 12px; margin: 9px 0; font-size: 12px; color: var(--fg-3); text-transform: capitalize; }
+.meadow .trait > b, .meadow .trait > span:last-child { text-align: right; font: 500 14px/1 var(--font-display); color: var(--fg); font-variant-numeric: tabular-nums; }
+.meadow .rows > div { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 0 9px; background: linear-gradient(90deg, var(--trace) 0 1px, transparent 1px) 0 100% / 3px 1px repeat-x; }
+.meadow .rows small { color: var(--fg-3); font-size: 12.5px; }
+.meadow .rows b { font: 500 17px/1 var(--font-display); color: var(--fg); font-variant-numeric: tabular-nums; letter-spacing: .01em; }
+.meadow .dact { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
+.meadow .dslipact { margin-top: 12px; }
+.meadow .mem { position: relative; font-size: 12.5px; color: var(--fg-2); padding: 8px 0 8px 18px; background: linear-gradient(90deg, var(--trace) 0 1px, transparent 1px) 0 100% / 3px 1px repeat-x; }
+.meadow .mem::before { content: ''; position: absolute; left: 0; top: 12px; width: 10px; height: 10px; background: var(--sig); -webkit-mask: var(--ds-tick) center / contain no-repeat; mask: var(--ds-tick) center / contain no-repeat; }
+.meadow .mem.w::before { background: var(--die); -webkit-mask-image: var(--ds-cross); mask-image: var(--ds-cross); }
+.meadow .loading { display: flex; flex-direction: column; align-items: center; gap: 14px; color: var(--fg-3); padding: 40px 0; text-align: center; font: 600 10px var(--font-text); letter-spacing: .18em; text-transform: uppercase; }
+.meadow .loading i { display: block; width: 120px; height: 1px; background: linear-gradient(90deg, var(--trace-2) 0 1px, transparent 1px) 0 0 / 4px 1px repeat-x; position: relative; overflow: hidden; }
+.meadow .loading i::after { content: ''; position: absolute; top: 0; left: 0; width: 30px; height: 1px; background: var(--sig); box-shadow: 0 0 8px var(--sig); animation: axScan 1.1s var(--e-io) infinite; }
+@keyframes axScan { from { transform: translateX(-30px); } to { transform: translateX(120px); } }
+#backSlot:empty { display: none; }
+
+/* ---------- inside the brain: the 3D stage on the left, the subject's file on the right ---------- */
+.meadow .brainx { position: fixed; inset: 0; z-index: 120; display: grid; grid-template-columns: minmax(0, 65fr) minmax(300px, 35fr); background: #020403; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .45s ease, visibility 0s .45s; font-family: var(--font-text); }
+.meadow .brainx.on { opacity: 1; visibility: visible; pointer-events: auto; transition: opacity .45s ease; }
+.meadow .bx-stage { position: relative; min-width: 0; min-height: 0; overflow: hidden; }
+.meadow .bx-stage > .loading { position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); padding: 0 24px; line-height: 1.8; }
+.meadow .bx-close { position: absolute; right: 16px; top: 14px; z-index: 4; width: 36px; height: 36px; background: rgba(2,4,3,.7); font-size: 22px; }
+.meadow .bx-side { position: relative; min-height: 0; overflow: auto; background: repeating-linear-gradient(to bottom, var(--scan) 0 1px, transparent 1px 3px), var(--ink-1); box-shadow: inset 1px 0 0 var(--trace); color: var(--fg-2); font-size: 13.5px; scrollbar-width: thin; scrollbar-color: var(--fg-4) transparent; }
+.meadow .bx-in { padding: 66px 28px 44px; }
+.meadow .bx-grip { display: none; }
+.meadow .bx-name { font: 600 30px/1.1 var(--font-display); letter-spacing: -.005em; color: var(--fg); margin-top: 14px; overflow-wrap: anywhere; }
+.meadow .bx-tier { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 12px; }
+.meadow .bx-side .lbl { display: flex; margin: 24px 0 12px; }
+.meadow .bx-side.dead .bx-ew { display: none; }
+.meadow .bx-energy { display: flex; align-items: center; gap: 14px; }
+.meadow .bx-energy b { font: 500 46px/1 var(--font-display); letter-spacing: -.01em; color: var(--fg); font-variant-numeric: tabular-nums; min-width: 1.2em; }
+.meadow .bx-energy i { flex: 1; height: 6px; background: repeating-linear-gradient(90deg, var(--trace) 0 3px, transparent 3px 5px); }
+.meadow .bx-energy u { display: block; height: 100%; background: repeating-linear-gradient(90deg, var(--c, var(--sig)) 0 3px, transparent 3px 5px); text-decoration: none; transition: width .8s var(--e-out); }
+.meadow .bx-model { display: flex; gap: 12px; align-items: center; margin-top: 26px; }
+.meadow .bx-model b { display: block; font: 600 17px/1.25 var(--font-display); color: var(--fg); }
+.meadow .bx-model span { display: block; color: var(--fg-3); font-size: 12px; line-height: 1.45; }
+.meadow .bx-next { margin-top: 22px; font: 600 10px/1.6 var(--font-text); letter-spacing: .18em; text-transform: uppercase; color: var(--fg-3); font-variant-numeric: tabular-nums; }
+.meadow .bx-next:empty { display: none; }
+.meadow .bx-next b { color: var(--clock); font-weight: 600; } .meadow .bx-next span { font: 500 14px/1 var(--font-display); letter-spacing: .04em; color: var(--fg); }
+.meadow .bx-next.soon span { color: var(--die); }
+/* inside the brain the final-minute count and the cull flash stay out of the way: the next trial is on the file instead */
+body.brain-open .fx-final, body.brain-open .fx-flash { display: none; }
+.meadow .bxt i { height: 6px; background: repeating-linear-gradient(90deg, var(--trace) 0 3px, transparent 3px 5px); display: block; }
+.meadow .bxt i b { display: block; height: 100%; background: repeating-linear-gradient(90deg, var(--fg-3) 0 3px, transparent 3px 5px); transition: width 1s, filter .3s; }
+.meadow .bxt span:first-child { transition: color .3s; }
+.meadow .bxt.on span:first-child { color: var(--c, #fff); }
+.meadow .bxt.on i b { background: repeating-linear-gradient(90deg, var(--c, #fff) 0 3px, transparent 3px 5px); filter: drop-shadow(0 0 4px var(--c, #fff)); }
+.meadow .bx-side .dact { flex-wrap: wrap; }
+.meadow .bx-slip { margin-top: 22px; display: flex; justify-content: center; }
+.meadow .bx-slip:empty { display: none; }
+.meadow .brainbtn:focus-visible, .meadow .bx-close:focus-visible, .meadow .bx-grip:focus-visible { outline: 1px solid var(--sig); outline-offset: 3px; }
+
+/* ---------- the hatch modal ---------- */
+.meadow .modal { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(1, 3, 2, .86); }
+.meadow .modal .box { width: min(520px, calc(100vw - 32px)); overflow: visible; --bl: 16px; border: 0; border-radius: 0; background: var(--brk), repeating-linear-gradient(to bottom, var(--scan) 0 1px, transparent 1px 3px), rgba(2, 5, 4, .97); }
+.meadow .modal .mhd { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 16px 14px 22px; background: linear-gradient(90deg, var(--trace-2) 0 1px, transparent 1px) 0 100% / 4px 1px repeat-x; }
+.meadow .modal .in { padding: 18px 22px 22px; }
+.meadow .modal p { color: var(--fg-2); font: 400 14px/1.6 var(--font-text); margin: 0; }
+.meadow .modal .ds-field { margin: 14px 0 20px; }
+.meadow .modal input { width: auto; margin: 0; border: 0; border-radius: 0; padding: 0; background: none; font: 16px/1.4 var(--font-text); color: var(--fg); }
+.meadow .modal .err { min-height: 1.4em; margin-top: 14px; font-size: 13px; color: var(--die); }
+
+@media (max-width: 1100px) { .meadow .ask { width: min(600px, calc(100vw - 540px)); min-width: 300px; } .meadow .ask .hd span.s { display: none; } .meadow .minimap { width: 184px; } }
+
+/* mobile: everything collapses to two compact bars */
+@media (max-width: 860px) {
+  body.meadow { --gutter: 10px; --hud-top: calc(var(--top) + 8px); }
+  .meadow .ds-nav { padding-right: 52px; }
+  .m-only { display: grid !important; } .meadow .tools .tx.m-only { display: flex !important; }
+  .meadow .count { top: var(--hud-top); right: 10px; width: auto; min-width: 80px; padding: 8px 12px 10px; }
+  .meadow .count .k { display: flex; font-size: 9px; } .meadow .count #cnt { --fs: 24px; margin-top: 6px; } .meadow .count .d { display: none !important; }
+  .meadow .round { top: var(--hud-top); left: 10px; right: 110px; width: auto; max-height: 62px; overflow: hidden; padding: 9px 12px; cursor: pointer; transition: max-height .4s var(--e-out), opacity .7s; }
+  .meadow .round.open { max-height: 62vh; overflow: auto; right: 10px; z-index: 22; }
+  .meadow .round .ds-label { font-size: 9px; letter-spacing: .16em; }
+  .meadow .round .q { margin: 6px 0 8px; } .meadow .round .q .tn { font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .meadow .round .q b { font-size: 18px; }
+  .meadow .watch { top: calc(var(--hud-top) + 76px); max-width: calc(100vw - 32px); font-size: 12px; }
+  .meadow .tools { top: auto; left: 10px; right: 10px; bottom: 10px; bottom: calc(10px + env(safe-area-inset-bottom)); width: auto; padding: 4px 6px; display: flex; align-items: center; gap: 2px; overflow-x: auto; scrollbar-width: none; }
+  .meadow .tools::-webkit-scrollbar { display: none; }
+  .meadow .tools .hd { display: none; }
+  .meadow .tools .ic { display: flex; background: none; padding: 0; margin: 0; gap: 0; }
+  .meadow .tools .ic button { width: 38px; height: 40px; flex: none; }
+  .meadow .tools .tx { width: auto; flex: none; order: -1; padding: 12px 8px; letter-spacing: .13em; }
+  .meadow .tools .tx::before { display: none; }
+  .meadow .tools .tx .lg { display: none; }
+  .meadow .tools #tIn, .meadow .tools #tOut { display: none; }
+  .meadow .tools #tHatch { color: var(--sig); }
+  .meadow .minimap { right: 10px; bottom: 66px; bottom: calc(66px + env(safe-area-inset-bottom)); width: 136px; padding: 7px; }
+  .meadow .minimap .k { display: none; }
+  body.map-off .minimap, body.hatch-open .minimap { display: none; }
+  .meadow .ask { display: none; left: 10px; right: 10px; bottom: 66px; bottom: calc(66px + env(safe-area-inset-bottom)); transform: none; width: auto; min-width: 0; }
+  body.hatch-open .ask { display: block; }
+  .meadow .ask .ft span { font-size: 10.5px; }
+  .meadow .sound { top: auto; right: auto; left: 10px; bottom: 66px; bottom: calc(66px + env(safe-area-inset-bottom)); }
+  body.hatch-open .sound { display: none; }
+  .meadow #cull { padding: 24px 12px; } .meadow #cull .k, .meadow #cull .d { font-size: 10px; letter-spacing: .26em; }
+  .meadow .drawer .in { padding: 14px 16px 28px; }
+  .meadow .drawer .dname { font-size: 26px; }
+  /* phone: the stage fills the screen, the file is a bottom sheet (tap the grip to pull it up) */
+  .meadow .brainx { display: block; }
+  .meadow .bx-stage { position: absolute; left: 0; right: 0; top: 0; bottom: 176px; }
+  .meadow .bx-side { position: absolute; left: 0; right: 0; bottom: 0; z-index: 3; height: 176px; max-height: 80dvh; overflow: hidden; box-shadow: inset 0 1px 0 var(--trace-2); transition: height .4s var(--e-out); padding-bottom: env(safe-area-inset-bottom); }
+  .meadow .bx-side.open { height: 80dvh; overflow: auto; }
+  .meadow .bx-grip { display: block; width: 100%; height: 24px; padding: 0; background: none; border: 0; cursor: pointer; }
+  .meadow .bx-grip i { display: block; width: 42px; height: 1px; margin: 0 auto; background: linear-gradient(90deg, var(--trace-3) 0 1px, transparent 1px) 0 0 / 3px 1px repeat-x; box-shadow: 0 3px 0 var(--trace); }
+  .meadow .bx-in { padding: 0 18px 30px; }
+  .meadow .bx-k { display: none; }
+  .meadow .bx-name { font-size: 20px; margin-top: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .meadow .bx-tier { margin-top: 6px; gap: 6px 12px; } .meadow .bx-tier .ds-tag { font-size: 8.5px; }
+  .meadow .bx-live { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0 22px; align-items: start; }
+  .meadow .bx-side.dead .bx-live { display: block; }
+  .meadow .bx-live .lbl { margin: 12px 0 6px; font-size: 9px; }
+  .meadow .bx-energy b { font-size: 30px; } .meadow .bx-energy i { min-width: 46px; }
+  .meadow .bx-side .state { font-size: 13.5px; }
+  .meadow .bx-next { margin-top: 12px; font-size: 9px; }
+  .meadow .bx-close { right: 10px; top: 10px; }
+}
+@media (max-height: 640px) and (min-width: 861px) { .meadow .round { max-height: calc(100vh - var(--hud-top) - 132px - 30px); } .meadow .minimap { display: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  #world, .hud, .meadow #cull, .meadow #cull::before, .meadow #cull::after, .meadow #cull .t, .meadow .drawer, .meadow .watch { transition-duration: .01s !important; }
+  .meadow .loading i::after, .meadow .strip .sdot, .meadow .drawer .bar .t::before { animation: none; }
+  .meadow .brainx, .meadow .bx-side, .meadow .bx-energy u, .meadow .dplate .d3, .meadow .dplate .dph { transition-duration: .01s !important; }
+}

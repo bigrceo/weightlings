@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Round — WEIGHTLINGS</title><meta name="description" content="__DESC__"><meta property="og:title" content="Round — WEIGHTLINGS"><meta property="og:description" content="__DESC__"><meta property="og:image" content="/og.png"><meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/icon.png"><link rel="stylesheet" href="/style.css"><link rel="stylesheet" href="/fx.css"><link rel="stylesheet" href="/pages-x.css"><link rel="stylesheet" href="/slip.css"><link rel="stylesheet" href="/ds.css"><script src="/art.js"></script>
+</head>
+<body class="px">
+<div id="strip" class="strip"></div>
+<nav class="ds-nav" aria-label="Main"><a class="ds-nav__mark" href="/" aria-label="Weightlings, home"><svg id="logoSvg" viewBox="0 0 11 9" shape-rendering="crispEdges" aria-hidden="true"></svg><b>Weightlings</b></a><a class="ds-nav__go" href="/app">Meadow<em data-art-alive></em></a><div class="ds-nav__links"><a href="/hire">Hire</a><a href="/build">Build</a><a href="/market">Market</a><a href="/back">Back</a><a class="ds-nav__sec" href="/genes">Genes</a><a class="ds-nav__sec" href="/record">Record</a><a class="ds-nav__sec" href="/verify">Verify</a><a class="hide-m" href="#" data-x>X</a><button type="button" class="show-m" data-hatch>Hatch</button></div><div class="dd ds-nav__dd hide-m" id="dd"><button type="button" aria-haspopup="true">Index<svg viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button><div class="ds-nav__menu"><a href="/app"><b>Enter the meadow</b><span>Every creature, live, with its brain.</span></a><a href="/hire"><b>Hire a creature</b><span>A real task, done by Claude, with a signed receipt.</span></a><a href="/#hour"><b>One hour</b><span>A life, from hatch to cull.</span></a><a href="/#ward"><b>The ward</b><span>Who died this hour, by rarity and lab.</span></a><a href="/#intelligence"><b>Observation deck</b><span>Live gene board and the last round.</span></a><a href="/market"><b>Model exchange</b><span>Paper prices of every brain, moved by survival.</span></a><a href="/back"><b>Back a creature</b><span>Paper credits on who survives the next trial.</span></a><a href="/genes"><b>Gene board</b><span>Which brain is winning, round after round.</span></a><a href="/record"><b>The record</b><span>Every round, every death, every commitment.</span></a><a href="/verify"><b>Verify a round</b><span>Recompute any new round in your browser.</span></a><a href="/#docs"><b>How it works</b><span>What is simulated, what is on chain, what is paper.</span></a></div></div><button type="button" class="ds-btn ds-btn--sm ds-nav__act hide-m" id="connect" data-hatch>Hatch lineage</button><span class="ds-nav__line" aria-hidden="true"><i></i></span></nav>
+<div class="pg"><div class="rhero"><div class="rnum" data-draw><span class="ds-seg" id="rn" aria-label="Round number"></span></div>
+<header class="xh"><div class="ds-kicker" data-draw style="--i:1"><span id="eb">Round</span></div><h1 class="ds-h1" style="--i:2" id="h"></h1><p class="ds-lede" data-draw style="--i:3" id="sub"></p></header></div>
+<div class="ds-stats" data-draw style="--i:4;margin-top:48px" id="rs"></div>
+<div class="slipw" data-draw style="--i:5" id="slipw" hidden><div id="slip"></div><div class="cap"><div class="ds-label ds-label--cr">Round slip</div><p id="slipP"></p><div class="btns"><button type="button" class="ds-btn" id="sdl">Save image</button><button type="button" class="ds-btn" id="ssx">Post on X</button></div></div></div>
+<div class="cardw ds-frame" data-draw="frame" style="--i:5"><canvas id="card" width="1200" height="675" aria-label="Round card"></canvas></div>
+<div class="btns" data-draw style="--i:6"><button type="button" class="ds-btn ds-btn--sig" id="dl">Download card</button><button type="button" class="ds-btn" id="sx">Post on X</button><span class="sp"></span><a class="ds-btn ds-btn--sm" id="prev">← Previous</a><a class="ds-btn ds-btn--sm" id="nxt">Next<i class="arr"></i></a><a class="ds-btn ds-btn--sm" id="vfy">Recompute it</a></div>
+<div class="sec" id="fsec" hidden><div class="ds-label ds-label--rule ds-label--die">The fallen</div><div id="fallen"></div></div>
+<div class="sec" id="tsec" hidden><div class="ds-label ds-label--rule">Survival by brain</div><div id="tbl"></div></div></div>
+<div class="modal" id="modal"><div class="box ds-panel" role="dialog" aria-modal="true" aria-labelledby="mdT"><div class="ds-panel__hd"><span class="ds-label ds-label--cr" id="mdT">Hatch a lineage</span><button type="button" class="ds-btn ds-btn--sm ds-btn--icon" data-close aria-label="Close">×</button></div><p class="ds-body">Paste any Robinhood Chain address, or connect your wallet. Your wallet founds one lineage; its founder's brain is drawn from your address.</p><label class="ds-field"><span class="ds-sr">Robinhood Chain address</span><input id="addr" placeholder="0x…" autocomplete="off" spellcheck="false"></label><div class="ds-btns"><button type="button" class="ds-btn ds-btn--sig" id="go">Hatch<i class="arr"></i></button><button type="button" class="ds-btn" id="conn">Connect wallet</button></div><div class="err" id="err"></div></div></div>
+<script src="/common.js"></script><script src="/cards.js"></script><script src="/slip.js"></script><script>$$('[data-hatch]').forEach((b)=>b.onclick=openSummon);</script>
+<script>
+const n=Number(location.pathname.split('/').pop());
+$('#vfy').href='/verify?n='+n;
+(async()=>{let r=null;try{r=await api('/api/round/'+n)}catch{}
+if(!r||r.error){let v=null;try{v=await api('/api/round/'+n+'/record')}catch{}
+if(v&&v.voided){document.title='Round '+v.n+' (voided) — WEIGHTLINGS';pxSeg($('#rn'),String(v.n).padStart(2,'0'));$('#eb').textContent='Round '+v.n+' · voided';pxSay($('#h'),'Round '+v.n+' was voided.');$('#sub').innerHTML='Its result could not be written, so nobody was removed and nobody was born. Its commitment'+(v.seedBlock?' and its seed block':'')+' stay on record, and the number was not used again. <a href="/verify?n='+v.n+'">See the record →</a>'}
+else{pxSay($('#h'),'Round not found');$('#sub').textContent='This round has not been held, or its record is unavailable.'}
+$$('.cardw,.btns').forEach(e=>e.style.display='none');return}
+document.title='Round '+r.n+' — WEIGHTLINGS';
+pxSeg($('#rn'),String(r.n).padStart(2,'0'));
+$('#eb').textContent='Round '+r.n+' · '+r.trialName;pxSay($('#h'),r.died+' died. '+r.dominant.name+' dominates.');
+$('#sub').textContent=r.what+' '+r.population+' entered, '+r.born+' were born, '+r.mutations+' mutated'+(r.lineagesExtinct?', '+r.lineagesExtinct+' lineages went extinct':'')+'.'+(r.block?' Dice seeded by Robinhood Chain block '+r.block.number.toLocaleString()+'.':'');
+const P=r.population||0,share=v=>P?v/P:null;
+const st=[['Entered',r.population,''],['Died',r.died,'die',share(r.died)],['Born',r.born,'sig',share(r.born)],['Mutated',r.mutations,'mut',share(r.mutations)]];if(r.lineagesExtinct)st.push(['Lineages extinct',r.lineagesExtinct,'']);
+pxStats($('#rs'),st,{id:'rs'});
+(async()=>{try{await document.fonts.ready}catch{}try{await drawRoundCard($('#card'),r)}catch(e){}})();
+$('#dl').onclick=()=>downloadCanvas($('#card'),'round-'+r.n+'.png');
+$('#sx').onclick=()=>{downloadCanvas($('#card'),'round-'+r.n+'.png');shareX('Round '+r.n+': '+r.died+' dead. '+r.dominant.name+' dominates.',location.href)};
+if(n>1)$('#prev').href='/r/'+(n-1);else $('#prev').style.display='none';
+$('#nxt').href='/r/'+(n+1);pxApi('/api/round').then(c=>{if(c&&c.n!=null&&n>=c.n)$('#nxt').style.display='none'});
+// ---- the round slip: every figure comes from /api/round/N/record where the round kept one (the counts are counted from its own lists by /summary.js), else from /api/round/N
+(async()=>{const rec=await pxApi('/api/round/'+n+'/record');const ok=rec&&!rec.error&&rec.n!=null,legacy=!ok||!!rec.legacy;
+const sh=h=>typeof h==='string'&&h.length>18?h.slice(0,10)+'…'+h.slice(-6):h||null,num=v=>v==null||isNaN(Number(v))?null:Number(v).toLocaleString('en-US');
+const when=v=>{if(v==null)return null;try{const d=new Date(typeof v==='number'&&v<1e12?v*1000:v);return isNaN(d)?null:d.toISOString().slice(0,16).replace('T',' ')+' UTC'}catch{return null}};
+const sb=(ok&&rec.seedBlock)||r.block||null,births=ok&&rec.result&&Array.isArray(rec.result.births)?rec.result.births:null;
+const ext=r.lineagesExtinct!=null?r.lineagesExtinct:null;
+let S=null;if(ok&&!legacy&&rec.result&&Array.isArray(rec.result.ranked)&&Array.isArray(rec.snapshot)){try{S=(await import('/summary.js')).summaryOf(rec.snapshot,rec.result)}catch{}}
+const G={};try{(await PX_GENES).forEach(m=>G[m.id]=m)}catch{}
+const domName=S&&S.dominant?(G[S.dominant]&&G[S.dominant].name)||S.dominant:r.dominant&&r.dominant.name;
+const lines=[['Round',r.n],['Trial',r.trialName||(ok?rec.trial:null)],['Sealed',when(ok&&rec.scheduledAt!=null?rec.scheduledAt:null)],['Recorded',when(r.at!=null?r.at:ok?rec.at:null)],
+['Seed block',sb&&sb.number!=null?num(sb.number):null],['Seed hash',sb?sh(sb.hash):null],
+['Entered',S?S.population:r.population],['Died',S?S.died:r.died],['Born',S?S.born:r.born],['Reborn',S?S.reborn:births?births.filter(b=>b.reborn).length:null],['Mutants',S?S.mutations:r.mutations],
+['Dominant brain',domName],['Lineages extinct',ext],['Commitment',ok?sh(rec.snapshotHash):null],['Record hash',ok?sh(rec.recordHash):null],
+{text:(legacy&&ok?'Why this round cannot be recomputed':'Recompute this round')+' → /verify?n='+r.n,href:'/verify?n='+r.n}];
+const o={title:'Round slip',sub:'Round '+r.n+(r.trialName?' · '+r.trialName:''),stamp:!ok?'SUMMARY ONLY':legacy?'LEGACY RECORD':'RECORDED'};
+$('#slipP').textContent=!ok?'The full record of this round could not be loaded, so this slip prints its summary only.':legacy?'This round was held before full records were kept. The slip prints what was stored at the time: its summary and the block it was drawn from, without the frozen input or a record hash. It cannot be recomputed.':S?'This slip is printed from the stored record of the round: when it was sealed, the chain block that seeded the dice, the counts in and out as counted from the record\'s own lists, and the hashes of the commitment and the result. Lineages extinct is the one line taken from our round summary. Follow the last line to recompute the cull yourself.':'This slip is printed from what our server stored for the round: when it was sealed, the chain block that seeded the dice, the counts from our round summary, and the hash of the result. Follow the last line to recompute the cull yourself.';
+// the slip prints when it comes into view, line by line, ending on its stamp
+const sw=$('#slipw');sw.hidden=false;let printed=false;const go=()=>{if(printed)return;printed=true;printSlip($('#slip'),lines,o)};
+if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>{if(es.some(e=>e.isIntersecting)){io.disconnect();setTimeout(go,280)}},{rootMargin:'0px 0px -12% 0px'});io.observe(sw)}else go();
+const save=async()=>{try{await document.fonts.ready}catch{}slipSave(lines,o,'round-'+r.n+'-slip.png')};
+$('#sdl').onclick=save;$('#ssx').onclick=async()=>{await save();shareX('Round '+r.n+' slip: '+r.population+' entered, '+r.died+' died, '+r.born+' born.',location.href)};
+})();
+await PX_GENES;
+// the fallen: only rounds recorded with a "fallen" array carry it
+if(Array.isArray(r.fallen)&&r.fallen.length){const dead=await pxApi('/api/dead?limit=100');const ep={};if(Array.isArray(dead))dead.forEach(d=>{if(d.rdied===r.n&&d.epitaph)ep[d.id]=d.epitaph});
+$('#fallen').innerHTML=r.fallen.map((b,i)=>{const lg=modelLogo(b.model);return '<div class="fl-row" data-draw style="--i:'+Math.min(i,10)+'"><i class="cx"></i><b>'+esc(b.nick)+'</b><span class="mdl">'+(lg?'<img src="'+lg+'" alt="">':'')+esc(b.modelName)+'</span><span class="lab rt">Generation '+(b.gen+1)+' · survived '+b.survived+' '+(b.survived===1?'trial':'trials')+'</span>'+(ep[b.id]?'<span class="ep">'+esc(ep[b.id])+'</span>':'')+'</div>'}).join('')
++(r.died>r.fallen.length?'<p class="lab" style="margin-top:16px">Longest-lived '+r.fallen.length+' of the '+r.died+' removed this round</p>':'');
+$('#fsec').hidden=false}
+if(Array.isArray(r.models)&&r.models.length){$('#tbl').innerHTML='<div class="row h"><span></span><span>Brain</span><span>Entered</span><span>Died</span><span class="hm">Born</span><span class="hm">Survival</span></div>'+[...r.models].sort((a,z)=>(z.start-z.died)-(a.start-a.died)).map((m,i)=>{const t=tierX(m.tier),lg=modelLogo(m.id),dv=m.start?m.died/m.start:0;return '<div class="row" data-draw style="--i:'+Math.min(i,10)+'">'+(lg?'<img src="'+lg+'" alt="">':'<span></span>')+'<div><b>'+esc(m.name)+'</b><div class="lab" style="color:'+t[0]+'">'+t[1]+'</div></div><span class="ds-num ds-num--sm ds-num--plain" data-count="'+m.start+'">0</span><span class="ds-num ds-num--sm'+(m.died?' ds-num--die':' ds-num--dim')+'" data-count="'+m.died+'" style="--v:'+dv.toFixed(3)+'">0</span><span class="ds-num ds-num--sm ds-num--plain hm" data-count="'+m.born+'">0</span><div class="hm">'+(m.start>=8?'<span class="ds-num ds-num--sm ds-num--plain">'+pct(m.rate)+'</span><div class="ds-meter ds-meter--thin"><i style="--v:'+(m.rate||0).toFixed(3)+';--c:'+t[0]+';--i:'+i+'"></i></div>':'<div class="lab" style="padding-top:9px">'+(m.start?(m.start-m.died)+' of '+m.start+' · too few to say':'none entered')+'</div>')+'</div></div>'}).join('');$('#tsec').hidden=false}
+})();
+</script>
+<script src="/fx.js" defer></script></body></html>

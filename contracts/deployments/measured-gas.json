@@ -1,0 +1,11 @@
+{
+  "at": "2026-11-22T19:50:47.011Z",
+  "on": "anvil fork of Robinhood Chain (4663)",
+  "note": "gasUsed of one call each; activate.mjs sizes its reserve from these",
+  "gas": {
+    "createAgent": 372116,
+    "pay": 253125,
+    "charge": 169687,
+    "refund": 161869
+  }
+}

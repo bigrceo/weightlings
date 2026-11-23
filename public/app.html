@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>WEIGHTLINGS — The meadow</title>
+<meta name="description" content="A live meadow of creatures whose traits are drawn from real open model cards. Every hour, the weakest are culled.">
+<meta property="og:image" content="/og.png"><meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/icon.png">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/fx.css">
+<link rel="stylesheet" href="/slip.css">
+<link rel="stylesheet" href="/back.css">
+<link rel="stylesheet" href="/app-x.css">
+<link rel="stylesheet" href="/ds.css">
+<script src="/art.js"></script>
+</head>
+<body class="meadow" data-art-rain="off">
+<div id="strip" class="strip"></div>
+<canvas id="world" aria-label="The meadow: a live isometric world of the creatures. Drag to move, scroll to zoom, click a creature to open its file."></canvas>
+<nav class="ds-nav" aria-label="Main"><a class="ds-nav__mark" href="/" aria-label="Weightlings, home"><svg id="logoSvg" viewBox="0 0 11 9" shape-rendering="crispEdges" aria-hidden="true"></svg><b>Weightlings</b></a><a class="ds-nav__go" href="/app" aria-current="page">Meadow<em data-art-alive></em></a><div class="ds-nav__links"><a href="/hire">Hire</a><a href="/build">Build</a><a href="/market">Market</a><a href="/back">Back</a><a class="ds-nav__sec" href="/genes">Genes</a><a class="ds-nav__sec" href="/record">Record</a><a class="ds-nav__sec" href="/verify">Verify</a><a class="hide-m" href="#" data-x>X</a><button type="button" class="show-m" data-hatch>Hatch</button></div><div class="dd ds-nav__dd hide-m" id="dd"><button type="button" aria-haspopup="true">Index<svg viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button><div class="ds-nav__menu"><a href="/app"><b>Enter the meadow</b><span>Every creature, live, with its brain.</span></a><a href="/hire"><b>Hire a creature</b><span>A real task, done by Claude, with a signed receipt.</span></a><a href="/#hour"><b>One hour</b><span>A life, from hatch to cull.</span></a><a href="/#ward"><b>The ward</b><span>Who died this hour, by rarity and lab.</span></a><a href="/#intelligence"><b>Observation deck</b><span>Live gene board and the last round.</span></a><a href="/market"><b>Model exchange</b><span>Paper prices of every brain, moved by survival.</span></a><a href="/back"><b>Back a creature</b><span>Paper credits on who survives the next trial.</span></a><a href="/genes"><b>Gene board</b><span>Which brain is winning, round after round.</span></a><a href="/record"><b>The record</b><span>Every round, every death, every commitment.</span></a><a href="/verify"><b>Verify a round</b><span>Recompute any new round in your browser.</span></a><a href="/#docs"><b>How it works</b><span>What is simulated, what is on chain, what is paper.</span></a></div></div><button type="button" class="ds-btn ds-btn--sm ds-nav__act hide-m" id="connect" data-hatch>Hatch lineage</button><span class="ds-nav__line" aria-hidden="true"><i></i></span></nav>
+<button class="sound" id="sound" aria-label="Sound"><svg viewBox="0 0 16 16"><path d="M2 6h3l4-3v10l-4-3H2z" fill="currentColor"/><path id="sw" d="M11 5.5c1 1.4 1 3.6 0 5M13 4c2 2.4 2 5.6 0 8" stroke="currentColor" fill="none" stroke-width="1.3" opacity=".35"/></svg></button>
+
+<div class="vig" aria-hidden="true"></div>
+
+<div class="tools hud" role="toolbar" aria-label="Observe the meadow">
+  <div class="hd ds-label ds-label--cr">Observe</div>
+  <div class="ic">
+    <button id="tPause" title="Pause" aria-label="Pause" aria-pressed="false"><svg viewBox="0 0 16 16"><rect x="3" y="2" width="3.5" height="12" fill="currentColor"/><rect x="9.5" y="2" width="3.5" height="12" fill="currentColor"/></svg></button>
+    <button id="tNames" title="Show names" aria-label="Show names" aria-pressed="true" class="on"><svg viewBox="0 0 16 16"><path d="M2 3h12v8H7l-3 3v-3H2z" fill="currentColor"/></svg></button>
+    <button id="tBubbles" title="Event bubbles" aria-label="Event bubbles" aria-pressed="true" class="on"><svg viewBox="0 0 16 16"><rect x="3" y="6" width="4" height="4" fill="currentColor"/><rect x="9" y="6" width="4" height="4" fill="currentColor"/></svg></button>
+    <button id="tCenter" title="Recenter" aria-label="Recenter"><svg viewBox="0 0 16 16"><path d="M8 1v4M8 11v4M1 8h4M11 8h4" stroke="currentColor" stroke-width="1.6"/><rect x="7" y="7" width="2" height="2" fill="currentColor"/></svg></button>
+    <button id="tIn" title="Zoom in" aria-label="Zoom in"><svg viewBox="0 0 16 16"><path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="1.6"/></svg></button>
+    <button id="tOut" title="Zoom out" aria-label="Zoom out"><svg viewBox="0 0 16 16"><path d="M2 8h12" stroke="currentColor" stroke-width="1.6"/></svg></button>
+    <button id="tMap" class="m-only on" title="Map" aria-label="Map"><svg viewBox="0 0 16 16"><path d="M8 2l6 6-6 6-6-6z" fill="none" stroke="currentColor" stroke-width="1.4"/></svg></button>
+  </div>
+  <button class="tx" id="tWeak" title="Follow the creatures with the lowest energy"><span class="lg">Watch the </span>weakest</button>
+  <button class="tx" id="tLegend" title="Follow a legendary creature"><span class="lg">Watch a </span>legend</button>
+  <button class="tx m-only" id="tHatch">Hatch</button>
+</div>
+
+<div class="count hud">
+  <div class="k ds-label ds-label--cr">Alive</div>
+  <span id="cnt" class="ds-num ds-num--lg" style="--v:1">–</span>
+  <div class="d" id="deadRow" style="display:none"><span>Dead</span><b id="dead"></b></div>
+</div>
+<div class="round hud" id="round"></div>
+<div class="watch" id="watch" aria-live="polite"></div>
+<div class="tip" id="tip"></div>
+
+<div class="minimap hud"><div class="k ds-label">Meadow <em>map</em></div><canvas id="mini" aria-label="Map of the meadow. Drag to move the view."></canvas></div>
+
+<div class="ask hud">
+  <div class="hd"><span class="ds-label ds-label--cr">Hatch a lineage</span><span class="s">one wallet, one bloodline</span></div>
+  <div class="answers" id="answers"></div>
+  <form id="askForm" class="ds-field"><input id="q" placeholder="Paste a 0x… Robinhood Chain address" maxlength="60" autocomplete="off" spellcheck="false" aria-label="Robinhood Chain address"><button class="send ds-btn ds-btn--sig ds-btn--sm" type="submit" aria-label="Hatch">Hatch<i class="arr"></i></button></form>
+  <div class="ft"><span>Simulated from model-card data. No model is called.</span><a id="connect2" role="button" tabindex="0">Connect wallet</a></div>
+</div>
+
+<div class="cull" id="cull" aria-live="polite"><div class="k" id="cullK"></div><div class="t" id="cullT"></div><div class="d" id="cullD"></div></div>
+
+<aside class="drawer" id="drawer" aria-label="Creature file" aria-hidden="true">
+  <div class="bar"><span class="t" id="dTitle">Subject</span><span class="grip"></span><button class="b" id="dClose" aria-label="Close">×</button></div>
+  <div class="in" id="dIn">
+    <section class="dbrain" id="dBrain" aria-label="Its brain">
+      <div class="ds-plate dplate is-loading" id="dPlate">
+        <canvas class="dph" id="dPh" aria-hidden="true"></canvas>
+        <div class="d3" id="d3"></div>
+        <div class="ds-plate__cap"><b id="dCapL"></b><span id="dCapR"></span></div>
+      </div>
+      <button class="ds-btn ds-btn--block brainbtn" id="brainB"><span class="bt">Enter its brain</span><span class="bs" id="brainBS">3D</span><i class="arr"></i></button>
+      <p class="dfine">Architecture from the published model card. No weights are loaded; the signal follows the creature's simulated state.</p>
+    </section>
+    <div id="dBody"></div>
+  </div>
+</aside>
+
+<div class="brainx" id="brainx" role="dialog" aria-modal="true" aria-label="Inside the creature's brain" aria-hidden="true">
+  <div class="bx-stage" id="bxStage"></div>
+  <aside class="bx-side" id="bxSide"></aside>
+  <button class="bx-close" id="bxClose" aria-label="Close the brain view">×</button>
+</div>
+
+<div class="modal" id="modal"><div class="box" role="dialog" aria-label="Hatch a lineage">
+  <div class="mhd"><span class="ds-label ds-label--cr">Hatch a lineage</span><button class="mx" data-close aria-label="Close">×</button></div>
+  <div class="in">
+    <p>Paste any Robinhood Chain address, or connect your wallet. Your wallet founds one lineage; its founder's brain is drawn from your address.</p>
+    <label class="ds-field"><input id="addr" placeholder="0x…" autocomplete="off" spellcheck="false" aria-label="Robinhood Chain address"></label>
+    <div class="ds-btns"><button class="ds-btn ds-btn--sig" id="go">Hatch<i class="arr"></i></button><button class="ds-btn" id="conn">Connect wallet</button></div>
+    <div class="err" id="err" role="status"></div>
+  </div>
+</div></div>
+<script src="/common.js"></script>
+<script src="/cards.js"></script>
+<script src="/slip.js"></script>
+<script src="/app.js"></script>
+<script src="/back.js" defer></script>
+<script src="/hire-drawer.js" defer></script>
+<script src="/fx.js" defer></script>
+</body>
+</html>

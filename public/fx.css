@@ -1,0 +1,123 @@
+/* Site-wide atmosphere layer (fx.js). Drawn in the ds.css language: hairlines, brackets, scanlines,
+   segment numerals. GPU budget: no backdrop-filter, no full-page SVG/CSS filters, every animation is
+   transform or opacity on a small element; full-screen layers are static (scanlines) or brief (flash).
+   Everything here is pointer-events:none unless stated. Tokens fall back to their ds.css values. */
+.fx-scan, .fx-tear, .fx-final, .fx-flash { position: fixed; inset: 0; pointer-events: none; }
+
+/* one static layer: faint scanlines + a vignette (replaces the animated grain and its SVG noise) */
+.fx-scan { z-index: 9991; background: repeating-linear-gradient(to bottom, rgba(140, 255, 200, .018) 0 1px, transparent 1px 3px), radial-gradient(ellipse at 50% 45%, transparent 55%, rgba(0, 0, 0, .32) 100%); }
+
+/* signal glitch: a few torn bands, each a sliver of scanlines with mint/pink edge offsets, shifted in steps.
+   No filter on the root (that re-rasterised the whole page); only these small bands move. */
+.fx-tear { z-index: 9992; display: none; overflow: hidden; }
+html.fx-glitch .fx-tear { display: block; }
+.fx-tear i { position: absolute; left: 0; right: 0; will-change: transform;
+  background: repeating-linear-gradient(to bottom, rgba(210, 255, 232, .1) 0 1px, transparent 1px 2px), rgba(2, 4, 3, .22);
+  box-shadow: 0 -1px 0 rgba(92, 242, 168, .45), 0 1px 0 rgba(255, 63, 142, .4); animation: fx-tear var(--fx-gd, 220ms) steps(3) 1 both; }
+.fx-tear i:nth-child(even) { animation-name: fx-tear2; }
+.fx-tear i::before, .fx-tear i::after { content: ''; position: absolute; top: 0; bottom: 0; width: 22%; left: var(--x, 30%); background: rgba(92, 242, 168, .16); }
+.fx-tear i::after { left: calc(var(--x, 30%) + 9%); width: 7%; background: rgba(255, 63, 142, .2); }
+@keyframes fx-tear { 0% { transform: translateX(-14px); } 33% { transform: translateX(18px); } 66% { transform: translateX(-6px); } 100% { transform: none; opacity: 0; } }
+@keyframes fx-tear2 { 0% { transform: translateX(10px) scaleY(1.6); } 50% { transform: translateX(-22px); } 100% { transform: none; opacity: 0; } }
+
+/* ---------------------------------------------------------------- observation line
+   An opaque instrument line along the bottom edge (never over page content: body gets padding-bottom).
+   Dotted top rule, a live pixel with a drawn ring, figures in the display face. */
+.fx-hud { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; pointer-events: none; display: flex; align-items: center; gap: 18px; height: 28px; padding: 0 22px;
+  background: var(--ink-0, #020403); font: 600 10px/1 var(--font-text, Inter, system-ui, sans-serif); letter-spacing: .18em; text-transform: uppercase; color: var(--fg-3, #6b7770);
+  opacity: 0; transform: translateY(100%); transition: opacity 1.2s, transform .6s cubic-bezier(.16, 1, .3, 1); white-space: nowrap; }
+.fx-hud::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 1px; background: linear-gradient(90deg, rgba(140, 255, 200, .26) 0 1px, transparent 1px) 0 0 / 4px 1px repeat-x; }
+.fx-hud.on { opacity: 1; transform: none; } .fx-hud.on.away { opacity: 0; transform: translateY(100%); }
+html.fx-bar body { padding-bottom: 28px; }
+.fx-hud b { color: var(--fg, #e6eee8); font: 500 12px/1 var(--font-display, 'Chakra Petch', Inter, sans-serif); letter-spacing: .04em; font-variant-numeric: tabular-nums; }
+.fx-hud .dot { position: relative; flex: none; width: 4px; height: 4px; background: var(--sig, #5cf2a8); margin-right: -6px; }
+.fx-hud .dot::after { content: ''; position: absolute; inset: -4px; border: 1px solid var(--sig, #5cf2a8); opacity: 0; animation: fx-ring 2.4s cubic-bezier(.16, 1, .3, 1) infinite; }
+@keyframes fx-ring { from { opacity: .9; transform: scale(.4); } to { opacity: 0; transform: scale(1.6); } }
+.fx-hud .t { display: flex; align-items: center; gap: 8px; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.fx-hud .t s { flex: none; width: 1px; height: 9px; background: rgba(140, 255, 200, .26); margin: 0 6px; text-decoration: none; }
+.fx-hud .t b.die { color: var(--die, #ff3f8e); }
+.fx-hud .mk { flex: none; display: inline-block; width: 11px; height: 9px; background: var(--sig, #5cf2a8); -webkit-mask: var(--ds-bird) center / contain no-repeat; mask: var(--ds-bird) center / contain no-repeat; }
+.fx-hud .mk.dead { background: var(--die, #ff3f8e); transform: rotate(180deg); }
+.fx-hud .last { margin-left: auto; color: var(--fg-4, #3e4842); opacity: 0; transition: opacity 2.4s; overflow: hidden; text-overflow: ellipsis; min-width: 0; display: flex; align-items: center; gap: 8px; }
+.fx-hud .last::before { content: ''; flex: none; width: 10px; height: 10px; background: var(--die, #ff3f8e); -webkit-mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2010%2010%22%3E%3Cpath%20d%3D%22M2%202l6%206M8%202%202%208%22%20stroke%3D%22%23000%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22square%22%2F%3E%3C%2Fsvg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2010%2010%22%3E%3Cpath%20d%3D%22M2%202l6%206M8%202%202%208%22%20stroke%3D%22%23000%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22square%22%2F%3E%3C%2Fsvg%3E") center / contain no-repeat; }
+.fx-hud .last.on { opacity: 1; } .fx-hud .last b { color: var(--fg-2, #a6b2ab); font: 600 10px/1 var(--font-text, Inter, sans-serif); letter-spacing: .18em; }
+.fx-hud .last em { font-style: normal; color: var(--fg-3, #6b7770); }
+/* meadow: no bar (the canvas is full-bleed); a quiet caption in the free bottom-left corner, wide screens only */
+.fx-hud.app { display: none; }
+@media (min-width: 1280px) { .fx-hud.app { display: block; left: 22px; right: auto; bottom: 20px; height: auto; padding: 10px 0 0; background: none; transform: none; white-space: normal; line-height: 1.9; max-width: calc(50vw - 330px); letter-spacing: .13em; text-shadow: 0 0 8px #000, 0 0 2px #000, 0 1px 10px #000; color: var(--fg-2, #a6b2ab); }
+  .fx-hud.app::before { right: auto; width: 140px; }
+  .fx-hud.app b { color: #fff; } .fx-hud.app b.die { color: var(--die, #ff3f8e); } .fx-hud.app .dot { display: inline-block; margin-right: 12px; vertical-align: 1px; }
+  .fx-hud.app .t { display: inline; } .fx-hud.app .t > * { vertical-align: middle; } .fx-hud.app .t .mk { margin-right: 8px; } .fx-hud.app .t s { display: inline-block; margin: 0 10px; }
+  .fx-hud.app .t .xt { white-space: nowrap; } .fx-hud.app .t s.xt { display: none; } .fx-hud.app .t span.xt { display: block; }
+  .fx-hud.app .last { display: flex; margin: 0; color: #9aa69f; white-space: nowrap; } .fx-hud.app .last b { color: #e4ece6; } }
+@media (max-width: 760px) { .fx-hud .last { display: none; } }
+@media (max-width: 860px) { html.fx-bar .sound { bottom: 38px; } }
+@media (max-width: 600px) { .fx-hud { padding: 0 14px; height: 24px; font-size: 8.5px; letter-spacing: .12em; gap: 14px; } .fx-hud b { font-size: 11px; } .fx-hud .t { gap: 6px; } .fx-hud .t s { margin: 0 3px; } html.fx-bar body { padding-bottom: 24px; } }
+@media (max-width: 400px) { .fx-hud .t .xt { display: none; } }
+
+/* ---------------------------------------------------------------- final minute (the sealed minute)
+   A drawn veil instead of a blur: dense scanlines over near-black ink, a vignette, one sweep line when it
+   arrives. The count is drawn as segment numerals (Art.segments) inside corner brackets, with a draining
+   segmented meter under it. Amber while counting, pink in the last ten seconds. */
+.fx-final { z-index: 150; display: grid; place-items: center; text-align: center; opacity: 0; visibility: hidden; transition: opacity 1.2s cubic-bezier(.16, 1, .3, 1), visibility 0s linear 1.2s;
+  background: repeating-linear-gradient(to bottom, rgba(140, 255, 200, .035) 0 1px, transparent 1px 3px), radial-gradient(ellipse at center, rgba(2, 4, 3, .9) 0%, rgba(2, 4, 3, .96) 100%); }
+.fx-final.last10, .fx-final.done { background: repeating-linear-gradient(to bottom, rgba(255, 63, 142, .03) 0 1px, transparent 1px 3px), radial-gradient(ellipse at center, rgba(2, 4, 3, .94) 0%, rgba(2, 4, 3, .98) 100%); }
+/* meadow: keep the field visible under the count; it runs its own cull sequence at zero */
+.fx-final.app, .fx-final.app.last10 { background: repeating-linear-gradient(to bottom, rgba(0, 0, 0, .22) 0 1px, transparent 1px 3px), radial-gradient(ellipse at center, rgba(2, 4, 3, .3) 0%, rgba(2, 4, 3, .66) 100%); }
+body .fx-final.app .lab, body .fx-final.app .sub, body .fx-final.app .hide { text-shadow: 0 1px 8px #000; }
+.fx-final.on { opacity: 1; visibility: visible; transition: opacity 1.2s cubic-bezier(.16, 1, .3, 1), visibility 0s; }
+/* the arrival sweep: one bright line crosses the screen top to bottom */
+.fx-final .sweep { position: absolute; left: 0; right: 0; top: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--clock, #ffb81f) 20%, #fff 50%, var(--clock, #ffb81f) 80%, transparent); opacity: 0; will-change: transform; }
+.fx-final.on .sweep { animation: fx-sweep 1.1s cubic-bezier(.65, 0, .35, 1) both; }
+.fx-final.last10 .sweep { background: linear-gradient(90deg, transparent, var(--die, #ff3f8e) 20%, #fff 50%, var(--die, #ff3f8e) 80%, transparent); }
+@keyframes fx-sweep { 0% { opacity: 0; transform: translateY(0); } 8% { opacity: .9; } 92% { opacity: .9; } 100% { opacity: 0; transform: translateY(100vh); } }
+body .fx-final .in { position: relative; padding: 34px clamp(22px, 5vw, 56px) 28px; max-width: calc(100vw - 24px); --c: var(--clock, #ffb81f); }
+body .fx-final.last10 .in { --c: var(--die, #ff3f8e); }
+/* corner brackets around the count, breathing slowly (opacity only) */
+body .fx-final .in::before { content: ''; position: absolute; inset: 0; pointer-events: none; animation: fx-breath 3.2s ease-in-out infinite; background:
+  linear-gradient(var(--c) 0 0) 0 0 / 18px 1px no-repeat, linear-gradient(var(--c) 0 0) 0 0 / 1px 18px no-repeat,
+  linear-gradient(var(--c) 0 0) 100% 0 / 18px 1px no-repeat, linear-gradient(var(--c) 0 0) 100% 0 / 1px 18px no-repeat,
+  linear-gradient(var(--c) 0 0) 0 100% / 18px 1px no-repeat, linear-gradient(var(--c) 0 0) 0 100% / 1px 18px no-repeat,
+  linear-gradient(var(--c) 0 0) 100% 100% / 18px 1px no-repeat, linear-gradient(var(--c) 0 0) 100% 100% / 1px 18px no-repeat,
+  linear-gradient(rgba(140, 255, 200, .26) 0 0) 50% 0 / 1px 7px no-repeat, linear-gradient(rgba(140, 255, 200, .26) 0 0) 50% 100% / 1px 7px no-repeat; }
+body .fx-final.last10 .in::before { animation-duration: 1s; }
+@keyframes fx-breath { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+body .fx-final .lab { display: inline-flex; align-items: center; gap: 10px; font: 600 11px/1.4 var(--font-text, Inter, system-ui, sans-serif); letter-spacing: .3em; text-transform: uppercase; color: var(--fg-2, #a6b2ab); }
+body .fx-final .lab::before { content: ''; flex: none; width: 11px; height: 9px; background: var(--c); -webkit-mask: var(--ds-bird) center / contain no-repeat; mask: var(--ds-bird) center / contain no-repeat; animation: fx-hop 1s steps(2) infinite; }
+@keyframes fx-hop { 50% { transform: translateY(-2px); } }
+body .fx-final .lab b { color: var(--c); font-weight: 600; }
+body .fx-final .num { display: flex; justify-content: center; margin: 18px 0 14px; color: var(--c); font: 500 clamp(84px, 19vw, 230px)/1 var(--font-display, 'Chakra Petch', Inter, sans-serif); letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
+body .fx-final .num > .seg { display: inline-block; font-size: inherit; line-height: 1; color: inherit; }
+body .fx-final .num canvas { display: block; height: 1em; width: auto; max-width: calc(100vw - 80px); object-fit: contain; }
+/* the draining minute: a segmented meter, its lit part is the time left */
+body .fx-final .meter { position: relative; height: 4px; margin: 0 auto 18px; width: min(100%, 520px); background: repeating-linear-gradient(90deg, rgba(140, 255, 200, .12) 0 3px, transparent 3px 5px); }
+body .fx-final .meter i { position: absolute; inset: 0; background: repeating-linear-gradient(90deg, var(--c) 0 3px, transparent 3px 5px); clip-path: inset(0 calc(100% - var(--k, 1) * 100%) 0 0); transition: clip-path .25s linear; }
+body .fx-final .sub { font: 600 10px/1.6 var(--font-text, Inter, system-ui, sans-serif); letter-spacing: .26em; text-transform: uppercase; color: var(--fg-3, #6b7770); }
+body .fx-final .sub i { font: 500 12px var(--font-display, 'Chakra Petch', Inter, sans-serif); font-style: normal; text-transform: none; letter-spacing: .06em; color: var(--clock, #ffb81f); font-variant-numeric: tabular-nums; }
+body .fx-final.app .lab, body .fx-final.app .sub { color: #d6dcd8; }
+body .fx-final.done .in::before { animation: none; --c: var(--die, #ff3f8e); }
+body .fx-final.done .num, body .fx-final.done .meter { display: none; }
+body .fx-final.done .lab { font: 600 clamp(13px, 2.4vw, 24px)/1.8 var(--font-display, 'Chakra Petch', Inter, sans-serif); letter-spacing: .26em; color: var(--fg, #e6eee8); }
+body .fx-final.done .lab::before { transform: rotate(180deg); animation: none; background: var(--die, #ff3f8e); width: 15px; height: 12px; }
+body .fx-final.done .lab b { color: var(--die, #ff3f8e); }
+/* hide: a small drawn button (the only interactive part) */
+body .fx-final .hide { pointer-events: auto; cursor: pointer; position: relative; margin-top: 22px; min-height: 34px; padding: 9px 13px 8px; border: 0; border-radius: 0; background: none; font: 600 10px/1 var(--font-text, Inter, system-ui, sans-serif); letter-spacing: .26em; text-transform: uppercase; color: var(--fg-3, #6b7770); box-shadow: inset 0 0 0 1px rgba(140, 255, 200, .12); transition: color .14s, box-shadow .14s; }
+body .fx-final .hide:hover, body .fx-final .hide:focus-visible { color: var(--fg, #e6eee8); box-shadow: inset 0 0 0 1px var(--sig, #5cf2a8); outline: none; }
+body .fx-final.done .hide, body .fx-final:not(.on) .hide { display: none; }
+
+/* ---------------------------------------------------------------- the cull flash
+   Not a white-out: a signal cut. A pink-white line snaps open across the screen, blooms into scanlines
+   and drains. One scaled layer, transform + opacity only. */
+.fx-flash { z-index: 9989; opacity: 0; transform-origin: 50% 50%;
+  background: repeating-linear-gradient(to bottom, rgba(255, 240, 246, .95) 0 1px, rgba(255, 63, 142, .55) 1px 3px); }
+.fx-flash.go { animation: fx-flash 900ms cubic-bezier(.16, 1, .3, 1) 1 both; }
+@keyframes fx-flash { 0% { opacity: 1; transform: scaleY(.003); } 10% { opacity: 1; transform: scaleY(.006); } 24% { opacity: .82; transform: scaleY(1); } 100% { opacity: 0; transform: scaleY(1); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-hud .dot::after, body .fx-final .in::before, body .fx-final .lab::before, .fx-final.on .sweep { animation: none; }
+  .fx-hud .dot::after { opacity: 0; }
+  html.fx-glitch .fx-tear { display: none; } .fx-flash.go { animation: none; }
+  body .fx-final .meter i { transition: none; }
+  .fx-final, .fx-final.on, .fx-hud, .fx-hud .last { transition: none; }
+}
+body.culling .fx-final { opacity: 0 !important; }

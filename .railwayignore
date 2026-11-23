@@ -1,0 +1,7 @@
+data/
+kit/
+contracts/
+.secrets/
+.env
+edge/
+docs/

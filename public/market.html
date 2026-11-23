@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Market — WEIGHTLINGS</title><meta name="description" content="The price of every brain, moved by how its creatures survive."><meta property="og:title" content="Market — WEIGHTLINGS"><meta property="og:description" content="The price of every brain, moved by how its creatures survive."><meta property="og:image" content="/og.png"><meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/icon.png"><link rel="stylesheet" href="/style.css"><link rel="stylesheet" href="/fx.css"><link rel="stylesheet" href="/pages-x.css"><link rel="stylesheet" href="/ds.css"><script src="/art.js"></script>
+</head>
+<body class="px">
+<div id="strip" class="strip"></div>
+<nav class="ds-nav" aria-label="Main"><a class="ds-nav__mark" href="/" aria-label="Weightlings, home"><svg id="logoSvg" viewBox="0 0 11 9" shape-rendering="crispEdges" aria-hidden="true"></svg><b>Weightlings</b></a><a class="ds-nav__go" href="/app">Meadow<em data-art-alive></em></a><div class="ds-nav__links"><a href="/hire">Hire</a><a href="/build">Build</a><a href="/market" aria-current="page">Market</a><a href="/back">Back</a><a class="ds-nav__sec" href="/genes">Genes</a><a class="ds-nav__sec" href="/record">Record</a><a class="ds-nav__sec" href="/verify">Verify</a><a class="hide-m" href="#" data-x>X</a><button type="button" class="show-m" data-hatch>Hatch</button></div><div class="dd ds-nav__dd hide-m" id="dd"><button type="button" aria-haspopup="true">Index<svg viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button><div class="ds-nav__menu"><a href="/app"><b>Enter the meadow</b><span>Every creature, live, with its brain.</span></a><a href="/hire"><b>Hire a creature</b><span>A real task, done by Claude, with a signed receipt.</span></a><a href="/#hour"><b>One hour</b><span>A life, from hatch to cull.</span></a><a href="/#ward"><b>The ward</b><span>Who died this hour, by rarity and lab.</span></a><a href="/#intelligence"><b>Observation deck</b><span>Live gene board and the last round.</span></a><a href="/market"><b>Model exchange</b><span>Paper prices of every brain, moved by survival.</span></a><a href="/back"><b>Back a creature</b><span>Paper credits on who survives the next trial.</span></a><a href="/genes"><b>Gene board</b><span>Which brain is winning, round after round.</span></a><a href="/record"><b>The record</b><span>Every round, every death, every commitment.</span></a><a href="/verify"><b>Verify a round</b><span>Recompute any new round in your browser.</span></a><a href="/#docs"><b>How it works</b><span>What is simulated, what is on chain, what is paper.</span></a></div></div><button type="button" class="ds-btn ds-btn--sm ds-nav__act hide-m" id="connect" data-hatch>Hatch lineage</button><span class="ds-nav__line" aria-hidden="true"><i></i></span></nav>
+<div class="pg wide"><header class="xh"><div class="ds-kicker" data-draw>Model exchange · paper<em id="xkm"></em></div><h1 class="ds-h1" data-draw="text" style="--i:1">The price of a brain, set by survival.</h1>
+<p class="ds-lede" data-draw style="--i:2">Every model trades around a reference of 1.000. Each hour its premium moves with how its creatures survived against the meadow average, capped at ±30%. Swaps move it too. Prices and credits are paper: no real money. Host price is the real cost to run the model today, live from OpenRouter, where a host still serves it.</p></header>
+<div class="tape" id="tape"></div>
+<div class="mk"><div class="mt" id="mt"></div><div class="pcol"><div class="panel ds-panel" id="panel" data-draw="frame"></div></div></div><footer class="pf"><span id="pfs" aria-live="polite"></span><nav aria-label="Proof"><a href="/api/status">Status</a><a href="/verify">Verify a round</a></nav></footer></div>
+<div class="modal" id="modal"><div class="box ds-panel" role="dialog" aria-modal="true" aria-labelledby="mdT"><div class="ds-panel__hd"><span class="ds-label ds-label--cr" id="mdT">Hatch a lineage</span><button type="button" class="ds-btn ds-btn--sm ds-btn--icon" data-close aria-label="Close">×</button></div><p class="ds-body">Paste any Robinhood Chain address, or connect your wallet. Your wallet founds one lineage; its founder's brain is drawn from your address.</p><label class="ds-field"><span class="ds-sr">Robinhood Chain address</span><input id="addr" placeholder="0x…" autocomplete="off" spellcheck="false"></label><div class="ds-btns"><button type="button" class="ds-btn ds-btn--sig" id="go">Hatch<i class="arr"></i></button><button type="button" class="ds-btn" id="conn">Connect wallet</button></div><div class="err" id="err"></div></div></div>
+<script src="/common.js"></script><script src="/cards.js"></script><script>$$('[data-hatch]').forEach((b)=>b.onclick=openSummon);</script>
+<script>
+let pid=null;try{pid=localStorage.getItem('wl_pid')}catch{}if(!pid){pid=Math.random().toString(36).slice(2,14)+Date.now().toString(36);try{localStorage.setItem('wl_pid',pid)}catch{}}
+let M=[],sel=null,rng='all',bal={},LAST=null,CH=null,tapeKey='',panelFor=null,clearAmt=false,tblFirst=true,chKey='',CHA=0,pShown=null;
+const fmtp=p=>p.toFixed(3),pr=x=>(x>=0?'+':'')+(x*100).toFixed(1)+'%',pr2=x=>(x>=0?'+':'')+(x*100).toFixed(2)+'%';
+const utc=t=>{const s=new Date(t).toISOString();return s.slice(8,10)+'.'+s.slice(5,7)+' '+s.slice(11,16)+' UTC'};
+const bandV=m=>Math.max(0,Math.min(1,(m.premium+.3)/.6));
+async function load(){try{const r=await api('/api/markets');if(!r||!r.markets||!r.markets.length)return;M=r.markets;
+try{bal=await api('/api/book?pid='+pid)||{}}catch{bal={}}
+const rs=await pxApi('/api/rounds');LAST=Array.isArray(rs)&&rs[0]&&Array.isArray(rs[0].models)?rs[0]:null;
+if(!sel||!M.find(x=>x.id===sel))sel=M[0].id;tape();table();await panel()}catch(e){}}
+// why a model moved in the last round: its own survival against the meadow average (the same inputs the server uses)
+function meadow(){if(!LAST)return null;const ms=LAST.models.filter(x=>x.start>0);const tot=ms.reduce((s,x)=>s+x.start,0),dead=ms.reduce((s,x)=>s+x.died,0);return tot?{avg:(tot-dead)/tot,tot,surv:tot-dead}:null}
+// survival is shown smoothed, (survived + 1) / (entered + 2), with the raw counts next to it; under 8 entries no percentage is shown
+function why(m,long){const md=meadow();if(!md)return '';const x=LAST.models.find(x=>x.id===m.id);
+if(!x||!x.start)return long?'No creature carried this brain into round '+LAST.n+', so survival did not move it. Only swaps can.':'Round '+LAST.n+' · none entered · unmoved by survival';
+const L=m.last&&m.last.round===LAST.n&&m.last.entered===x.start?m.last:null;
+const s=x.start-x.died,n=x.start,ok=L&&L.enough!=null?L.enough:n>=8,rate=L&&L.survivalSmoothed!=null?L.survivalSmoothed:(s+1)/(n+2),mv=(LAST.market||[]).find(v=>v.id===m.id);
+const dir=mv?(mv.after>mv.before?1:mv.after<mv.before?-1:0):(s/n>md.avg?1:s/n<md.avg?-1:0),cl=dir>0?'up':dir<0?'dn':'';
+const mdw='a meadow average of '+pct(md.avg)+' ('+md.surv+' of '+md.tot+')',ft=mv?', from '+mv.before.toFixed(4)+' to '+mv.after.toFixed(4):'';
+if(!long)return 'Round '+LAST.n+' · '+s+' of '+n+' survived · '+(ok?'<i class="'+cl+'">'+pct(rate)+'</i> smoothed':'too few to say')+' · meadow '+pct(md.avg)+' <em class="src">Simulated</em>';
+if(!ok)return 'In round '+LAST.n+' ('+esc(LAST.trialName)+'), '+s+' of its '+n+' creatures survived: too few to say whether that was the brain or luck. The meadow as a whole stood at '+pct(md.avg)+' ('+md.surv+' of '+md.tot+'). '+(dir>0?'Its premium was still lifted':dir<0?'Its premium was still cut':'Its premium stayed flat')+', at '+n+'/8 of full weight'+ft+'. Swaps since then move it too.';
+return 'In round '+LAST.n+' ('+esc(LAST.trialName)+'), '+s+' of its '+n+' creatures survived. Smoothed rate <span class="'+cl+'">'+pct(rate)+'</span> (raw '+s+' of '+n+', '+pct(s/n)+') against '+mdw+'. '+(dir>0?'That lifted its premium':dir<0?'That cut its premium':'That left its premium flat')+ft+'. Swaps since then move it too.'}
+function tape(){const el=$('#tape');if(!el)return;const mv=LAST&&Array.isArray(LAST.market)?Object.fromEntries(LAST.market.map(v=>[v.id,v])):null;
+const items=M.map(m=>{const v=mv&&mv[m.id];const d=v?v.after/v.before-1:m.change24;const cl=d>0?'up':d<0?'dn':'fl';
+return '<span class="ti"><img src="'+m.logo+'" alt=""><b>'+esc(m.name)+'</b><span>'+fmtp(m.price)+'</span><span class="'+cl+'">'+(d>0?'▲':d<0?'▼':'■')+' '+pr2(d)+'</span><u>'+(v?'round '+LAST.n:'24h')+'</u><u>premium '+pr(m.premium)+'</u></span>'}).join('');
+if(items===tapeKey)return;tapeKey=items;el.innerHTML='<div class="tape-in" style="--dur:'+Math.max(60,M.length*9)+'s">'+items+items+'</div>';
+const k=$('#xkm');if(k&&LAST)k.textContent='Last settled · round '+LAST.n}
+function table(){const f=tblFirst;tblFirst=false;
+$('#mt').innerHTML='<div class="r h"'+(f?' data-draw':'')+'><span>Model</span><span>Band</span><span>Price<em class="src">Paper</em></span><span class="hm">Premium<em class="src">Paper</em></span><span class="hm">Host $/M<em class="src">Live from OpenRouter</em></span></div>'+M.map((m,i)=>{const t=tierX(m.tier),w=why(m);return '<div class="r '+(m.id===sel?'on':'')+'" data-id="'+m.id+'"'+(f?' data-draw style="--i:'+Math.min(i+1,14)+'"':'')+'><div><img src="'+m.logo+'" alt=""><b>'+esc(m.name)+'</b><small style="color:'+t[0]+'">'+t[1]+'</small></div><div class="band"><i style="left:'+bandV(m)*100+'%"></i></div><b>'+fmtp(m.price)+'</b><span class="hm '+(m.premium>=0?'up':'dn')+'">'+pr(m.premium)+'</span><span class="hm" style="color:var(--fg-3)">'+(m.host==null?'not hosted':'$'+m.host.toFixed(2))+'</span>'+(w?'<div class="why">'+w+'</div>':'')+'</div>'}).join('');
+$$('#mt .r[data-id]').forEach(e=>e.onclick=()=>{sel=e.dataset.id;table();panel()})}
+async function panel(){const m=M.find(x=>x.id===sel);if(!m)return;let h=[];try{h=await api('/api/history?id='+sel);if(!Array.isArray(h))h=[]}catch{}
+const t=tierX(m.tier);
+const keep=$('#amt')&&panelFor===sel&&!clearAmt?{a:$('#amt').value,gv:$('#gv').value,gt:$('#gt').value,f:document.activeElement===$('#amt'),e:$('#serr').textContent}:null;clearAmt=false;const same=panelFor===sel;panelFor=sel;
+const opts=['CRED',...M.map(x=>x.id)].map(id=>'<option value="'+id+'">'+(id==='CRED'?'Credits ('+(bal.CRED||0).toFixed(2)+')':esc(M.find(x=>x.id===id).name)+(bal[id]?' ('+bal[id].toFixed(2)+')':''))+'</option>').join('');
+const w=why(m,true);
+const P=$('#panel');
+P.innerHTML='<div class="ds-panel__hd"><span class="ds-label ds-label--cr" style="--g:'+t[0]+'">'+t[1]+' · open weights</span><span class="src">Paper</span></div><div style="display:flex;gap:14px;align-items:center"><img src="'+m.logo+'" width="42" height="42" alt=""><div style="min-width:0"><h2>'+esc(m.name)+'</h2><div class="lab">'+esc(m.lab)+'</div></div></div>'
++'<span class="ds-num ds-num--xl'+(same?' is-drawn':'')+'" id="pbig" style="--v:'+bandV(m).toFixed(3)+'">'+fmtp(m.price)+'</span>'
++'<div class="pchg"><span class="'+(m.change24>=0?'up':'dn')+'">'+(m.change24>=0?'▲ ':'▼ ')+pr(m.change24)+' 24h</span><span class="lab">Premium '+pr(m.premium)+'</span></div>'
++'<div style="margin-top:22px" class="band"><i style="left:'+bandV(m)*100+'%"></i></div><div class="bandL"><span>−30%</span><span>−15%</span><span>ref 1.000</span><span>+15%</span><span>+30%</span></div>'
++(w?'<div class="pwhy"><span class="ds-label ds-label--bare">Why it moved <em class="src">· Simulated</em></span>'+w+'</div>':'')
++'<div class="ds-tabs" role="tablist">'+['1d','1w','all'].map(k=>'<button type="button" role="tab" data-r="'+k+'" aria-selected="'+(rng===k)+'" class="'+(rng===k?'on':'')+'">'+k.toUpperCase()+'</button>').join('')+'</div><div class="chw"><canvas id="ch" aria-label="Price history of '+esc(m.name)+'"></canvas></div>'
++'<div class="lab pmeta">'+(m.host==null?'No public host serves this model today':'Host price $'+m.host.toFixed(3)+' per million tokens (3:1 in/out)')+' <em class="src">Live from OpenRouter</em><br>'+m.trades+' swaps <em class="src">Paper</em></div>'
++'<div class="sw"><div class="ds-label ds-label--rule">Paper swap · 1,000 credits to start</div>'
++'<div class="box"><span class="lab">You give</span><div class="two"><select id="gv" aria-label="You give">'+opts+'</select><input id="amt" placeholder="0" inputmode="decimal" aria-label="Amount"></div></div><button class="flip" id="flip" type="button" aria-label="Flip">⇅</button>'
++'<div class="box"><span class="lab">You get</span><div class="two"><select id="gt" aria-label="You get">'+opts+'</select><input id="out" readonly placeholder="0" aria-label="You receive"></div></div>'
++'<button class="ds-btn ds-btn--sig ds-btn--block go" id="swapB" type="button">Swap<i class="arr"></i></button><div class="err" id="serr"></div>'
++'<p class="note">Paper credits, no real money. 0.3% fee. Real trading of brains opens with the token.</p></div>';
+if(P.__artFrame&&!P.__artFrame.isConnected)P.insertBefore(P.__artFrame,P.firstChild);
+// the price counts from the reference when a new brain is picked
+if(!same&&pShown!==sel&&window.Art){Art.countUp($('#pbig'),m.price,{from:1,decimals:3,ms:900,delay:0})}pShown=sel;
+$('#gv').value='CRED';$('#gt').value=sel;
+const q=()=>{const a=Number($('#amt').value)||0,gv=$('#gv').value,gt=$('#gt').value,p=id=>id==='CRED'?1:M.find(x=>x.id===id).price;$('#out').value=a?((a*p(gv))/p(gt)*.997).toFixed(4):''};
+if(keep){$('#gv').value=keep.gv;$('#gt').value=keep.gt;$('#amt').value=keep.a;$('#serr').textContent=keep.e;q();if(keep.f)$('#amt').focus()}
+['amt','gv','gt'].forEach(i=>$('#'+i).oninput=q);$('#flip').onclick=()=>{const a=$('#gv').value;$('#gv').value=$('#gt').value;$('#gt').value=a;q()};
+$('#swapB').onclick=async()=>{let r;try{r=await api('/api/swap',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({pid,gave:$('#gv').value,got:$('#gt').value,amt:Number($('#amt').value)})})}catch{r={error:'Swap failed, try again'}}if(r.error){$('#serr').textContent=r.error;return}clearAmt=true;load()};
+$$('#panel .ds-tabs button').forEach(b=>b.onclick=()=>{rng=b.dataset.r;panel()});
+const cut={'1d':864e5,'1w':6048e5,all:1e15}[rng];const H=h.filter(x=>Date.now()-x[0]<cut);const pts=H.length>1?H:[[Date.now()-36e5,H[0]?.[1]||1],[Date.now(),m.price]];
+CH={pts,m};const key=sel+'|'+rng;if(key!==chKey){chKey=key;drawIn()}else chart(null,1);
+const c=$('#ch');const mv=e=>{CHA++;const r=c.getBoundingClientRect();chart(e.clientX-r.left,1)};c.onpointermove=mv;c.onpointerdown=mv;c.onpointerleave=()=>chart(null,1)}
+// the line is drawn in from the left once per brain and range, on the shared art.js loop
+function drawIn(){const id=++CHA;if(!window.Art||Art.reduced){chart(null,1);return}const t0=performance.now();chart(null,0);
+Art.tick(t=>{if(id!==CHA)return false;const k=Math.min(1,(t-t0)/1100);chart(null,1-Math.pow(1-k,3));return k<1})}
+// chart: a stepped trace around the 1.000 reference, scanline fill, hover crosshair with value and time
+const SANS='600 9px Inter, sans-serif',DISP="500 13px 'Chakra Petch', Inter, sans-serif";
+function chart(hx,k){const c=$('#ch');if(!c||!CH)return;if(k==null)k=1;const {pts,m}=CH;const dpr=Math.min(2,window.devicePixelRatio||1),W=c.clientWidth||520,Hh=c.clientHeight||210;
+if(c.width!==Math.round(W*dpr)||c.height!==Math.round(Hh*dpr)){c.width=Math.round(W*dpr);c.height=Math.round(Hh*dpr)}
+const g=c.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,W,Hh);
+const T=16,B=24,R=7,vals=pts.map(p=>p[1]);const lo=Math.min(.95,...vals),hi=Math.max(1.05,...vals);
+const t0=pts[0][0],t1=pts[pts.length-1][0];const X=t=>(t-t0)/((t1-t0)||1)*(W-R),Y=v=>Hh-B-(v-lo)/(hi-lo)*(Hh-T-B);
+// the plate: a faint dot grid
+g.fillStyle='rgba(140,255,200,.09)';for(let y=T;y<Hh-B;y+=14)for(let x=0;x<W;x+=14)g.fillRect(x,y,1,1);
+g.font=SANS;g.textBaseline='middle';
+g.strokeStyle='rgba(140,255,200,.3)';g.lineWidth=1;g.setLineDash([1,3]);g.beginPath();g.moveTo(0,Math.round(Y(1))+.5);g.lineTo(W,Math.round(Y(1))+.5);g.stroke();g.setLineDash([]);
+g.fillStyle='#6b7770';g.textAlign='left';g.fillText('REF 1.000',0,Y(1)-9);
+g.textAlign='right';g.fillText(hi.toFixed(3),W,T-7);g.fillText(lo.toFixed(3),W,Hh-B-7);
+g.textAlign='left';g.fillText(utc(t0),0,Hh-8);g.textAlign='right';g.fillText(utc(t1),W,Hh-8);
+const up=m.price>=1,col=up?'#5cf2a8':'#ff3f8e',xe=(W-R)*k;
+const trace=()=>{g.beginPath();pts.forEach((p,i)=>{const x=X(p[0]),y=Y(p[1]);if(!i)g.moveTo(x,y);else{g.lineTo(x,Y(pts[i-1][1]));g.lineTo(x,y)}})};
+g.save();g.beginPath();g.rect(0,0,Math.max(0,xe)+1,Hh);g.clip();
+// scanline fill between the trace and the floor
+g.save();trace();g.lineTo(W-R,Hh-B);g.lineTo(0,Hh-B);g.closePath();g.clip();g.fillStyle=col;g.globalAlpha=.2;for(let y=T;y<Hh-B;y+=3)g.fillRect(0,y,W,1);g.restore();
+trace();g.strokeStyle=col;g.lineWidth=1.5;g.lineJoin='miter';g.stroke();g.restore();
+// the head of the trace while it is drawn, the last point after
+let p=pts[pts.length-1];
+if(k<1){let v=pts[0][1];for(const q of pts){if(X(q[0])<=xe)v=q[1];else break}const y=Y(v);g.fillStyle='#d2ffe8';g.fillRect(Math.round(xe)-2,Math.round(y)-2,4,4);g.globalAlpha=.35;g.fillStyle=col;g.fillRect(Math.round(xe),T-6,1,Hh-B-T+6);g.globalAlpha=1;return}
+if(hx!=null){let bd=1e9;for(const q of pts){const d=Math.abs(X(q[0])-hx);if(d<bd){bd=d;p=q}}
+const x=X(p[0]),y=Y(p[1]);g.strokeStyle='rgba(140,255,200,.35)';g.lineWidth=1;g.setLineDash([2,3]);g.beginPath();g.moveTo(Math.round(x)+.5,T-6);g.lineTo(Math.round(x)+.5,Hh-B);g.moveTo(0,Math.round(y)+.5);g.lineTo(W,Math.round(y)+.5);g.stroke();g.setLineDash([]);
+g.font=DISP;const a=p[1].toFixed(4);const aw=g.measureText(a).width;g.font=SANS;const b=utc(p[0]),bw=g.measureText(b).width;const tw=aw+bw+32,th=26;
+let tx=x+12;if(tx+tw>W)tx=x-12-tw;if(tx<0)tx=0;let ty=y-th-12;if(ty<0)ty=y+12;
+g.fillStyle='rgba(2,4,3,.96)';g.beginPath();g.moveTo(tx+6,ty);g.lineTo(tx+tw,ty);g.lineTo(tx+tw,ty+th-6);g.lineTo(tx+tw-6,ty+th);g.lineTo(tx,ty+th);g.lineTo(tx,ty+6);g.closePath();g.fill();g.strokeStyle='rgba(140,255,200,.3)';g.stroke();g.fillStyle=col;g.fillRect(tx,ty+6,1,th-6);
+g.textAlign='left';g.fillStyle='#e6eee8';g.font=DISP;g.fillText(a,tx+10,ty+th/2+.5);g.fillStyle='#6b7770';g.font=SANS;g.fillText(b,tx+20+aw,ty+th/2+.5)}
+const x=X(p[0]),y=Y(p[1]);g.fillStyle='#020403';g.fillRect(Math.round(x)-4,Math.round(y)-4,8,8);g.strokeStyle=col;g.lineWidth=1.5;g.strokeRect(Math.round(x)-3.5,Math.round(y)-3.5,7,7)}
+addEventListener('resize',()=>chart(null,1));
+// the canvas draws with a fallback face until its fonts load; ask for them and draw again
+if(document.fonts&&document.fonts.load)Promise.all([document.fonts.load(SANS),document.fonts.load(DISP)]).then(()=>{if(CHA===0||!window.Art)chart(null,1)}).catch(()=>{});
+load();setInterval(load,30000);
+// footer: freshness of what this page shows, straight from /api/status
+async function stat(){const el=$('#pfs');if(!el)return;const s=await pxApi('/api/status');if(!s||s.error||s.round==null){el.textContent='Status unavailable';return}
+const sb=s.lastSeedBlock,bn=sb&&typeof sb==='object'?sb.number:sb,ago=s.lastTickAt&&s.stats_at?Math.max(0,Math.round((s.stats_at-s.lastTickAt)/1000)):null;
+el.innerHTML=(s.stale?'<span class="st">Data may be stale</span>':'<span class="ok"><i class="ds-mark ds-mark--live"></i>Live</span>')+' · Round '+Number(s.round)+(s.alive!=null?' · '+Number(s.alive)+' alive <em class="src">Simulated</em>':'')+(bn!=null?' · Seed block '+Number(bn).toLocaleString('en-US')+' <em class="src">Chain</em>':'')+(s.stale&&ago!=null?' · last tick '+ago+' s ago':'')}
+stat();setInterval(stat,15000);
+</script>
+<script src="/fx.js" defer></script></body></html>

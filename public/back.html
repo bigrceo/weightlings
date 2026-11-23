@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Back a creature — WEIGHTLINGS</title><meta name="description" content="Back a creature to survive or die in the next hourly trial. Paper credits, no real money, settled from the recomputable round record."><meta property="og:title" content="Back a creature — WEIGHTLINGS"><meta property="og:description" content="Back a creature to survive or die in the next hourly trial. Paper credits, no real money."><meta property="og:image" content="/og.png"><meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/icon.png"><link rel="stylesheet" href="/style.css"><link rel="stylesheet" href="/fx.css"><link rel="stylesheet" href="/pages-x.css"><link rel="stylesheet" href="/back.css"><link rel="stylesheet" href="/ds.css"><script src="/art.js"></script>
+</head>
+<body class="px bp">
+<div id="strip" class="strip"></div>
+<nav class="ds-nav" aria-label="Main"><a class="ds-nav__mark" href="/" aria-label="Weightlings, home"><svg id="logoSvg" viewBox="0 0 11 9" shape-rendering="crispEdges" aria-hidden="true"></svg><b>Weightlings</b></a><a class="ds-nav__go" href="/app">Meadow<em data-art-alive></em></a><div class="ds-nav__links"><a href="/hire">Hire</a><a href="/build">Build</a><a href="/market">Market</a><a href="/back" aria-current="page">Back</a><a class="ds-nav__sec" href="/genes">Genes</a><a class="ds-nav__sec" href="/record">Record</a><a class="ds-nav__sec" href="/verify">Verify</a><a class="hide-m" href="#" data-x>X</a><button type="button" class="show-m" data-hatch>Hatch</button></div><div class="dd ds-nav__dd hide-m" id="dd"><button type="button" aria-haspopup="true">Index<svg viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button><div class="ds-nav__menu"><a href="/app"><b>Enter the meadow</b><span>Every creature, live, with its brain.</span></a><a href="/hire"><b>Hire a creature</b><span>A real task, done by Claude, with a signed receipt.</span></a><a href="/#hour"><b>One hour</b><span>A life, from hatch to cull.</span></a><a href="/#ward"><b>The ward</b><span>Who died this hour, by rarity and lab.</span></a><a href="/#intelligence"><b>Observation deck</b><span>Live gene board and the last round.</span></a><a href="/market"><b>Model exchange</b><span>Paper prices of every brain, moved by survival.</span></a><a href="/back"><b>Back a creature</b><span>Paper credits on who survives the next trial.</span></a><a href="/genes"><b>Gene board</b><span>Which brain is winning, round after round.</span></a><a href="/record"><b>The record</b><span>Every round, every death, every commitment.</span></a><a href="/verify"><b>Verify a round</b><span>Recompute any new round in your browser.</span></a><a href="/#docs"><b>How it works</b><span>What is simulated, what is on chain, what is paper.</span></a></div></div><button type="button" class="ds-btn ds-btn--sm ds-nav__act hide-m" id="connect" data-hatch>Hatch lineage</button><span class="ds-nav__line" aria-hidden="true"><i></i></span></nav>
+<div class="pg wide"><header class="xh"><div class="ds-kicker" data-draw>Back a creature · paper<em id="xkm"></em></div><h1 class="ds-h1" data-draw="text" style="--i:1">Pick who makes it through the hour.</h1>
+<p class="ds-lede" data-draw style="--i:2">Every hour a trial removes the weakest 35% of the meadow. Before the round is sealed, put free credits on one creature to survive or to die. Each creature has its own pool: the side that was right splits all of it, in proportion to what each backer put in. If nobody takes the other side, every stake comes back. One position per creature per round, 1 to 200 credits.</p>
+<p class="fine" data-draw style="--i:3">Paper credits · no real money · settled from the recomputable round record<a href="/verify">Verify a round</a></p>
+<div class="ds-stats" data-draw style="--i:4;margin-top:40px" id="sum"></div>
+<div class="ds-btns" data-draw style="--i:5;margin-top:36px"><a class="ds-btn ds-btn--sig" href="/app">Pick any creature in the meadow<i class="arr"></i></a></div></header>
+<div class="cols">
+<div>
+<section class="sec"><div class="hdx"><span id="kzT">Kill zone now</span><span class="stk">Stake</span><div class="bk-amt" id="amt" role="group" aria-label="Stake per click"></div></div>
+<p class="lab" style="margin:10px 0 4px" id="kzN"></p><div class="say" id="say" role="status" aria-live="polite"></div><div id="kz"></div><button type="button" class="ds-btn ds-btn--sm more" id="kzMore" style="margin-top:16px" hidden>Show all</button></section>
+<section class="sec"><div class="hdx"><span id="mbT">Most backed</span></div><div id="mb"></div></section>
+</div>
+<div>
+<section class="sec"><div class="hdx"><span>Your positions</span></div><div id="op"></div></section>
+<section class="sec"><div class="hdx"><span>Your history</span></div><div id="hi"></div></section>
+<section class="sec"><div class="hdx"><span>Leaderboard · settled profit</span></div><div id="lb"></div></section>
+</div>
+</div>
+<footer class="pf"><span id="pfs" aria-live="polite"></span><nav aria-label="Proof"><a href="/app">Pick any creature in the meadow</a><a href="/market">Model exchange</a><a href="/verify">Verify a round</a></nav></footer></div>
+<div class="modal" id="modal"><div class="box ds-panel" role="dialog" aria-modal="true" aria-labelledby="mdT"><div class="ds-panel__hd"><span class="ds-label ds-label--cr" id="mdT">Hatch a lineage</span><button type="button" class="ds-btn ds-btn--sm ds-btn--icon" data-close aria-label="Close">×</button></div><p class="ds-body">Paste any Robinhood Chain address, or connect your wallet. Your wallet founds one lineage; its founder's brain is drawn from your address.</p><label class="ds-field"><span class="ds-sr">Robinhood Chain address</span><input id="addr" placeholder="0x…" autocomplete="off" spellcheck="false"></label><div class="ds-btns"><button type="button" class="ds-btn ds-btn--sig" id="go">Hatch<i class="arr"></i></button><button type="button" class="ds-btn" id="conn">Connect wallet</button></div><div class="err" id="err"></div></div></div>
+<script src="/common.js"></script><script src="/cards.js"></script><script src="/back.js"></script><script>$$('[data-hatch]').forEach((b)=>b.onclick=openSummon);</script>
+<script>
+const B=window.Back,cr=B.cr;let amt=25,all=false,busy=false,S=[],BD=null,ME=null,NAMES={},drawn=0;
+try{const a=Number(localStorage.getItem('wl_back_amt'));if(B.STEPS.includes(a))amt=a}catch{}
+function amtUi(){$('#amt').innerHTML=B.STEPS.map(a=>'<button type="button" class="'+(a===amt?'on':'')+'" aria-pressed="'+(a===amt)+'" data-amt="'+a+'">'+a+'</button>').join('')}
+$('#amt').onclick=e=>{const t=e.target.closest('button');if(!t)return;amt=Number(t.dataset.amt);try{localStorage.setItem('wl_back_amt',amt)}catch{}amtUi()};amtUi();
+const poolOf=id=>{const p=BD&&BD.pools&&BD.pools[id];return p?{survive:p[0],die:p[1]}:{survive:0,die:0}};
+const poolCell=id=>{const p=poolOf(id),t=p.survive+p.die;return '<div class="pl">'+(t?'<b>'+cr(t)+'</b><div class="bk-bar" style="--s:'+(p.survive/t*100).toFixed(1)+'%"><i></i></div><span>'+cr(p.survive)+' survives · '+cr(p.die)+' dies</span>':'<span>No pool yet</span>')+'</div>'};
+const actCell=id=>{const mine=ME&&ME.open.find(p=>p.being===id&&p.round===ME.round);
+if(mine)return '<div class="bk-act"><span class="held '+mine.side+'"><i class="ds-mark '+(mine.side==='survive'?'ds-mark--alive':'ds-mark--dead die')+'"></i>'+cr(mine.amt)+' on '+(mine.side==='survive'?'survives':'dies')+'</span></div>';
+const off=(ME&&ME.sealed)||busy?' disabled':'';return '<div class="bk-act"><button type="button" class="s ds-btn ds-btn--sm" data-id="'+id+'" data-side="survive"'+off+'>Survives</button><button type="button" class="d ds-btn ds-btn--sm ds-btn--die" data-id="'+id+'" data-side="die"'+off+'>Dies</button></div>'};
+const who=(r)=>'<div class="nm"><a href="/app?b='+r.id+'"><b>'+esc(r.nick||'Creature '+r.id)+'</b></a><span>'+esc(NAMES[r.model]||r.modelName||r.model||'')+(r.standing!=null?' · standing '+r.standing:'')+'</span></div>';
+// rows are drawn in the first two times the lists fill (before and after the names arrive), then refresh in place
+const dr=(i)=>drawn<2?' data-draw style="--i:'+Math.min(i,10)+'"':'';
+function draw(){if(!ME||!BD)return;const sealed=ME.sealed,n=ME.round;
+const staked=ME.open.reduce((s,p)=>s+p.amt,0),prof=ME.settled.filter(p=>p.status==='won'||p.status==='lost').reduce((s,p)=>s+p.profit,0);
+$('#xkm').textContent=sealed?'Round '+n+' is sealed':'Round '+n+' is open';
+const key=[ME.credits,ME.open.length,staked,prof].join('|');
+if($('#sum').dataset.k!==key){const firstSum=!$('#sum').dataset.k;$('#sum').dataset.k=key;
+pxStats($('#sum'),[['Your credits',ME.credits,'sig'],['Open positions',ME.open.length,''],['Credits staked',staked,'clock',ME.credits+staked?staked/(ME.credits+staked):0],['Profit, last 20 settled',Math.abs(prof),prof<0?'die':prof>0?'sig':'',null,'',prof<0?'−':prof>0?'+':'']],{id:'sm',count:firstSum})}
+const kz=S.filter(r=>r.inKillZone);$('#kzT').textContent='Kill zone now';
+$('#kzN').textContent=sealed?'Sealed. The block decides.':kz.length+' of '+S.length+' creatures stand below the line on live standing. It is an indication, not the final score.';
+const list=all?kz:kz.slice(0,12);
+$('#kz').innerHTML=list.length?list.map((r,i)=>'<div class="r"'+dr(i)+'><span class="ix">#'+r.rank+'</span>'+B.bird(B.tier(r.tier))+who(r)+poolCell(r.id)+actCell(r.id)+'</div>').join(''):'<div class="none">No standing yet.</div>';
+$('#kzMore').hidden=all||kz.length<=12;$('#kzMore').textContent='Show all '+kz.length;
+$('#mbT').textContent='Most backed for round '+n;
+$('#mb').innerHTML=BD.most.length?BD.most.map((r,i)=>{const s=S.find(x=>x.id===r.id);return '<div class="r"'+dr(i)+'><span class="ix">'+String(i+1).padStart(2,'0')+'</span>'+B.bird(B.tier(r.tier))+who({...r,standing:s?s.standing:null})+poolCell(r.id)+actCell(r.id)+'</div>'}).join(''):'<div class="none">Nobody has backed a creature for round '+n+' yet.</div>';
+$('#op').innerHTML=ME.open.length?ME.open.map(p=>{const o={survive:p.pool.survive-(p.side==='survive'?p.amt:0),die:p.pool.die-(p.side==='die'?p.amt:0)},im=B.implied(o,p.side,p.amt);
+return '<div class="l2"><span class="lab">R'+p.round+'</span><div><b>'+esc(p.nick||'Creature '+p.being)+'</b> '+(p.side==='survive'?'survives':'dies')+'<small>'+(im.matched?'Pays '+cr(im.pay)+' if right, at the pool as it stands':'Nobody on the other side yet')+'</small></div><span class="v">'+cr(p.amt)+'</span></div>'}).join(''):'<div class="none">No open position. Pick a creature on the left, or any creature in the <a href="/app">meadow</a>.</div>';
+$('#hi').innerHTML=ME.settled.length?ME.settled.map(p=>'<div class="hist '+p.status+'">'+B.why(p)+'</div>').join(''):'<div class="none">Nothing settled yet. Positions settle when the round is recorded.</div>';
+$('#lb').innerHTML=BD.top.length?BD.top.map(r=>'<div class="l2'+(r.you?' me':'')+'"><span class="lab">'+String(r.rank).padStart(2,'0')+'</span><div><b>'+esc(r.who)+'</b>'+(r.you?' · you':'')+'<small>'+r.won+' right of '+r.positions+' decided</small></div><span class="v '+(r.profit>0?'up':r.profit<0?'dn':'')+'">'+(r.profit>0?'+':'')+cr(r.profit)+'</span></div>').join(''):'<div class="none">No decided position yet.</div>';
+drawn++}
+async function load(){const [s,b,m]=await Promise.all([B.get('/api/standing'),B.get('/api/backboard?pid='+B.pid()),B.get('/api/backs?pid='+B.pid())]);
+if(Array.isArray(s))S=s;if(b&&!b.error)BD=b;if(m&&!m.error)ME=m;draw()}
+document.addEventListener('click',async e=>{const t=e.target.closest('.bk-act button');if(!t||busy)return;busy=true;draw();
+const r=await B.place(Number(t.dataset.id),t.dataset.side,amt);busy=false;$('#say').textContent=r&&r.error?r.error:'';await load()});
+$('#kzMore').onclick=()=>{all=true;draw()};
+B.get('/api/models').then(r=>{if(r&&r.models){r.models.forEach(m=>NAMES[m.id]=m.name);draw()}});
+load();setInterval(()=>{if(!document.hidden)load()},8000);document.addEventListener('round',load);
+async function stat(){const el=$('#pfs');if(!el)return;const s=await pxApi('/api/status');if(!s||s.error||s.round==null){el.textContent='Status unavailable';return}
+el.innerHTML=(s.stale?'<span class="st">Data may be stale</span>':'<span class="ok"><i class="ds-mark ds-mark--live"></i>Live</span>')+' · Round '+Number(s.round)+' recorded'+(s.alive!=null?' · '+Number(s.alive)+' alive':'')+(s.sealed?' · next round sealed':'')}
+stat();setInterval(stat,15000);
+</script>
+<script src="/fx.js" defer></script></body></html>

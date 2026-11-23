@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Verify a round — WEIGHTLINGS</title><meta name="description" content="Run a recorded round's cull again in your own browser: the frozen snapshot as our server stored it, the seed block read from Robinhood Chain, the ranking, the dead and the newborn."><meta property="og:title" content="Verify a round — WEIGHTLINGS"><meta property="og:description" content="Run a recorded round's cull again in your own browser: the frozen snapshot as our server stored it, the seed block read from Robinhood Chain, the ranking, the dead and the newborn."><meta property="og:image" content="/og.png"><meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/icon.png"><link rel="stylesheet" href="/style.css"><link rel="stylesheet" href="/fx.css"><link rel="stylesheet" href="/pages-x.css">
+<style>
+/* /verify: scoped to .vf, drawn in the system (ds.css). */
+.px .vf .rhero .xh .ds-h1 { max-width: 14ch; }
+.px .vf .vnow { position: relative; margin-top: var(--s-5); max-width: 720px; color: var(--fg-2); font-size: 13.5px; line-height: 1.65; padding-left: 18px; overflow-wrap: anywhere; }
+.px .vf .vnow::before { content: ''; position: absolute; left: 0; top: 4px; bottom: 4px; width: 1px; background: linear-gradient(var(--clock) 0 1px, transparent 1px) 0 0 / 1px 3px repeat-y; }
+.px .vf .vnow::after { content: ''; position: absolute; left: -3px; top: 4px; width: 7px; height: 7px; background: var(--clock); }
+.px .vf .vnow:empty { display: none; }
+.px .vf .vnow b { color: var(--fg); font-weight: 500; }
+.px .vf .vnow a { color: var(--sig); }
+.px .vf .vnow.sealed::before { background-image: linear-gradient(var(--die) 0 1px, transparent 1px); }
+.px .vf .vnow.sealed::after { background: var(--die); animation: ds-blink 1.6s var(--e-step) infinite; }
+.px .vf .vsum { color: var(--fg-2); font-size: 15px; line-height: 1.65; max-width: 760px; margin-bottom: 10px; }
+.px .vf .vsum b { color: var(--fg); font-weight: 600; }
+.px .vf .vsum.bad b { color: var(--die); }
+.px .vf .vsum.ok b { color: var(--sig); }
+
+/* one check per line: a trace on the left that lights when the check resolves, the verdict as a tagged word, the two values underneath */
+.px .ck { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 24px; padding: 22px 6px 22px 22px; }
+.px .ck::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: linear-gradient(90deg, var(--trace) 0 1px, transparent 1px) 0 0 / 3px 1px repeat-x; }
+.px .ck::before { content: ''; position: absolute; left: 0; top: 24px; bottom: 24px; width: 1px; background: var(--fg-4); transform-origin: 50% 0; transition: background-color var(--t-med), transform var(--t-slow) var(--e-out); }
+.px .ck[data-s="wait"]::before { transform: scaleY(.25); animation: vfScan 1.1s var(--e-io) infinite; }
+@keyframes vfScan { 0% { transform: translateY(0) scaleY(.25); } 50% { transform: translateY(150%) scaleY(.25); } 100% { transform: translateY(0) scaleY(.25); } }
+.px .ck h3 { font: 600 17px/1.35 var(--font-display); letter-spacing: 0; color: var(--fg); }
+.px .ck .st { display: inline-flex; align-items: center; gap: 8px; align-self: start; padding: 4px 0 3px; font: 600 10.5px/1.2 var(--font-text); letter-spacing: .2em; text-transform: uppercase; color: var(--fg-3); white-space: nowrap; background: linear-gradient(90deg, currentColor 0 1px, transparent 1px) 0 100% / 3px 1px repeat-x; }
+.px .ck .st::before { content: ''; width: 10px; height: 10px; flex: none; background: currentColor; -webkit-mask: var(--m, none) center / contain no-repeat; mask: var(--m, none) center / contain no-repeat; }
+.px .ck[data-s="wait"] .st { animation: ds-blink 1.2s var(--e-step) infinite; }
+.px .ck[data-s="wait"] .st::before { width: 4px; height: 4px; -webkit-mask: none; mask: none; }
+.px .ck[data-s="ok"]::before { background: var(--sig); box-shadow: 0 0 10px rgba(92,242,168,.5); } .px .ck[data-s="ok"] .st { color: var(--sig); --m: var(--ds-tick); }
+.px .ck[data-s="bad"]::before { background: var(--die); box-shadow: 0 0 10px rgba(255,63,142,.5); } .px .ck[data-s="bad"] .st { color: var(--die); --m: var(--ds-cross); }
+.px .ck[data-s="na"]::before { background: var(--clock); } .px .ck[data-s="na"] .st { color: var(--clock); }
+.px .ck[data-s="na"] .st::before, .px .ck[data-s="info"] .st::before { width: 4px; height: 4px; -webkit-mask: none; mask: none; }
+.px .ck[data-s="info"]::before { background: var(--mut); } .px .ck[data-s="info"] .st { color: var(--mut); }
+.px .ck p { grid-column: 1 / -1; color: var(--fg-3); font-size: 13.5px; line-height: 1.6; max-width: 760px; }
+.px .ck dl { grid-column: 1 / -1; display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 6px 18px; margin-top: 10px; }
+.px .ck dl:empty { display: none; }
+.px .ck dt { font: 600 10px/1.9 var(--font-text); letter-spacing: .15em; text-transform: uppercase; color: var(--fg-3); }
+.px .ck dd { color: var(--fg-2); font-size: 12.5px; font-weight: 500; line-height: 1.6; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; min-width: 0; }
+.px .ck[data-s="ok"] dd { color: var(--fg); }
+.px .ck[data-s="bad"] dd { color: #ff9cc4; }
+
+/* the whole meadow in rank order, one pixel creature each; the cut is a drawn line */
+.px .vrank { display: flex; flex-wrap: wrap; gap: 6px 7px; align-items: center; }
+.px .vrank a { width: 11px; height: 9px; background: var(--c, var(--fg)); -webkit-mask: var(--ds-bird) center / contain no-repeat; mask: var(--ds-bird) center / contain no-repeat; transition: background-color var(--t-fast); }
+html.art .px .vrank.grow a { opacity: 0; animation: pxPop .3s steps(3, end) forwards; animation-delay: calc(var(--k, 0) * 7ms); }
+.px .vrank a.d { background: var(--die); transform: rotate(180deg); }
+html.art .px .vrank.grow a.d { animation-name: vfDie; }
+@keyframes vfDie { from { opacity: 0; transform: rotate(180deg) translateY(4px); } to { opacity: 1; transform: rotate(180deg); } }
+.px .vrank a:hover { background: var(--fg); }
+.px .vrank .cut { flex-basis: 100%; display: flex; align-items: center; gap: 14px; margin: 12px 0; font: 600 10.5px/1 var(--font-text); letter-spacing: .2em; text-transform: uppercase; color: var(--die); }
+.px .vrank .cut::before, .px .vrank .cut::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, var(--die) 0 2px, transparent 2px) 0 0 / 4px 1px repeat-x; transform-origin: 100% 50%; }
+.px .vrank .cut::after { transform-origin: 0 50%; }
+html.art .px .vrank.grow .cut::before, html.art .px .vrank.grow .cut::after { transform: scaleX(0); animation: vfCut .9s var(--e-out) forwards; animation-delay: var(--cd, 0ms); }
+@keyframes vfCut { to { transform: none; } }
+.px .vf .more { margin-top: 18px; }
+/* what it proves, what it does not */
+.px .pv { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 64px; }
+.px .pv h3 { margin-bottom: 4px; }
+.px .pv ul { list-style: none; }
+.px .pv li { position: relative; padding: 16px 0; color: var(--fg-2); font-size: 14.5px; line-height: 1.65; }
+.px .pv li::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: linear-gradient(90deg, var(--trace) 0 1px, transparent 1px) 0 0 / 3px 1px repeat-x; }
+.px .pv li b { color: var(--fg); font-weight: 600; }
+.px .pv a, .px .vf .how a { color: var(--sig); }
+.px .vf .how { list-style: none; counter-reset: st; color: var(--fg-2); font-size: 14.5px; line-height: 1.7; max-width: 780px; }
+.px .vf .how li { counter-increment: st; position: relative; padding: 0 0 18px 48px; }
+.px .vf .how li::before { content: counter(st, decimal-leading-zero); position: absolute; left: 0; top: 1px; font: 500 18px/1.4 var(--font-display); color: var(--sig); font-variant-numeric: tabular-nums; }
+.px .vf .how b { color: var(--fg); font-weight: 600; }
+#otsText { color: var(--fg-2); font-size: 14px; line-height: 1.6; }
+@media (min-width: 901px) { .px .vf .fl-row { grid-template-columns: 22px 1fr 1fr 1.6fr; } }
+@media (max-width: 900px) {
+  .px .ck { padding: 20px 2px 20px 16px; gap: 6px 14px; } .px .ck h3 { font-size: 15px; } .px .ck .st { font-size: 9.5px; letter-spacing: .14em; }
+  .px .ck dl { grid-template-columns: minmax(0, 1fr); gap: 0; } .px .ck dd { margin-bottom: 8px; }
+  .px .pv { grid-template-columns: 1fr; gap: 34px; }
+  .px .vf .fl-row .mdl { grid-column: 2 / -1; }
+}
+@media (prefers-reduced-motion: reduce) { .px .ck .st, .px .ck::before, .px .vf .vnow.sealed::after { animation: none !important; } html.art .px .vrank.grow a, html.art .px .vrank.grow .cut::before, html.art .px .vrank.grow .cut::after { animation: none; opacity: 1; transform: none; } html.art .px .vrank.grow a.d { transform: rotate(180deg); } }
+</style>
+<link rel="stylesheet" href="/ds.css"><script src="/art.js"></script>
+</head>
+<body class="px">
+<div id="strip" class="strip"></div>
+<nav class="ds-nav" aria-label="Main"><a class="ds-nav__mark" href="/" aria-label="Weightlings, home"><svg id="logoSvg" viewBox="0 0 11 9" shape-rendering="crispEdges" aria-hidden="true"></svg><b>Weightlings</b></a><a class="ds-nav__go" href="/app">Meadow<em data-art-alive></em></a><div class="ds-nav__links"><a href="/hire">Hire</a><a href="/build">Build</a><a href="/market">Market</a><a href="/back">Back</a><a class="ds-nav__sec" href="/genes">Genes</a><a class="ds-nav__sec" href="/record">Record</a><a class="ds-nav__sec" href="/verify" aria-current="page">Verify</a><a class="hide-m" href="#" data-x>X</a><button type="button" class="show-m" data-hatch>Hatch</button></div><div class="dd ds-nav__dd hide-m" id="dd"><button type="button" aria-haspopup="true">Index<svg viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button><div class="ds-nav__menu"><a href="/app"><b>Enter the meadow</b><span>Every creature, live, with its brain.</span></a><a href="/hire"><b>Hire a creature</b><span>A real task, done by Claude, with a signed receipt.</span></a><a href="/#hour"><b>One hour</b><span>A life, from hatch to cull.</span></a><a href="/#ward"><b>The ward</b><span>Who died this hour, by rarity and lab.</span></a><a href="/#intelligence"><b>Observation deck</b><span>Live gene board and the last round.</span></a><a href="/market"><b>Model exchange</b><span>Paper prices of every brain, moved by survival.</span></a><a href="/back"><b>Back a creature</b><span>Paper credits on who survives the next trial.</span></a><a href="/genes"><b>Gene board</b><span>Which brain is winning, round after round.</span></a><a href="/record"><b>The record</b><span>Every round, every death, every commitment.</span></a><a href="/verify"><b>Verify a round</b><span>Recompute any new round in your browser.</span></a><a href="/#docs"><b>How it works</b><span>What is simulated, what is on chain, what is paper.</span></a></div></div><button type="button" class="ds-btn ds-btn--sm ds-nav__act hide-m" id="connect" data-hatch>Hatch lineage</button><span class="ds-nav__line" aria-hidden="true"><i></i></span></nav>
+<div class="pg vf">
+<div class="rhero"><div class="rnum" data-draw><span class="ds-seg" id="rn" hidden aria-label="Round number"></span></div>
+<header class="xh"><div class="ds-kicker" data-draw style="--i:1"><span id="eb">Proof</span><em id="xkm"></em></div><h1 class="ds-h1" data-draw="text" style="--i:2">Verify a round</h1>
+<p class="ds-lede" data-draw style="--i:3" id="sub">Check the cull yourself. This page downloads a round's record, reads its seed block from Robinhood Chain itself, and runs the cull again in your browser. The snapshot it starts from, with every creature's hour of foraging, is the one our server stored.</p></header></div>
+<p class="vnow" data-draw style="--i:4" id="now"></p>
+<div class="ds-stats" style="margin-top:44px" id="vs"></div>
+<div class="btns" data-draw style="--i:5" id="nav" hidden><a class="ds-btn ds-btn--sm" id="prev">← Previous</a><a class="ds-btn ds-btn--sm" id="nxt">Next<i class="arr"></i></a><span class="sp"></span><a class="ds-btn ds-btn--sm" id="card">Round card</a><a class="ds-btn ds-btn--sm" id="raw" target="_blank" rel="noopener">Raw record</a></div>
+<div class="sec" id="csec" hidden><div class="ds-label ds-label--rule">The checks<em>run in your browser</em></div><p class="vsum" id="vsum"></p><div id="checks"></div></div>
+<div class="sec" id="rsec" hidden><div class="ds-label ds-label--rule">The ranking, recomputed</div><p class="vsum" id="rsum"></p><div class="vrank" id="rank"></div></div>
+<div class="sec" id="dsec" hidden><div class="ds-label ds-label--rule ds-label--die">The dead, recomputed</div><div id="dead"></div></div>
+<div class="sec"><div class="ds-label ds-label--rule">What this proves, and what it does not</div>
+<div class="pv"><div><h3 class="ds-label ds-label--sig">It proves</h3><ul>
+<li><b>The arithmetic.</b> Given the frozen snapshot and the seed, the ranking, the 35% cut, the second chances, the parents and the mutations are exactly what the published function returns. Your browser just ran it. The function is one readable file per version of the rules: <a id="rulesLink" href="/cull.v2.js" target="_blank" rel="noopener">cull.v2.js</a>. From version 2 on, the file's hash is inside the commitment, and this page hashes the bytes it downloads before running them.</li>
+<li><b>The seed.</b> It is the hash of the stated Robinhood Chain block. Your browser read that block from the public RPC, not from us, and checked that it is the first block at or after the trial second. From rules version 2 on, that second is inside the hashed commitment, so one commitment hash allows one block only. In version 1 rounds it is stored beside the hash, not inside it.</li>
+<li><b>The counts we print.</b> Entered, died, born, mutations, each brain's tally and the dominant brain on the round card are recounted here from the recomputed result.</li>
+</ul><div id="otsBox" style="display:none;margin-top:18px"><h3 class="ds-label ds-label--clock">Outside timestamp</h3><p id="otsText"></p></div></div><div class="no"><h3 class="ds-label ds-label--clock">It does not prove</h3><ul>
+<li><b>When the snapshot was fixed.</b> The commitment is published by our own server at <a href="/api/commit" target="_blank" rel="noopener">/api/commit</a>, one minute before the seed block, and kept in a log at <a href="/api/commits" target="_blank" rel="noopener">/api/commits</a> where each entry names the one before it. Both are ours. Nothing is anchored on Robinhood Chain. From round 44 on, each commitment and each result hash is also sent to the public OpenTimestamps calendars, which anchor it in Bitcoin within hours; where a proof file is listed on this page, it fixes that hash in time independently of us. Without one, the timing rests on our clock, and whoever runs the server could rewrite the record and the log together. A copy kept outside our server shows it: if this page is open during the sealed minute it keeps one and compares it afterwards.</li>
+<li><b>The hour before.</b> The foraging that fills the snapshot (who ate, won, shared, fainted) runs on our server and cannot be recomputed. Those counts weigh more in the score than the dice do. A server restart can cost part of the hour; the commitment says how much.</li>
+<li><b>Which lineages wait.</b> The list of extinct lineages in a snapshot is drawn up by our server. When it is long, only a part enters the draw: holders first, then the longest gone.</li>
+<li><b>Intelligence.</b> Traits are simulated from the numbers on each model card. No AI model is run.</li>
+</ul></div></div></div>
+<div class="sec"><div class="ds-label ds-label--rule">How a round is drawn</div><ol class="how">
+<li><b>One minute before the trial</b> the meadow is frozen: every living creature with its hour of foraging, the extinct lineages, the brain table, the trial second, the id of the first newborn, the hash of the rules file and the hashes of the round before. The SHA-256 of that input is published.</li>
+<li><b>The dice</b> are the hash of the first Robinhood Chain block whose timestamp is at or after the trial second. That block does not exist yet when the snapshot is hashed, as long as the hash was published when our server says it was. See what this page does not prove.</li>
+<li><b>The cull</b> scores every creature (trial weights on its traits, its hour of foraging, crowding by model, tier and lineage, and noise from the dice), removes the weakest 35%, gives up to a quarter of the free places to extinct lineages, and breeds the rest from the survivors with a 12% chance of mutation.</li>
+<li><b>The record</b> keeps the input, the block, the result and the version of the rules, so the same function gives the same answer for anyone, at any time.</li>
+<li><b>If the result cannot be written</b>, the same commitment waits for the same block and is tried again. A round that still cannot be written is voided in the open: its commitment and seed block stay in the log, nobody dies, and its number is not used again.</li>
+</ol></div>
+</div>
+<div class="modal" id="modal"><div class="box ds-panel" role="dialog" aria-modal="true" aria-labelledby="mdT"><div class="ds-panel__hd"><span class="ds-label ds-label--cr" id="mdT">Hatch a lineage</span><button type="button" class="ds-btn ds-btn--sm ds-btn--icon" data-close aria-label="Close">×</button></div><p class="ds-body">Paste any Robinhood Chain address, or connect your wallet. Your wallet founds one lineage; its founder's brain is drawn from your address.</p><label class="ds-field"><span class="ds-sr">Robinhood Chain address</span><input id="addr" placeholder="0x…" autocomplete="off" spellcheck="false"></label><div class="ds-btns"><button type="button" class="ds-btn ds-btn--sig" id="go">Hatch<i class="arr"></i></button><button type="button" class="ds-btn" id="conn">Connect wallet</button></div><div class="err" id="err"></div></div></div>
+<script src="/common.js"></script><script src="/cards.js"></script><script>$$('[data-hatch]').forEach((b)=>b.onclick=openSummon);</script>
+<script type="module" src="/verify.js"></script>
+<script src="/fx.js" defer></script><script src="/ots-box.js" defer></script>
+</body></html>

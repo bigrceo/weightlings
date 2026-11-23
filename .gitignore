@@ -1,0 +1,9 @@
+node_modules
+data/
+.env
+kit/verify/
+kit/verify2/
+kit/verify*/
+contracts/out/
+contracts/cache/
+.secrets/

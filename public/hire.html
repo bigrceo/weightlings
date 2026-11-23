@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hire a creature — WEIGHTLINGS</title><meta name="description" content="Give a living creature a real task. Claude does the work through our API key, every step streams live, and every hire ends with a signed receipt your browser checks itself."><meta property="og:title" content="Hire a creature — WEIGHTLINGS"><meta property="og:description" content="Give a living creature a real task. Every step streams live and every hire ends with a signed receipt your browser checks itself."><meta property="og:image" content="/og.png"><meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/icon.png"><link rel="stylesheet" href="/style.css"><link rel="stylesheet" href="/fx.css"><link rel="stylesheet" href="/pages-x.css"><link rel="stylesheet" href="/slip.css"><link rel="stylesheet" href="/hire.css"><link rel="stylesheet" href="/ds.css"><script src="/art.js"></script>
+</head>
+<body class="px">
+<div id="strip" class="strip"></div>
+<nav class="ds-nav" aria-label="Main"><a class="ds-nav__mark" href="/" aria-label="Weightlings, home"><svg id="logoSvg" viewBox="0 0 11 9" shape-rendering="crispEdges" aria-hidden="true"></svg><b>Weightlings</b></a><a class="ds-nav__go" href="/app">Meadow<em data-art-alive></em></a><div class="ds-nav__links"><a href="/hire" aria-current="page">Hire</a><a href="/build">Build</a><a href="/market">Market</a><a href="/back">Back</a><a class="ds-nav__sec" href="/genes">Genes</a><a class="ds-nav__sec" href="/record">Record</a><a class="ds-nav__sec" href="/verify">Verify</a><a class="hide-m" href="#" data-x>X</a><button type="button" class="show-m" data-hatch>Hatch</button></div><div class="dd ds-nav__dd hide-m" id="dd"><button type="button" aria-haspopup="true">Index<svg viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button><div class="ds-nav__menu"><a href="/app"><b>Enter the meadow</b><span>Every creature, live, with its brain.</span></a><a href="/hire"><b>Hire a creature</b><span>A real task, done by Claude, with a signed receipt.</span></a><a href="/#hour"><b>One hour</b><span>A life, from hatch to cull.</span></a><a href="/#ward"><b>The ward</b><span>Who died this hour, by rarity and lab.</span></a><a href="/#intelligence"><b>Observation deck</b><span>Live gene board and the last round.</span></a><a href="/market"><b>Model exchange</b><span>Paper prices of every brain, moved by survival.</span></a><a href="/back"><b>Back a creature</b><span>Paper credits on who survives the next trial.</span></a><a href="/genes"><b>Gene board</b><span>Which brain is winning, round after round.</span></a><a href="/record"><b>The record</b><span>Every round, every death, every commitment.</span></a><a href="/verify"><b>Verify a round</b><span>Recompute any new round in your browser.</span></a><a href="/#docs"><b>How it works</b><span>What is simulated, what is on chain, what is paper.</span></a></div></div><button type="button" class="ds-btn ds-btn--sm ds-nav__act hide-m" id="connect" data-hatch>Hatch lineage</button><span class="ds-nav__line" aria-hidden="true"><i></i></span></nav>
+
+<div class="pg hr">
+  <header class="xh">
+    <div class="ds-kicker" data-draw><span id="kick">Hire a creature</span><em id="kickR"></em></div>
+    <h1 class="ds-h1" data-draw="text" style="--i:1" id="h1">Give a creature a real job.</h1>
+    <p class="ds-lede" data-draw style="--i:2" id="sub">Pick a living creature, type a task, press Hire. Every step the server takes streams here as it happens: the thinking, each tool call with its exact input, the answer. It ends with a receipt signed by our server that your own browser checks.</p>
+    <p class="free" data-draw style="--i:3"><b>Free at launch: the operator pays the model.</b> Work done by Claude via our API key; the creature's open model is its brain in the game, simulated from its model card. Paid hires are not live.</p>
+    <div class="bud ds-stats" data-draw style="--i:4" id="bud" hidden>
+      <div class="ds-stat big"><span class="ds-num ds-num--xl ds-num--sig" id="bLeft">—</span><span class="ds-label">Operator budget left today</span></div>
+      <div class="ds-stat sm"><span class="ds-num ds-num--md" id="bLimit">—</span><span class="ds-label">Daily budget</span></div>
+      <div class="ds-stat sm"><span class="ds-num ds-num--md" id="bCount">—</span><span class="ds-label">Hires today</span></div>
+      <div class="ds-stat sm"><span class="ds-num ds-num--md ds-num--clock" id="bReset">—</span><span class="ds-label">Resets at 00:00 UTC</span></div>
+      <div class="bmeter" aria-hidden="true"><i id="bMeter"></i></div>
+      <p class="bnote" id="bNote"></p>
+    </div>
+  </header>
+
+  <form class="comp ds-panel" data-draw="frame" style="--i:5" id="comp" autocomplete="off">
+    <div class="ds-panel__hd"><label class="ds-label ds-label--cr" for="task">What should this creature do?</label><span class="lab" id="tLen">0 / 2000</span></div>
+    <div class="taskf"><textarea id="task" maxlength="2000" placeholder="Explain a transaction, read a web page, check a token contract, write something…" required></textarea></div>
+    <div class="tcount"><span class="lab" id="tHint">Public tasks only: every hire and its answer are shown on the floor below.</span></div>
+    <div class="ex" id="chips" aria-label="Examples"></div>
+
+    <div class="who" id="who" aria-live="polite"><div class="lab">Loading the meadow…</div></div>
+    <div class="pick" id="pick" hidden>
+      <div class="ptools"><label class="ds-field"><span class="ds-sr">Search creatures</span><input id="q" type="search" placeholder="Search a creature by name or brain" aria-label="Search creatures"></label><div class="sorts ds-tabs" role="group" aria-label="Sort"><button type="button" data-sort="tier" aria-pressed="true">Best brain</button><button type="button" data-sort="energy" aria-pressed="false">Most energy</button><button type="button" data-sort="name" aria-pressed="false">Name</button></div></div>
+      <div class="plist" id="plist" role="listbox" aria-label="Living creatures"></div>
+    </div>
+
+    <div class="go"><button class="ds-btn ds-btn--sig ds-btn--lg hireb" id="hireB" type="submit" disabled>Hire</button><p class="why" id="why">Each hire is a real run: real model calls, real web and chain reads. A hire that finishes feeds the creature in the meadow.</p></div>
+    <div class="err" id="herr" role="alert"></div>
+  </form>
+
+  <section class="run" id="run" hidden aria-live="polite">
+    <div class="runhd"><h2 class="ds-h2" id="runT">On the line</h2><span class="rmeta"><span class="lab" id="liveMeta"></span><span class="clock" id="clock">0.0 s</span></span></div>
+    <p class="runtask" id="runTask"></p>
+    <div class="line" id="line">
+      <div class="lnfx" id="lnfx" aria-hidden="true"></div>
+      <div class="stn" data-k="hired"><i></i><b>Hired</b><small></small></div>
+      <div class="stn" data-k="think"><i></i><b>Thinking</b><small></small></div>
+      <div class="stn" data-k="tools"><i></i><b>Tools</b><small></small></div>
+      <div class="stn" data-k="answer"><i></i><b>Answer</b><small></small></div>
+      <div class="stn" data-k="receipt"><i></i><b>Receipt</b><small></small></div>
+      <div class="stn" data-k="verified"><i></i><b>Verified</b><small></small></div>
+    </div>
+    <p class="evn lab"><span id="evN"></span></p>
+    <div class="feed" id="feed"></div>
+    <div class="ans ds-panel" id="ans" hidden><div class="lab"><span>Answer</span><em id="ansMeta"></em></div><div class="atext" id="atext"></div><p class="honest" id="ansHonest"></p></div>
+    <div class="rcpt" id="rcpt" hidden>
+      <div class="slipbox"><div id="slip"></div><div class="btns" id="slipAct" hidden><button class="ds-btn ds-btn--sm sbtn" type="button" id="saveB">Save slip image</button><button class="ds-btn ds-btn--sm sbtn" type="button" id="copyB">Copy receipt link</button></div></div>
+      <div class="cks"><span class="ds-label ds-label--rule">Checked in your browser, not on our word</span><div id="checks"></div>
+        <p class="proves"><b>What this proves:</b> our server signed these exact fields (model, tokens, cost, tools, time, the hashes of the task and the answer) with the key published at <a href="/api/hire/key">/api/hire/key</a>, and nothing in them changed since. <b>What it does not prove:</b> that the answer came from the model named. A signature shows who wrote the receipt, not what happened inside the model provider.</p>
+      </div>
+    </div>
+    <div class="btns" id="again" hidden><a class="ds-btn ds-btn--sig sbtn mint" href="/hire" id="againB">Hire again</a><a class="ds-btn sbtn" href="/app">Back to the meadow</a></div>
+  </section>
+
+  <section class="sec" id="agentsSec">
+    <div class="ds-label ds-label--rule">For agents</div>
+    <div class="agents">
+      <div>
+        <p><b>Your own AI can hire a creature too.</b> The same hire, the same limits, the same signed receipt, over MCP. Add the server to Claude Code with one line:</p>
+        <p class="tools3" id="mcpTools">Tools it gets: <b>list_creatures</b>, <b>hire_creature</b> (returns the answer and the receipt link), <b>get_receipt</b>.</p>
+      </div>
+      <div class="cmd ds-panel ds-panel--tight"><span id="mcpCmd">claude mcp add --transport http weightlings <em>…/mcp</em></span><button class="ds-btn ds-btn--sm sbtn" type="button" id="mcpCopy">Copy</button></div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="ds-label ds-label--rule">The floor · latest hires</div>
+    <div class="floor" id="floor"><p class="empty">Loading…</p></div>
+  </section>
+
+  <section class="sec">
+    <div class="ds-label ds-label--rule">What a receipt is</div>
+    <div class="pv">
+      <div><h3 class="ds-label ds-label--sig">It proves</h3><ul>
+        <li><b>Which key signed it.</b> An Ed25519 signature by the key the receipt names, one of the keys listed at /api/hire/key. Your browser checks it with WebCrypto. The key's fingerprint is timestamped with OpenTimestamps from the day it was first used.</li>
+        <li><b>Nothing was edited.</b> The receipt hash is the SHA-256 of the receipt's fields written in a fixed order. Your browser rebuilds that text and hashes it again.</li>
+        <li><b>Which task, which answer.</b> The task and the answer are written inside the signed receipt, word for word. What this page shows about the hire is read from the receipt only.</li>
+        <li><b>When.</b> Where present, an OpenTimestamps proof anchors the receipt hash in Bitcoin a few hours later.</li>
+      </ul></div>
+      <div class="no"><h3 class="ds-label ds-label--clock">It does not prove</h3><ul>
+        <li><b>That the creature's open model answered.</b> It did not. Claude does the work through our API key; the open model is the creature's brain in the game.</li>
+        <li><b>That the model provider really produced the text.</b> The token counts and cost are what the provider reported to our server.</li>
+        <li><b>That the answer is right.</b> It is a model's answer. Check anything that matters.</li>
+        <li><b>That our server was not compromised.</b> The key list and this page's checking code come from the same site that signs. To check without trusting this site, run the standalone verifier (verify-receipt.mjs --key) with a public key you got elsewhere.</li>
+      </ul></div>
+    </div>
+  </section>
+</div>
+
+<div class="modal" id="modal"><div class="box ds-panel" role="dialog" aria-modal="true" aria-labelledby="mdT"><div class="ds-panel__hd"><span class="ds-label ds-label--cr" id="mdT">Hatch a lineage</span><button type="button" class="ds-btn ds-btn--sm ds-btn--icon" data-close aria-label="Close">×</button></div><p class="ds-body">Paste any Robinhood Chain address, or connect your wallet. Your wallet founds one lineage; its founder's brain is drawn from your address.</p><label class="ds-field"><span class="ds-sr">Robinhood Chain address</span><input id="addr" placeholder="0x…" autocomplete="off" spellcheck="false"></label><div class="ds-btns"><button type="button" class="ds-btn ds-btn--sig" id="go">Hatch<i class="arr"></i></button><button type="button" class="ds-btn" id="conn">Connect wallet</button></div><div class="err" id="err"></div></div></div>
+<script src="/common.js"></script><script src="/cards.js"></script><script src="/slip.js"></script><script>$$('[data-hatch]').forEach((b)=>b.onclick=openSummon);</script>
+<script src="/hire.js"></script>
+<script src="/fx.js" defer></script></body></html>

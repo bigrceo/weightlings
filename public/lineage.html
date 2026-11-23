@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lineage — WEIGHTLINGS</title><meta name="description" content="A family tree of creatures whose brains are modelled on real open models."><meta property="og:title" content="Lineage — WEIGHTLINGS"><meta property="og:description" content="A family tree of creatures whose brains are modelled on real open models."><meta property="og:image" content="/og.png"><meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/icon.png"><link rel="stylesheet" href="/style.css"><link rel="stylesheet" href="/fx.css"><link rel="stylesheet" href="/pages-x.css"><link rel="stylesheet" href="/slip.css"><link rel="stylesheet" href="/ds.css"><script src="/art.js"></script>
+</head>
+<body class="px">
+<div id="strip" class="strip"></div>
+<nav class="ds-nav" aria-label="Main"><a class="ds-nav__mark" href="/" aria-label="Weightlings, home"><svg id="logoSvg" viewBox="0 0 11 9" shape-rendering="crispEdges" aria-hidden="true"></svg><b>Weightlings</b></a><a class="ds-nav__go" href="/app">Meadow<em data-art-alive></em></a><div class="ds-nav__links"><a href="/hire">Hire</a><a href="/build">Build</a><a href="/market">Market</a><a href="/back">Back</a><a class="ds-nav__sec" href="/genes">Genes</a><a class="ds-nav__sec" href="/record">Record</a><a class="ds-nav__sec" href="/verify">Verify</a><a class="hide-m" href="#" data-x>X</a><button type="button" class="show-m" data-hatch>Hatch</button></div><div class="dd ds-nav__dd hide-m" id="dd"><button type="button" aria-haspopup="true">Index<svg viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button><div class="ds-nav__menu"><a href="/app"><b>Enter the meadow</b><span>Every creature, live, with its brain.</span></a><a href="/hire"><b>Hire a creature</b><span>A real task, done by Claude, with a signed receipt.</span></a><a href="/#hour"><b>One hour</b><span>A life, from hatch to cull.</span></a><a href="/#ward"><b>The ward</b><span>Who died this hour, by rarity and lab.</span></a><a href="/#intelligence"><b>Observation deck</b><span>Live gene board and the last round.</span></a><a href="/market"><b>Model exchange</b><span>Paper prices of every brain, moved by survival.</span></a><a href="/back"><b>Back a creature</b><span>Paper credits on who survives the next trial.</span></a><a href="/genes"><b>Gene board</b><span>Which brain is winning, round after round.</span></a><a href="/record"><b>The record</b><span>Every round, every death, every commitment.</span></a><a href="/verify"><b>Verify a round</b><span>Recompute any new round in your browser.</span></a><a href="/#docs"><b>How it works</b><span>What is simulated, what is on chain, what is paper.</span></a></div></div><button type="button" class="ds-btn ds-btn--sm ds-nav__act hide-m" id="connect" data-hatch>Hatch lineage</button><span class="ds-nav__line" aria-hidden="true"><i></i></span></nav>
+<div class="pg"><header class="xh"><div class="ds-kicker" data-draw><span id="eb">Lineage</span><em id="xkm"></em></div><h1 class="ds-h1" id="h"></h1><p class="ds-lede" data-draw style="--i:2" id="sub"></p>
+<div class="ds-stats" data-draw style="--i:3;margin-top:48px" id="ls"></div>
+<div class="btns" data-draw style="--i:4" id="lb" hidden><a class="ds-btn ds-btn--sig" id="mdw" href="/app">Find them in the meadow<i class="arr"></i></a><button type="button" class="ds-btn" id="sx">Share on X</button><button type="button" class="ds-btn" id="dl">Download card</button><button type="button" class="ds-btn" id="cp">Copy link</button></div></header>
+<div id="tw" hidden><div class="ds-label ds-label--rule" style="margin-top:var(--s-7)">The family tree<em id="tcount"></em></div><div class="treew" id="wrap"><svg id="tree" class="wait" role="group" aria-label="Family tree"></svg></div>
+<div class="lgd lab"><span><i class="ds-mark ds-mark--alive"></i>Alive</span><span><i class="ds-mark ds-mark--dead die"></i>Dead</span><span><i class="mline"></i>Mutation: the brain changed at birth</span><span id="hint"></span></div></div></div>
+<div class="hc ds-panel ds-panel--tight" id="hc"></div>
+<aside class="slipside" id="ss" aria-label="Creature slip"><div class="top"><span id="ssT">Slip</span><button id="ssX" aria-label="Close">×</button></div><div id="ssS"></div><div class="acts" id="ssA" hidden><button type="button" class="ds-btn ds-btn--sm" id="ssD">Save image</button><a class="ds-btn ds-btn--sm ds-btn--sig" id="ssM">Open in the meadow<i class="arr"></i></a></div></aside>
+<div class="modal" id="modal"><div class="box ds-panel" role="dialog" aria-modal="true" aria-labelledby="mdT"><div class="ds-panel__hd"><span class="ds-label ds-label--cr" id="mdT">Hatch a lineage</span><button type="button" class="ds-btn ds-btn--sm ds-btn--icon" data-close aria-label="Close">×</button></div><p class="ds-body">Paste any Robinhood Chain address, or connect your wallet. Your wallet founds one lineage; its founder's brain is drawn from your address.</p><label class="ds-field"><span class="ds-sr">Robinhood Chain address</span><input id="addr" placeholder="0x…" autocomplete="off" spellcheck="false"></label><div class="ds-btns"><button type="button" class="ds-btn ds-btn--sig" id="go">Hatch<i class="arr"></i></button><button type="button" class="ds-btn" id="conn">Connect wallet</button></div><div class="err" id="err"></div></div></div>
+<script src="/common.js"></script><script src="/cards.js"></script><script src="/slip.js"></script><script>$$('[data-hatch]').forEach((b)=>b.onclick=openSummon);</script>
+<script>
+const w=location.pathname.split('/').pop().toLowerCase();
+(async()=>{let L=null;try{L=await api('/api/lineage/'+w)}catch{}
+if(!L||!L.total){pxSay($('#h'),'No lineage for this wallet yet');$('#sub').innerHTML='<button type="button" class="ds-btn ds-btn--sig" data-hatch2>Hatch it<i class="arr"></i></button>';$('[data-hatch2]').onclick=()=>{$('#addr').value=w;openSummon()};return}
+const B=L.beings,f=B[0];const G=await PX_GENES;const mm=Object.fromEntries(G.map(m=>[m.id,m]));
+const MD=b=>mm[b.model]||{name:b.model,tier:'common',logo:''};const byId=Object.fromEntries(B.map(b=>[b.id,b]));
+const fm=MD(f),dead=L.total-L.alive,mut=B.filter(b=>b.mutated).length,best=B.reduce((s,b)=>Math.max(s,b.survived||0),0);
+document.title='The '+L.family+' line — WEIGHTLINGS';
+$('#eb').textContent='Lineage · '+short(w);pxSay($('#h'),'The '+L.family+' line');
+$('#sub').textContent=L.total+' born across '+L.generations+' generations, '+L.alive+' alive now. Founded with a '+fm.name+' brain ('+tierX(fm.tier)[1]+').'+(L.alive?'':' The line is extinct.');
+const T=L.total||1;
+pxStats($('#ls'),[['Born',L.total,''],['Alive',L.alive,'sig',L.alive/T],['Removed',dead,'die',dead/T],['Generations',L.generations,''],['Mutations',mut,'mut',mut/T],['Most trials survived',best,'clock']],{id:'ls'});
+// share
+const star=[...B].sort((a,z)=>(!a.died)-(!z.died)?(!z.died)-(!a.died):(z.survived-a.survived)||a.id-z.id)[0];
+const txt='The '+L.family+' line: '+L.total+' born across '+L.generations+' generations, '+L.alive+' alive now.';
+const mkCard=async()=>{const m=MD(star),c=document.createElement('canvas');c.width=1200;c.height=675;await drawBeingCard(c,{...star,tier:m.tier,logo:m.logo,modelName:m.name});return c};
+$('#lb').hidden=false;const liveOne=B.find(b=>!b.died);if(liveOne)$('#mdw').href='/app?b='+liveOne.id;
+$('#sx').onclick=async()=>{try{downloadCanvas(await mkCard(),L.family+'-line.png')}catch{}shareX(txt,location.href)};
+$('#dl').onclick=async()=>{try{downloadCanvas(await mkCard(),L.family+'-line.png')}catch{}};
+$('#cp').onclick=async()=>{try{await navigator.clipboard.writeText(location.href);$('#cp').textContent='Link copied';setTimeout(()=>$('#cp').textContent='Copy link',1600)}catch{}};
+// ---- pedigree layout: leaves take columns, parents sit over the middle of their children
+const kids={};B.forEach(b=>{if(b.parent!=null&&byId[b.parent])(kids[b.parent]||=[]).push(b)});
+const roots=B.filter(b=>b.parent==null||!byId[b.parent]);
+let x=0,maxD=0;const pos={};const place=(b,d)=>{maxD=Math.max(maxD,d);const ch=kids[b.id]||[];if(!ch.length){pos[b.id]=[x++,d];return}ch.forEach(c=>place(c,d+1));const xs=ch.map(c=>pos[c.id][0]);pos[b.id]=[(Math.min(...xs)+Math.max(...xs))/2,d]};roots.forEach(r=>place(r,0));
+const wrap=$('#wrap');$('#tw').hidden=false;$('#tcount').textContent=L.total+' specimens · '+(maxD+1)+' generations';
+const DX=112,DY=128,S=20,C=6,ML=84,MT=62,inner=Math.max(1,x)*DX,Wd=Math.max(wrap.clientWidth||800,ML+inner+30),Hd=MT+maxD*DY+S+46,OFF=ML+Math.max(0,(Wd-ML-30-inner)/2)+DX/2;
+const PX=a=>OFF+a*DX,PY=d=>MT+d*DY;
+const svg=$('#tree');svg.setAttribute('width',Wd);svg.setAttribute('height',Hd);svg.setAttribute('viewBox','0 0 '+Wd+' '+Hd);
+// growth timing: one generation per step, the whole tree in about five seconds at most
+const STEP=Math.round(Math.min(520,4600/Math.max(1,maxD+1))),ED=Math.round(Math.min(620,STEP*1.15));
+svg.style.setProperty('--step',STEP+'ms');svg.style.setProperty('--ed',ED+'ms');
+// a chamfered specimen box, the same 45-degree cut as every frame on the site
+const box=(X,Y)=>'M'+(X-S+C)+','+(Y-S)+'H'+(X+S)+'V'+(Y+S-C)+'L'+(X+S-C)+','+(Y+S)+'H'+(X-S)+'V'+(Y-S+C)+'Z';
+let out='';for(let d=0;d<=maxD;d++)out+='<line class="gl2" style="--d:'+d+'" x1="70" x2="'+Wd+'" y1="'+PY(d)+'" y2="'+PY(d)+'"/><text class="gn" x="6" y="'+(PY(d)+3.5)+'">Gen '+(d+1)+'</text>';
+B.forEach(b=>{const p=byId[b.parent];if(!p||!pos[b.id]||!pos[p.id])return;const X1=PX(pos[p.id][0]),Y1=PY(pos[p.id][1])+S,X2=PX(pos[b.id][0]),Y2=PY(pos[b.id][1])-S,mid=Y1+(Y2-Y1)*.38,d=pos[p.id][1];
+const path='M'+X1+','+Y1+' V'+mid+' H'+X2+' V'+Y2;
+out+='<path class="ed '+(b.died?'':'lv')+'" pathLength="1" style="--d:'+d+'" d="'+path+'"/><path class="tip" pathLength="1" style="--d:'+d+'" d="'+path+'"/>';
+if(b.mutated)out+='<text class="mu" style="--d:'+d+'" x="'+X2+'" y="'+(Y2-9)+'" text-anchor="middle" fill="#b98cff" stroke="#020403" stroke-width="5" paint-order="stroke">→ '+esc(MD(b).name)+'</text>'});
+B.forEach(b=>{if(!pos[b.id])return;const m=MD(b),c=tierX(m.tier)[0],X=PX(pos[b.id][0]),Y=PY(pos[b.id][1]),tok=b.nick.split(' ').pop(),d=pos[b.id][1];
+out+='<g class="nd '+(b.died?'dead':'live')+'" data-id="'+b.id+'" tabindex="0" role="button" aria-label="'+esc(b.nick)+', '+esc(m.name)+(b.died?', dead':', alive')+'" style="--d:'+(d?d-1:-1)+';--c:'+c+'">'
++'<path class="bx" d="'+box(X,Y)+'" stroke="'+c+'"/>'
++(m.logo?'<image href="'+m.logo+'" x="'+(X-11)+'" y="'+(Y-11)+'" width="22" height="22"/>':'')
++(b.died?'<g class="xm" transform="translate('+(X+S+2)+','+(Y-S-9)+') rotate(180 5.5 4.5)">'+BIRD.map((row,j)=>[...row].map((ch,i)=>ch==='X'?'<rect x="'+i+'" y="'+j+'" width="1" height="1"/>':'').join('')).join('')+'</g>':'<rect class="pulse" x="'+(X+S-3)+'" y="'+(Y-S-3)+'" width="6" height="6" fill="'+c+'"/>')
++'<text class="nm" x="'+X+'" y="'+(Y+S+16)+'" text-anchor="middle" stroke="#020403" stroke-width="5" paint-order="stroke">'+esc(tok)+' <tspan fill="#6b7770">'+b.id+'</tspan></text></g>'});
+svg.innerHTML=out;
+const fx=PX(pos[roots[0].id][0]);wrap.scrollLeft=Math.max(0,fx-wrap.clientWidth/2);
+// grow the tree, branch by branch, once it is in view
+const grow=()=>{svg.classList.remove('wait');svg.classList.add('grow')};
+if('IntersectionObserver' in window&&!(window.Art&&Art.reduced)){const io=new IntersectionObserver(es=>{if(es.some(e=>e.isIntersecting)){io.disconnect();requestAnimationFrame(grow)}},{rootMargin:'0px 0px -10% 0px'});io.observe(wrap)}else grow();
+// ---- hover card
+const hc=$('#hc'),canHover=matchMedia('(hover: hover)').matches;let cur=null,pinned=false;const cache={},EP={};
+$('#hint').textContent=canHover?'Hover a creature for its record. Click to print its slip.':'Tap a creature to print its slip.';
+pxApi('/api/dead?limit=100').then(d=>{if(Array.isArray(d))d.forEach(v=>{if(v.epitaph)EP[v.id]=v;});if(cur)fill(cur)});
+const trial=k=>{const t=(ROUND&&ROUND.trials||[]).find(t=>t.key===k);return t?t.name:(EP[cur]&&EP[cur].cause===k?EP[cur].causeName:k)};
+const trialName=(k,e)=>{const t=(ROUND&&ROUND.trials||[]).find(t=>t.key===k);return t?t.name:(e&&e.cause===k&&e.causeName?e.causeName:k)};
+function fill(id){const b=byId[id];if(!b)return;const m=MD(b),t=tierX(m.tier),p=byId[b.parent],x=cache[id],e=EP[id];
+hc.innerHTML='<div class="t">'+(m.logo?'<img src="'+m.logo+'" alt="">':'')+'<div><b>'+esc(b.nick)+'</b><span class="lab" style="color:'+t[0]+'">'+t[1]+' · '+esc(m.name)+'</span></div></div>'
++'<div class="lab st '+(b.died?'de':'al')+'"><i class="ds-mark '+(b.died?'ds-mark--dead die':'ds-mark--alive')+'"></i> '+(b.died?'Removed in round '+b.rdied+(b.cause?' · '+esc(trial(b.cause)):''):'Alive'+(x&&x.alive&&x.energy!=null?' · energy '+x.energy:''))+'</div>'
++'<div class="lab" style="margin-top:4px">Generation '+(b.gen+1)+' · specimen '+b.id+'</div>'
++'<div class="q"><div><b>'+(b.survived||0)+'</b><span>Trials</span></div><div><b>'+(b.eaten||0)+'</b><span>Berries</span></div><div><b>'+(b.wins||0)+'</b><span>Duels won</span></div><div><b>'+(b.shares||0)+'</b><span>Shared</span></div></div>'
++(b.mutated&&p?'<div class="lab mut">Mutation · '+esc(MD(p).name)+' → '+esc(m.name)+'</div>':'')
++(e?'<div class="ep">'+esc(e.epitaph)+'</div>':'')
++(x&&Array.isArray(x.events)&&x.events[0]&&x.events[0].text?'<div class="ev">'+esc(x.events[0].text)+'</div>':'')
++(pinned?'<a class="lab go" href="/app?b='+b.id+'">Open in the meadow →</a>':'')}
+function put(px,py){const r=hc.getBoundingClientRect(),vw=innerWidth,vh=innerHeight;let l=px+18,t=py+18;if(l+r.width>vw-10)l=Math.max(10,px-18-r.width);if(t+r.height>vh-10)t=Math.max(10,py-18-r.height);hc.style.left=l+'px';hc.style.top=t+'px'}
+function show(id,px,py){if(cur!==id){$$('#tree .nd.on').forEach(n=>n.classList.remove('on'));cur=id;const n=$('#tree .nd[data-id="'+id+'"]');if(n)n.classList.add('on');fill(id);
+if(!(id in cache)){cache[id]=null;pxApi('/api/being/'+id).then(v=>{if(v&&!v.error){cache[id]=v;if(cur===id){fill(id);}}})}}
+hc.classList.add('on');hc.classList.toggle('pin',pinned);put(px,py)}
+function hide(){cur=null;pinned=false;hc.classList.remove('on','pin');$$('#tree .nd.on').forEach(n=>n.classList.remove('on'))}
+const nodeOf=e=>e.target.closest&&e.target.closest('.nd');
+if(canHover){svg.addEventListener('mousemove',e=>{const n=nodeOf(e);if(n)show(Number(n.dataset.id),e.clientX,e.clientY);else if(!pinned)hide()});svg.addEventListener('mouseleave',()=>{if(!pinned)hide()})}
+// ---- slip panel: a click prints the creature's vital / autopsy slip
+const ss=$('#ss');let slipId=null,slipCur=null;
+const closeSlip=()=>{ss.classList.remove('on');slipId=null;if($('#ssS')._slip)$('#ssS')._slip.cancel()};
+async function openSlip(id){const b=byId[id];if(!b)return;hide();slipId=id;slipCur=null;ss.classList.add('on');$('#ssA').hidden=true;$('#ssT').textContent=b.died?'Autopsy slip':'Vital slip';
+if(!(id in cache)||!cache[id]){$('#ssS').innerHTML='<div class="wait">Pulling the record</div>';const v=await pxApi('/api/being/'+id);if(v&&!v.error)cache[id]=v}
+if(slipId!==id)return;const m=MD(b),x=cache[id]||{},e=EP[id];
+const s=beingSlip({...b,...x,id:b.id,nick:b.nick,gen:b.gen,modelName:m.name,died:b.died,rdied:b.rdied,cause:b.cause,alive:!b.died},{family:L.family,rarity:tierX(m.tier)[1],epitaph:e&&e.epitaph,causeName:b.cause?trialName(b.cause,e):null});
+slipCur=s;$('#ssT').textContent=s.title;printSlip($('#ssS'),s.lines,s);$('#ssM').href='/app?b='+b.id;$('#ssA').hidden=false}
+$('#ssX').onclick=closeSlip;$('#ssD').onclick=async()=>{if(!slipCur)return;try{await document.fonts.ready}catch{}slipSave(slipCur.lines,slipCur,(slipCur.sub||'slip').replace(/\s+/g,'-')+'-slip.png')};
+addEventListener('keydown',e=>{if(e.key==='Escape'&&slipId!=null)closeSlip()});
+svg.addEventListener('click',e=>{const n=nodeOf(e);if(!n){hide();return}openSlip(Number(n.dataset.id))});
+svg.addEventListener('focusin',e=>{const n=nodeOf(e);if(n&&!pinned){const r=n.getBoundingClientRect();show(Number(n.dataset.id),r.right-10,r.bottom-10)}});
+svg.addEventListener('focusout',()=>{if(!pinned)hide()});
+svg.addEventListener('keydown',e=>{const n=nodeOf(e);if(n&&(e.key==='Enter'||e.key===' ')){e.preventDefault();openSlip(Number(n.dataset.id))}});
+document.addEventListener('click',e=>{if(pinned&&!e.target.closest('#tree .nd')&&!e.target.closest('#hc'))hide();if(slipId!=null&&!e.target.closest('#ss')&&!e.target.closest('#tree .nd'))closeSlip()});
+wrap.addEventListener('scroll',()=>{if(pinned)hide()},{passive:true});addEventListener('scroll',()=>{if(cur!=null)hide()},{passive:true});
+})();
+</script>
+<script src="/fx.js" defer></script></body></html>

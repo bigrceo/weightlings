@@ -1,0 +1,39 @@
+{
+  "note": "Published architecture facts, read from each model's config.json on Hugging Face on 2026-11-22. Where the lab's own repository is gated, the same config was read from a public mirror of that release and the mirror is named in source. A null field means the value is not published here. These are facts about the released model; no weights are loaded by this site.",
+  "fields": {
+    "layers": "num_hidden_layers",
+    "hiddenSize": "hidden_size",
+    "attentionHeads": "num_attention_heads",
+    "kvHeads": "num_key_value_heads",
+    "ffSize": "intermediate_size",
+    "vocab": "vocab_size",
+    "moe.experts": "num_local_experts (Mixtral) or n_routed_experts (DeepSeek)",
+    "moe.active": "num_experts_per_tok",
+    "moe.shared": "n_shared_experts",
+    "moe.denseLayers": "first_k_dense_replace: the first layers that have no expert routing"
+  },
+  "models": {
+    "qwen2.5-0.5b": { "repo": "Qwen/Qwen2.5-0.5B-Instruct", "layers": 24, "hiddenSize": 896, "attentionHeads": 14, "kvHeads": 2, "ffSize": 4864, "vocab": 151936, "moe": null, "source": "config.json of Qwen/Qwen2.5-0.5B-Instruct on Hugging Face" },
+    "llama-3.2-1b": { "repo": "meta-llama/Llama-3.2-1B-Instruct", "layers": 16, "hiddenSize": 2048, "attentionHeads": 32, "kvHeads": 8, "ffSize": 8192, "vocab": 128256, "moe": null, "source": "config.json of Llama 3.2 1B Instruct; Meta's repository is gated, read from the public mirror unsloth/Llama-3.2-1B-Instruct" },
+    "gemma-2-2b": { "repo": "google/gemma-2-2b", "layers": 26, "hiddenSize": 2304, "attentionHeads": 8, "kvHeads": 4, "ffSize": 9216, "vocab": 256000, "moe": null, "source": "config.json of Gemma 2 2B; Google's repository is gated, read from the public mirror unsloth/gemma-2-2b" },
+    "qwen2.5-1.5b": { "repo": "Qwen/Qwen2.5-1.5B-Instruct", "layers": 28, "hiddenSize": 1536, "attentionHeads": 12, "kvHeads": 2, "ffSize": 8960, "vocab": 151936, "moe": null, "source": "config.json of Qwen/Qwen2.5-1.5B-Instruct on Hugging Face" },
+    "mistral-7b": { "repo": "mistralai/Mistral-7B-v0.1", "layers": 32, "hiddenSize": 4096, "attentionHeads": 32, "kvHeads": 8, "ffSize": 14336, "vocab": 32000, "moe": null, "source": "config.json of mistralai/Mistral-7B-v0.1 on Hugging Face" },
+    "llama-3.2-3b": { "repo": "meta-llama/Llama-3.2-3B-Instruct", "layers": 28, "hiddenSize": 3072, "attentionHeads": 24, "kvHeads": 8, "ffSize": 8192, "vocab": 128256, "moe": null, "source": "config.json of Llama 3.2 3B Instruct; Meta's repository is gated, read from the public mirror unsloth/Llama-3.2-3B-Instruct" },
+    "qwen2.5-3b": { "repo": "Qwen/Qwen2.5-3B-Instruct", "layers": 36, "hiddenSize": 2048, "attentionHeads": 16, "kvHeads": 2, "ffSize": 11008, "vocab": 151936, "moe": null, "source": "config.json of Qwen/Qwen2.5-3B-Instruct on Hugging Face" },
+    "phi-3-mini": { "repo": "microsoft/Phi-3-mini-128k-instruct", "layers": 32, "hiddenSize": 3072, "attentionHeads": 32, "kvHeads": 32, "ffSize": 8192, "vocab": 32064, "moe": null, "source": "config.json of microsoft/Phi-3-mini-128k-instruct on Hugging Face" },
+    "llama-3.1-8b": { "repo": "meta-llama/Llama-3.1-8B-Instruct", "layers": 32, "hiddenSize": 4096, "attentionHeads": 32, "kvHeads": 8, "ffSize": 14336, "vocab": 128256, "moe": null, "source": "config.json of Llama 3.1 8B Instruct; Meta's repository is gated, read from the public mirror unsloth/Meta-Llama-3.1-8B-Instruct" },
+    "mixtral-8x7b": { "repo": "mistralai/Mixtral-8x7B-v0.1", "layers": 32, "hiddenSize": 4096, "attentionHeads": 32, "kvHeads": 8, "ffSize": 14336, "vocab": 32000, "moe": { "experts": 8, "active": 2, "shared": 0, "denseLayers": 0 }, "source": "config.json of mistralai/Mixtral-8x7B-v0.1 on Hugging Face" },
+    "gemma-2-9b": { "repo": "google/gemma-2-9b", "layers": 42, "hiddenSize": 3584, "attentionHeads": 16, "kvHeads": 8, "ffSize": 14336, "vocab": 256000, "moe": null, "source": "config.json of Gemma 2 9B; Google's repository is gated, read from the public mirror unsloth/gemma-2-9b" },
+    "qwen2.5-7b": { "repo": "Qwen/Qwen2.5-7B-Instruct", "layers": 28, "hiddenSize": 3584, "attentionHeads": 28, "kvHeads": 4, "ffSize": 18944, "vocab": 152064, "moe": null, "source": "config.json of Qwen/Qwen2.5-7B-Instruct on Hugging Face" },
+    "gemma-2-27b": { "repo": "google/gemma-2-27b", "layers": 46, "hiddenSize": 4608, "attentionHeads": 32, "kvHeads": 16, "ffSize": 36864, "vocab": 256000, "moe": null, "source": "config.json of Gemma 2 27B; Google's repository is gated, read from the public mirror unsloth/gemma-2-27b-it" },
+    "mixtral-8x22b": { "repo": "mistralai/Mixtral-8x22B-v0.1", "layers": 56, "hiddenSize": 6144, "attentionHeads": 48, "kvHeads": 8, "ffSize": 16384, "vocab": 32000, "moe": { "experts": 8, "active": 2, "shared": 0, "denseLayers": 0 }, "source": "config.json of mistralai/Mixtral-8x22B-v0.1 on Hugging Face" },
+    "phi-3-medium": { "repo": "microsoft/Phi-3-medium-128k-instruct", "layers": 40, "hiddenSize": 5120, "attentionHeads": 40, "kvHeads": 10, "ffSize": 17920, "vocab": 32064, "moe": null, "source": "config.json of microsoft/Phi-3-medium-128k-instruct on Hugging Face" },
+    "qwen2.5-14b": { "repo": "Qwen/Qwen2.5-14B-Instruct", "layers": 48, "hiddenSize": 5120, "attentionHeads": 40, "kvHeads": 8, "ffSize": 13824, "vocab": 152064, "moe": null, "source": "config.json of Qwen/Qwen2.5-14B-Instruct on Hugging Face" },
+    "qwen2.5-32b": { "repo": "Qwen/Qwen2.5-32B-Instruct", "layers": 64, "hiddenSize": 5120, "attentionHeads": 40, "kvHeads": 8, "ffSize": 27648, "vocab": 152064, "moe": null, "source": "config.json of Qwen/Qwen2.5-32B-Instruct on Hugging Face" },
+    "llama-3.1-70b": { "repo": "meta-llama/Llama-3.1-70B-Instruct", "layers": 80, "hiddenSize": 8192, "attentionHeads": 64, "kvHeads": 8, "ffSize": 28672, "vocab": 128256, "moe": null, "source": "config.json of Llama 3.1 70B Instruct; Meta's repository is gated, read from the public mirror unsloth/Meta-Llama-3.1-70B-Instruct" },
+    "qwen2.5-72b": { "repo": "Qwen/Qwen2.5-72B-Instruct", "layers": 80, "hiddenSize": 8192, "attentionHeads": 64, "kvHeads": 8, "ffSize": 29568, "vocab": 152064, "moe": null, "source": "config.json of Qwen/Qwen2.5-72B-Instruct on Hugging Face" },
+    "llama-3.1-405b": { "repo": "meta-llama/Llama-3.1-405B-Instruct", "layers": 126, "hiddenSize": 16384, "attentionHeads": 128, "kvHeads": 8, "ffSize": 53248, "vocab": 128256, "moe": null, "source": "config.json of Llama 3.1 405B Instruct; Meta's repository is gated, read from the public mirror unsloth/Meta-Llama-3.1-405B-Instruct-bnb-4bit" },
+    "deepseek-v3": { "repo": "deepseek-ai/DeepSeek-V3", "layers": 61, "hiddenSize": 7168, "attentionHeads": 128, "kvHeads": 128, "ffSize": 18432, "vocab": 129280, "moe": { "experts": 256, "active": 8, "shared": 1, "denseLayers": 3 }, "source": "config.json of deepseek-ai/DeepSeek-V3 on Hugging Face" },
+    "deepseek-r1": { "repo": "deepseek-ai/DeepSeek-R1", "layers": 61, "hiddenSize": 7168, "attentionHeads": 128, "kvHeads": 128, "ffSize": 18432, "vocab": 129280, "moe": { "experts": 256, "active": 8, "shared": 1, "denseLayers": 3 }, "source": "config.json of deepseek-ai/DeepSeek-R1 on Hugging Face" }
+  }
+}

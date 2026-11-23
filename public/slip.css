@@ -1,0 +1,55 @@
+/* The printed slip (slip.js). Off-white paper on the black site; works inside .px pages and the meadow drawer. */
+.slip { --ink: #17171a; --paper: #f3f1ea; width: 100%; max-width: 340px; filter: drop-shadow(0 22px 34px rgba(0,0,0,.6)) drop-shadow(0 2px 3px rgba(0,0,0,.5)); font-family: Inter, system-ui, sans-serif; text-align: left; }
+.slip-paper { position: relative; background: linear-gradient(90deg, rgba(0,0,0,.05), transparent 10%, transparent 90%, rgba(0,0,0,.06)), var(--paper); color: var(--ink); padding: 26px 20px 30px; transform: rotate(-.4deg);
+  -webkit-mask: radial-gradient(circle at 6px 0, transparent 3.6px, #000 4.2px) 0 0 / 12px 51% repeat-x, radial-gradient(circle at 6px 100%, transparent 3.6px, #000 4.2px) 0 100% / 12px 51% repeat-x;
+  mask: radial-gradient(circle at 6px 0, transparent 3.6px, #000 4.2px) 0 0 / 12px 51% repeat-x, radial-gradient(circle at 6px 100%, transparent 3.6px, #000 4.2px) 0 100% / 12px 51% repeat-x; }
+.slip-hd { display: flex; align-items: center; gap: 9px; }
+.slip-hd svg { width: 22px; height: 18px; fill: var(--ink); flex: none; }
+.slip-hd b { font: 700 10.5px/1 Inter, sans-serif; letter-spacing: .26em; color: var(--ink); }
+.slip-ti { margin-top: 14px; font: 700 17px/1.2 Inter, sans-serif; letter-spacing: -.01em; color: var(--ink); }
+.slip-su { margin-top: 4px; font: 600 9.5px/1.4 Inter, sans-serif; letter-spacing: .16em; text-transform: uppercase; color: #6b6a63; overflow-wrap: anywhere; }
+.slip-rows { margin-top: 14px; padding-top: 10px; border-top: 1px dashed rgba(23,23,26,.55); min-height: 8px; }
+.slip-ln { display: flex; align-items: baseline; gap: 7px; padding: 4.5px 0; overflow: hidden; transition: height .2s cubic-bezier(.2,.7,.2,1), opacity .16s linear; box-sizing: border-box; }
+.slip-ln .k { flex: none; max-width: 58%; font: 600 9.5px/1.5 Inter, sans-serif; letter-spacing: .14em; text-transform: uppercase; color: #6b6a63; }
+.slip-ln i { flex: 1; min-width: 12px; align-self: flex-end; height: 0; margin-bottom: 5px; border-bottom: 1.5px dotted rgba(23,23,26,.38); }
+.slip-ln .v { font: 600 13px/1.35 Inter, sans-serif; font-variant-numeric: tabular-nums; color: var(--ink); text-align: right; overflow-wrap: anywhere; min-width: 0; text-decoration: none; }
+.slip-ln a.v { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+.slip-ln.w { display: block; padding-top: 9px; }
+.slip-ln.w .k { display: block; max-width: none; }
+.slip-ln.w p { margin: 3px 0 0; font: italic 500 13px/1.5 Inter, sans-serif; color: var(--ink); }
+.slip-ln.w a.go { display: block; margin-top: 4px; padding-top: 10px; border-top: 1px dashed rgba(23,23,26,.55); font: 700 10px/1.5 Inter, sans-serif; letter-spacing: .14em; text-transform: uppercase; color: var(--ink); text-decoration: none; overflow-wrap: anywhere; }
+.slip-ln.w a.go:hover, .slip-ln a.v:hover { color: #0b7a4b; }
+.slip-ln a:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.slip-ft { display: flex; justify-content: flex-end; min-height: 0; }
+.slip-stamp { margin: 14px 2px 0 0; padding: 7px 12px 6px 15px; border: 3px solid currentColor; border-radius: 3px; font: 800 19px/1 Inter, sans-serif; letter-spacing: .2em; text-transform: uppercase; mix-blend-mode: multiply; opacity: .86; transform: rotate(-7deg); transform-origin: 60% 50%; animation: slipSlam .34s cubic-bezier(.2,1.5,.4,1) both; }
+.slip-stamp.k { color: #e2125f; } .slip-stamp.g { color: #0b9a5d; } .slip-stamp.a { color: #b9770a; }
+@keyframes slipSlam { 0% { transform: rotate(-16deg) scale(2.7); opacity: 0; } 60% { opacity: .95; } 100% { transform: rotate(-7deg) scale(1); opacity: .86; } }
+.slip.now .slip-stamp { animation: none; } .slip.now .slip-ln { transition: none; }
+
+/* round page: slip + its caption and buttons */
+.slipw { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 56px; align-items: start; margin-top: 64px; }
+.slipw .cap { padding-top: 22px; max-width: 420px; }
+.slipw .cap p { margin: 12px 0 0; color: #9a9aa0; font: 400 14.5px/1.65 Inter, sans-serif; }
+.slipw .cap .btns { margin-top: 22px; }
+@media (max-width: 760px) { .slipw { grid-template-columns: 1fr; gap: 26px; margin-top: 44px; } .slipw .slip { margin: 0 auto; } .slipw .cap { padding-top: 0; } }
+
+/* lineage page: side panel holding a creature's slip */
+.slipside { position: fixed; z-index: 90; top: 0; right: 0; bottom: 0; width: min(400px, 100vw); box-sizing: border-box; padding: 18px 26px 30px; overflow-y: auto; background: rgba(6,6,8,.9); -webkit-backdrop-filter: blur(22px); backdrop-filter: blur(22px); border-left: 1px solid rgba(255,255,255,.09); transform: translateX(105%); visibility: hidden; transition: transform .34s cubic-bezier(.2,.8,.2,1), visibility 0s .34s; scrollbar-width: thin; scrollbar-color: #2a2a2e transparent; }
+.slipside.on { transform: none; visibility: visible; transition: transform .34s cubic-bezier(.2,.8,.2,1); }
+.slipside .top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.slipside .top span { font: 600 10px/1 Inter, sans-serif; letter-spacing: .2em; text-transform: uppercase; color: #8a8a90; }
+.slipside .top button { width: 32px; height: 32px; border: 0; border-radius: 6px; background: none; color: #8a8a90; font-size: 21px; line-height: 1; cursor: pointer; }
+.slipside .top button:hover { color: #fff; background: rgba(255,255,255,.07); }
+.slipside .slip { margin: 0 auto; }
+.slipside .acts { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 26px; }
+.slipside .acts .btn { padding: 10px 16px; font-size: 14px; cursor: pointer; }
+.slipside .wait { color: #6f6f76; font: 600 10px Inter, sans-serif; letter-spacing: .18em; text-transform: uppercase; text-align: center; padding: 40px 0; }
+@media (max-width: 640px) { .slipside { top: auto; left: 0; width: 100%; max-height: 86vh; padding: 14px 16px 26px; border-left: 0; border-top: 1px solid rgba(255,255,255,.1); border-radius: 14px 14px 0 0; transform: translateY(105%); } }
+
+/* meadow drawer */
+.drawer .dslip { margin-top: 22px; display: flex; justify-content: center; }
+.drawer .dslip:empty { display: none; }
+.drawer .dact { flex-wrap: wrap; }
+.drawer .dslipact { display: flex; justify-content: center; margin-top: 16px; } .drawer .dslipact[hidden] { display: none; }
+
+@media (prefers-reduced-motion: reduce) { .slip-ln { transition: none; } .slip-stamp { animation: none; } .slipside, .slipside.on { transition: none; } }

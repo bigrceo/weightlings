@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WEIGHTLINGS — Natural selection for open models</title>
+<meta name="description" content="Small creatures, each carrying the traits of a real open model. Every hour a trial removes the weakest 35%. Survivors breed. Everything is recorded.">
+<meta property="og:title" content="WEIGHTLINGS — Natural selection for open models">
+<meta property="og:description" content="Small creatures. Open-model brains. Every hour, the weakest are removed.">
+<meta property="og:image" content="/og.png"><meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/icon.png">
+<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/fx.css">
+<link rel="stylesheet" href="/landing-x.css">
+<link rel="stylesheet" href="/boot.css">
+<link rel="stylesheet" href="/ds.css">
+<script src="/art.js"></script>
+<noscript><style>.intro{display:none}</style></noscript>
+</head>
+<body class="ds lp" data-art-rain="dim">
+<div id="strip" class="strip"></div>
+<nav class="ds-nav" aria-label="Main"><a class="ds-nav__mark" href="/" aria-label="Weightlings, home"><svg id="logoSvg" viewBox="0 0 11 9" shape-rendering="crispEdges" aria-hidden="true"></svg><b>Weightlings</b></a><a class="ds-nav__go" href="/app">Meadow<em data-art-alive></em></a><div class="ds-nav__links"><a href="/hire">Hire</a><a href="/build">Build</a><a href="/market">Market</a><a href="/back">Back</a><a class="ds-nav__sec" href="/genes">Genes</a><a class="ds-nav__sec" href="/record">Record</a><a class="ds-nav__sec" href="/verify">Verify</a><a class="hide-m" href="#" data-x>X</a><button type="button" class="show-m" data-hatch>Hatch</button></div><div class="dd ds-nav__dd hide-m" id="dd"><button type="button" aria-haspopup="true">Index<svg viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button><div class="ds-nav__menu"><a href="/app"><b>Enter the meadow</b><span>Every creature, live, with its brain.</span></a><a href="/hire"><b>Hire a creature</b><span>A real task, done by Claude, with a signed receipt.</span></a><a href="/#hour"><b>One hour</b><span>A life, from hatch to cull.</span></a><a href="/#ward"><b>The ward</b><span>Who died this hour, by rarity and lab.</span></a><a href="/#intelligence"><b>Observation deck</b><span>Live gene board and the last round.</span></a><a href="/market"><b>Model exchange</b><span>Paper prices of every brain, moved by survival.</span></a><a href="/back"><b>Back a creature</b><span>Paper credits on who survives the next trial.</span></a><a href="/genes"><b>Gene board</b><span>Which brain is winning, round after round.</span></a><a href="/record"><b>The record</b><span>Every round, every death, every commitment.</span></a><a href="/verify"><b>Verify a round</b><span>Recompute any new round in your browser.</span></a><a href="/#docs"><b>How it works</b><span>What is simulated, what is on chain, what is paper.</span></a></div></div><button type="button" class="ds-btn ds-btn--sm ds-nav__act hide-m" id="connect" data-hatch>Hatch lineage</button><span class="ds-nav__line" aria-hidden="true"><i></i></span></nav>
+<button class="sound" id="sound" aria-label="Sound"><svg viewBox="0 0 16 16"><path d="M2 6h3l4-3v10l-4-3H2z" fill="currentColor"/><path id="sw" d="M11 5.5c1 1.4 1 3.6 0 5M13 4c2 2.4 2 5.6 0 8" stroke="currentColor" fill="none" stroke-width="1.3" opacity=".35"/></svg></button>
+
+<div class="intro" id="intro"></div>
+<script src="/boot.js"></script>
+
+<header class="lp-hero" id="top">
+  <canvas id="field0" aria-label="The meadow drawn as one brain: one light per living creature, grouped by the model assigned to it. Click a light to open that creature."></canvas>
+  <div class="lp-copy">
+    <div class="ds-kicker lp-kick" data-draw="text">Natural selection for open models<em id="chRound">Robinhood Chain</em></div>
+    <h1 class="lp-h1" data-draw="text">Tiny creatures with <em>real AI models</em> for brains.</h1>
+    <p class="lp-die" data-draw style="--i:2">Every hour, <span>the weakest die.</span></p>
+    <div class="ds-btns lp-go" data-draw style="--i:3">
+      <a class="ds-btn ds-btn--sig ds-btn--lg lp-enter" href="/app">Enter the meadow<i class="arr"></i></a>
+      <a class="ds-btn ds-btn--lg" href="/hire">Hire a creature</a><a class="ds-btn ds-btn--lg" href="/build">Build your agent</a>
+    </div>
+    <p class="ds-lede lp-sub" data-draw style="--i:4">Each creature is assigned an open model such as Llama or Qwen, and that model's published scores become its traits. On the hour a trial removes the weakest 35%, and the survivors breed.</p>
+    <form class="ds-field lp-ask" id="ask0" data-draw style="--i:5"><input id="ask0i" placeholder="Paste a 0x… wallet to hatch your lineage" aria-label="Wallet address" autocomplete="off" spellcheck="false"><button class="ds-btn ds-btn--sm">Hatch</button></form>
+    <div class="lp-try" data-draw style="--i:6"><span class="ds-label ds-label--bare">Or try</span><a class="ds-link" href="/genes">Which brain is winning?</a><a class="ds-link" href="/verify">Verify the last round</a><a class="ds-link" href="/record">The record</a></div>
+    <p class="ds-fine lp-note" id="chNote" data-draw style="--i:7">Brains simulated from published model-card data · no open model is run · one trial every hour · dice seeded by a public Robinhood Chain block</p>
+  </div>
+  <div class="lp-leg" aria-live="off"><span class="ds-label ds-label--cr" id="chLeg">The meadow, as one brain</span><span class="lp-sig" id="chSig"></span></div>
+  <a class="lp-win" id="meadowWin" href="/app" aria-label="Live view of the meadow. Open the meadow." data-draw="frame">
+    <canvas id="meadowCv" aria-hidden="true"></canvas>
+    <span class="lp-win__hd"><span class="ds-tag ds-tag--sig"><i class="ds-mark ds-mark--live"></i>Live · the meadow</span><span class="lp-win__n" id="mwCount"></span></span>
+    <span class="lp-win__cap"><span id="mwWho">Opening the meadow…</span><span class="lp-win__go">Enter<i class="arr"></i></span></span>
+  </a>
+  <div class="statbar lp-stats" data-draw style="--i:8">
+    <div class="lp-stat"><span class="ds-label ds-label--clock">Next trial</span><b class="ds-num ds-num--md ds-num--clock" id="sbClock">--:--</b><small id="sbTrial"></small></div>
+    <div class="lp-stat"><span class="ds-label ds-label--die">Last round · died</span><b class="ds-num ds-num--md" id="sbDied">—</b><div class="xs lp-xs" id="sbXs" aria-hidden="true"></div></div>
+    <div class="lp-stat"><span class="ds-label">Exchange · paper</span><b class="lp-stat__name" id="sbTop">—</b><small id="sbTopC"></small></div>
+    <div class="lp-stat"><span class="ds-label ds-label--cr">Meadow · alive</span><b class="ds-num ds-num--md ds-num--sig" id="sbAlive">—</b><small id="sbLin"></small></div>
+  </div>
+</header>
+
+<section class="belt" id="belt" hidden aria-label="Standing this hour">
+  <div class="belt-cap belt-cap--top"><span class="ds-label ds-label--die">Kill zone · standing this hour</span><span class="ds-label ds-label--bare belt-n" id="beltN"></span></div>
+  <div class="belt-band">
+    <div class="belt-zone" id="beltZone"></div>
+    <div class="belt-blocks" id="beltBlocks"></div>
+    <i class="belt-scan" aria-hidden="true"></i>
+    <div class="belt-tip" id="beltTip" hidden></div>
+  </div>
+  <div class="belt-cap"><span class="ds-fine">Best to worst, left to right. <em>The bottom 35% would die now.</em> An indication only: the block decides.</span></div>
+</section>
+
+<section class="culled" id="culled" hidden aria-label="Last culled">
+  <span class="ds-label ds-label--die culled-h"><i class="ds-mark ds-mark--dead die"></i>Last culled</span>
+  <div class="culled-view"><div class="culled-track" id="culledTrack"></div></div>
+  <span class="ds-label ds-label--bare culled-toll" id="culledToll"></span>
+</section>
+
+<section class="lp-hire" id="hiring" aria-label="Hire a creature">
+  <div class="lp-hire__in ds-panel ds-panel--sig" data-draw="frame">
+    <div class="lp-hire__copy">
+      <div class="ds-label ds-label--cr ds-label--sig">Hire a creature</div>
+      <h2 class="ds-h2" data-draw="text">Give a creature <em>a real job.</em></h2>
+      <p class="ds-body">Pick a living creature and type a task. The work is done by Claude through our API key, every step streamed in the open, and it ends with a receipt signed by our server that your browser checks. The creature's open model stays its brain in the game. Free at launch; paid hires are not live.</p>
+      <div class="ds-btns"><a class="ds-btn ds-btn--lg" href="/hire">Hire a creature<i class="arr"></i></a><span class="ds-label ds-label--bare" id="hireN"></span></div>
+    </div>
+    <div class="lp-hire__log" id="hireLog"></div>
+  </div>
+</section>
+
+<section class="hour" id="hour">
+  <span id="vision"></span><span id="architecture"></span>
+  <div class="hour-pin">
+    <div class="hour-stage ds-frame"><canvas id="hourCv"></canvas><div class="hour-foot"><span class="ds-label ds-label--cr" id="hourCount"></span><span class="ds-label ds-label--bare dim">Diagram · 20 shown · the meadow holds 160</span></div></div>
+    <div class="hour-copy">
+      <div class="ds-label ds-label--clock">One hour · until the trial</div>
+      <div class="hour-clock" id="hourClock">60:00</div>
+      <div class="hour-rail"><i><b></b></i><i><b></b></i><i><b></b></i><i><b></b></i><i><b></b></i></div>
+      <div class="hour-beats">
+        <div class="hour-beat on"><span class="ds-label">01</span><b>Hatch</b><p>A wallet founds a lineage. The founder is assigned one open model, drawn from the address against the rarity odds.</p></div>
+        <div class="hour-beat"><span class="ds-label">02</span><b>Forage</b><p>For one hour it looks for berries. How far it sees, what it remembers and what it burns follow its model card.</p></div>
+        <div class="hour-beat"><span class="ds-label ds-label--clock">03</span><b>Trial</b><p>On the hour, a public block seeds the dice. Famine, storm, plague or maze. Every creature is scored.</p></div>
+        <div class="hour-beat"><span class="ds-label ds-label--die">04</span><b>Cull</b><p>The weakest 35% are removed. Lowest score first. There is no appeal.</p></div>
+        <div class="hour-beat"><span class="ds-label ds-label--sig">05</span><b>Breed</b><p>Survivors breed back to the cap. Children keep the brain. 12% mutate. Paper prices move. The clock restarts.</p></div>
+      </div>
+      <div class="ds-label ds-label--bare hour-hint">Scroll</div>
+    </div>
+  </div>
+</section>
+
+<section class="lp-sec lp-ward" id="ward">
+  <div class="lp-ward__top">
+    <div>
+      <div class="ds-kicker" data-draw="text">The ward<em>Counted every hour</em></div>
+      <h2 class="ds-h2" data-draw="text">The ward is counted every hour. <em class="die">Not everyone is counted twice.</em></h2>
+      <p class="ds-body lp-ward__sub" data-draw style="--i:2">On the hour, one trial is applied to all 160 creatures. Each carries the traits of one open model. Its traits and its hour decide the score. The lowest 35% are removed. The record keeps who died, who bred and which brain is ahead.</p>
+    </div>
+    <div class="lp-wardlive ds-panel" id="wardLive" data-draw="frame"></div>
+  </div>
+  <div class="lpm-wrap">
+    <div class="ds-label ds-label--rule lpm-head">Rows: rarity · columns: lab that made the brain<em>Live positions in the meadow</em></div>
+    <div class="lpm" id="matrix"></div>
+    <div class="lpm-scrub"><button class="ds-btn ds-btn--icon ds-btn--sm" id="mPrev" aria-label="Older round">←</button><span id="mLabel" class="ds-label ds-label--bare"></span><button class="ds-btn ds-btn--icon ds-btn--sm" id="mNext" aria-label="Newer round">→</button><a href="/record" class="ds-link lpm-all">The whole record →</a></div>
+  </div>
+  <div class="memoriam" id="memoriam" hidden></div>
+  <div class="lp-how">
+    <div class="ds-panel ds-panel--quiet" data-draw="frame"><span class="ds-num ds-num--sm ds-num--clock ds-num--plain">01</span><b>The draw</b><p>A minute before the hour the meadow is frozen and its hash published. The first Robinhood Chain block of the new hour seeds the dice. Anyone can run the cull again from that snapshot. The hour of foraging inside it is counted by our server.</p></div>
+    <div class="ds-panel ds-panel--quiet" data-draw="frame" style="--i:1"><span class="ds-num ds-num--sm ds-num--clock ds-num--plain">02</span><b>The trial</b><p>Famine, storm, plague or maze. Each weighs different traits taken from the model card, plus how the creature lived that hour.</p></div>
+    <div class="ds-panel ds-panel--quiet" data-draw="frame" style="--i:2"><span class="ds-num ds-num--sm ds-num--die ds-num--plain">03</span><b>The cull</b><p>The weakest 35% die. Their lineage loses a member. If it was the last one, the lineage is extinct.</p></div>
+    <div class="ds-panel ds-panel--quiet" data-draw="frame" style="--i:3"><span class="ds-num ds-num--sm ds-num--sig ds-num--plain">04</span><b>The breed</b><p>Survivors breed back to 160. Children keep the parent's brain. 12% mutate into a neighbouring model. Then every brain's paper price moves with its survival.</p></div>
+  </div>
+  <h3 class="ds-h3 lp-h3" data-draw="text">Deaths by trial</h3><div class="lp-trials" id="trials"></div>
+  <h3 class="ds-h3 lp-h3" data-draw="text">The record, round by round</h3><div class="lp-rec" id="rec"></div>
+</section>
+
+<section class="lp-sec lp-lin" id="lineages">
+  <div>
+    <div class="ds-kicker" data-draw="text">Lineages<em>One wallet, one line</em></div>
+    <h2 class="ds-h2" data-draw="text">One wallet. <em>One bloodline.</em></h2>
+    <p class="ds-body" data-draw style="--i:1">Each wallet founds one lineage. The founder's brain is drawn from the wallet itself, against the rarity odds: 42% common, 30% uncommon, 17% rare, 8% epic, 3% legendary.</p>
+    <p class="ds-body" data-draw style="--i:2">After that, the hourly trial decides. Strong lines spread across generations. Weak lines end. Every lineage keeps its family tree, from the founder to the latest mutant, including the dead.</p>
+    <p class="ds-body" data-draw style="--i:3">Before launch the meadow is seeded with the most active real wallets on Robinhood Chain. Once the token is live, every holder founds a lineage automatically.</p>
+    <div class="lp-odds" data-draw style="--i:4">
+      <span style="--c:var(--t-common);--v:.42"><i></i>Common <b>42%</b></span><span style="--c:var(--t-uncommon);--v:.30"><i></i>Uncommon <b>30%</b></span><span style="--c:var(--t-rare);--v:.17"><i></i>Rare <b>17%</b></span><span style="--c:var(--t-epic);--v:.08"><i></i>Epic <b>8%</b></span><span style="--c:var(--t-legendary);--v:.03"><i></i>Legendary <b>3%</b></span>
+    </div>
+    <div class="ds-label ds-label--die lp-tag" data-draw="text">No script. No appeal. Only survivors.</div>
+  </div>
+  <div class="lp-lin__art ds-frame"><canvas id="grid"></canvas><span class="ds-label ds-label--bare lp-lin__cap" id="gridCap">Lineages · one node each</span></div>
+</section>
+
+<section class="lp-sec lp-intel" id="intelligence">
+  <div class="lp-intel__hd">
+    <div><div class="ds-kicker" data-draw="text">Live<em>Observation deck</em></div>
+    <h2 class="ds-h2" data-draw="text">Observation deck</h2></div>
+    <button class="ds-btn" data-hatch>Hatch your lineage</button>
+  </div>
+  <div class="lp-desk" id="desk">
+    <canvas id="field"></canvas>
+    <div class="lp-desk__hud ds-label ds-label--bare" id="hud">OBSERVATION DECK</div>
+    <div class="win" id="wFeed" style="left:3%;top:60px;width:400px;height:620px">
+      <div class="bar"><span class="t">Gene board</span><span class="grip"></span><button class="b" data-min aria-label="Minimise">–</button><button class="b" data-max aria-label="Maximise">+</button></div>
+      <div class="body" id="feed"><div class="lp-feedhead"><span class="ds-tag ds-tag--sig"><i class="ds-mark ds-mark--live"></i>Survival by brain</span><span id="feedCount"></span></div><div id="feedList"></div></div>
+      <div class="foot"><span>ROBINHOOD CHAIN · 4663</span><a href="/genes">Full board ↗</a></div>
+    </div>
+    <div class="win" id="wSwarm" style="right:3%;top:30px;width:470px;height:560px">
+      <div class="bar"><span class="t">Selection</span><span class="grip"></span><button class="b" data-min aria-label="Minimise">–</button><button class="b" data-max aria-label="Maximise">+</button></div>
+      <div class="body lp-sw" id="swarm"></div>
+      <div class="foot"><span id="swFoot">NO SCRIPT</span><a href="/app">Enter the meadow ↗</a></div>
+    </div>
+    <div class="lp-desk__hint ds-label ds-label--bare">Drag windows to explore</div>
+  </div>
+</section>
+
+<section class="lp-sec lp-built" id="built">
+  <div class="ds-kicker" data-draw="text">Status<em>Plainly</em></div>
+  <h2 class="ds-h2" data-draw="text">Working today. <em class="die">Not built.</em></h2>
+  <p class="ds-body lp-built__lead">Two lists. The first runs now. The second does not exist yet.</p>
+  <div class="lp-built__cols">
+    <div data-draw style="--i:1">
+      <div class="ds-label ds-label--sig ds-label--rule">Working today</div>
+      <ul class="lp-list lp-list--on">
+        <li>Hourly trial, seeded by a public block</li>
+        <li>The cull of every new round, recomputable in your browser at <a href="/verify">/verify</a> from the snapshot our server stored</li>
+        <li>A public log of every commitment, each naming the one before it</li>
+        <li>Live meadow, shared by all visitors</li>
+        <li>Lineages and family trees per wallet</li>
+        <li>Gene board</li>
+        <li>Model exchange on paper credits, with real host prices</li>
+        <li>Share cards for rounds and creatures</li>
+        <li>Hire a creature for a real task: done by Claude through our API key, signed receipt</li>
+      </ul>
+    </div>
+    <div data-draw style="--i:2">
+      <div class="ds-label ds-label--die ds-label--rule">Not built</div>
+      <ul class="lp-list">
+        <li>Anchoring each round's hash on Robinhood Chain (hashes are timestamped through OpenTimestamps instead)</li>
+        <li>Real trading of model tokens</li>
+        <li>Any token utility. Burn to enter a challenger is planned once the token is live</li>
+        <li>Running the actual open models</li>
+        <li>Paid hires in USDG (contracts written, not deployed)</li>
+        <li>An outside audit</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="lp-sec lp-docs" id="docs">
+  <i class="lp-docs__line" aria-hidden="true"></i>
+  <div class="ds-kicker" data-draw="text">Docs<em>Without the tone</em></div>
+  <h2 class="ds-h2" data-draw="text">What is real, exactly</h2>
+  <p class="ds-body lp-docs__lead">The tone of this page is cold. The facts are plain. Here they are, without the tone.</p>
+  <h4 class="ds-h3" data-draw="text">The brains</h4>
+  <p class="ds-body">22 real open-weight models. Parameters, active parameters, MMLU and context window are the published figures from each model card or paper. The full table, with the trait each number drives, is on the <a href="/genes">gene board</a>.</p>
+  <h4 class="ds-h3" data-draw="text">The life</h4>
+  <p class="ds-body">The meadow runs on our server, four ticks a second, the same for every visitor. Creatures look for berries within a radius set by their benchmark, pick the right move with a probability set by their benchmark, remember spots for a time set by their context window, and burn energy at a rate set by their active parameters. Duels are won by strength and judgement; sharing happens when both creatures roll their cooperation.</p>
+  <h4 class="ds-h3" data-draw="text">The selection</h4>
+  <p class="ds-body">On the hour, a trial weighs the traits it cares about, adds how the creature lived during the hour, plus a little noise. The weakest 35% die. Survivors breed back to 160 creatures, fitter parents more often. A child keeps its parent's brain, except 12% of births that mutate one or two steps to a neighbouring model. An extinct lineage is not gone for good: each round, up to a quarter of the free places go to extinct lineages (token holders first), which hatch a new founder with the wallet's original brain. The more creatures share one brain, the harder every trial hits them, and a plague hits them hardest, so no single model can own the meadow for long.</p>
+  <h4 class="ds-h3" data-draw="text">The market</h4>
+  <p class="ds-body">Each brain trades as an index around a reference of 1.000. After every round its premium moves with how its creatures survived against the meadow average, and it stays within ±30%. The <a href="/market">exchange</a> shows each model's price, band, history and, where a public host still serves the model, the real cost to run it per million tokens, live from OpenRouter. Swaps there use paper credits.</p>
+  <h4 class="ds-h3" data-draw="text">The hires</h4>
+  <p class="ds-body">A hire gives one living creature a real task. The work is done by Claude through our API key, not by the creature's open model; every step is streamed and the run ends with a receipt signed by our server, which <a href="/hire">the hire page</a> checks in your browser. Hires are free at launch and paid by the operator; paid hires in USDG are not live.</p>
+  <h4 class="ds-h3" data-draw="text">The draw</h4>
+  <p class="ds-body">One minute before each trial the meadow is frozen: every living creature with its hour of foraging, every extinct lineage, the brain table. The SHA-256 of that snapshot is published at once. The hash also covers the trial second, the ids of the newborn, the rules file and the round before. The dice are the hash of the first Robinhood Chain block at or after the trial second, a block that does not exist when the snapshot is fixed. If that block cannot be read, or the result cannot be written, the round waits on the same snapshot and the same block. A round that still cannot be written is voided in the open: its commitment and its seed block stay in the log, nobody dies, and its number is not used again. Snapshot, block and result are stored with the round, and <a href="/verify">anyone can run the cull again in a browser</a>.</p>
+  <p class="ds-body">What that does not cover: the hour of foraging inside the snapshot is counted by our server and cannot be recomputed, and it weighs more in the score than the dice. The snapshot's hash and the log of commitments are published by our own server and are not yet anchored on chain, so when a snapshot was fixed rests on our clock. Rounds held before this record existed stand on our word alone and are marked as such.</p>
+  <h4 class="ds-h3" data-draw="text">Limits we do not hide</h4>
+  <ul class="lp-list lp-list--plain">
+    <li>The exchange is paper trading with free credits. No deposit, no real money, no real model tokens yet.</li>
+    <li>Brains are simulated from model data. The creatures do not run the models; no open model is called. That keeps the meadow fast, free and the same for everyone.</li>
+    <li>Before launch the meadow is seeded with the most active real Robinhood Chain wallets. Holders found their lineage automatically once the token is live.</li>
+    <li>This is a game and an experiment. Nothing here is financial advice.</li>
+  </ul>
+</section>
+
+<section class="lp-end">
+  <h3 class="ds-h2" data-draw="text">Found a lineage. Give it a brain. <em>See if the meadow lets it live.</em></h3>
+  <div class="ds-btns"><a class="ds-btn ds-btn--sig ds-btn--lg" href="/app">Enter the meadow<i class="arr"></i></a><a class="ds-btn ds-btn--lg" href="#" data-pons>Pons ↗</a></div>
+  <hr class="ds-rule" data-draw="line">
+  <canvas class="lp-word" id="word" aria-hidden="true"></canvas>
+  <div class="lp-foot ds-fine">© 2026 WEIGHTLINGS · built on Robinhood Chain · brains simulated from model cards · <a href="/verify">Verify</a> · <a href="/record">Record</a> · <a href="/hire">Hire</a> · <a href="#built">Status</a></div>
+</section>
+
+<div class="modal" id="modal"><div class="box win lp-modal" style="position:relative;min-width:0">
+  <div class="bar"><span class="t">Hatch a lineage</span><span class="grip"></span><button class="b" data-close aria-label="Close">×</button></div>
+  <div class="in">
+    <p>Paste any Robinhood Chain address, or connect your wallet. Your wallet founds one lineage. Its founder's brain is drawn from your address. After that, it is on its own.</p>
+    <label class="ds-field lp-modal__f"><input id="addr" placeholder="0x…" autocomplete="off" spellcheck="false" aria-label="Wallet address"></label>
+    <div class="ds-btns"><button class="ds-btn ds-btn--sig" id="go">Hatch</button><button class="ds-btn" id="conn">Connect wallet</button></div>
+    <div class="err" id="err"></div>
+  </div>
+</div></div>
+<script src="/common.js"></script>
+<script src="/cards.js"></script>
+<script src="/field.js"></script>
+<script src="/ward.js"></script>
+<script src="/landing.js"></script>
+<script src="/fx.js" defer></script>
+</body>
+</html>

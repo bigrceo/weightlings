@@ -1,0 +1,45 @@
+/* /build: give a lineage a job. Uses ds.css components; this file only lays them out. */
+.bd { --page-max: 980px; }
+.bd-hd { margin-bottom: var(--s-7, 48px); }
+.bd-form { margin-bottom: var(--s-7, 48px); }
+.bd-job textarea { resize: none; font: 500 clamp(18px, 2.2vw, 24px)/1.4 var(--font-text, Inter, sans-serif); min-height: 2.8em; }
+.bd-job { align-items: flex-start; }
+.bd-job::before { margin-top: 4px; }
+.bd-ex { margin: 18px 0 6px; }
+.bd-ex button { text-align: left; }
+.bd-row { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 28px; margin-top: 22px; }
+.bd-name { flex: 1 1 260px; }
+.bd-step { margin: 16px 0 0; }
+.bd-err { margin: 8px 0 0; min-height: 1.2em; color: var(--die, #ff3f8e); font: 500 13px/1.5 var(--font-text, Inter, sans-serif); }
+
+.bd-reveal { margin-bottom: var(--s-8, 72px); }
+.bd-stage { display: grid; grid-template-columns: auto 1fr; gap: 40px; align-items: center; margin-top: 28px; }
+#cr { width: 264px; height: 216px; image-rendering: pixelated; transform-origin: 50% 100%; }
+#cr.egg { animation: bd-wob .5s ease-in-out infinite alternate; }
+#cr.born { animation: bd-pop .7s cubic-bezier(.16, 1, .3, 1) both; }
+@keyframes bd-wob { from { transform: rotate(-4deg); } to { transform: rotate(4deg); } }
+@keyframes bd-pop { 0% { transform: scale(.4, 1.3); opacity: .2; } 60% { transform: scale(1.12, .9); opacity: 1; } 100% { transform: none; } }
+.bd-card > * { opacity: 0; transform: translateY(8px); transition: opacity .5s, transform .5s cubic-bezier(.16, 1, .3, 1); }
+.bd-card > .on { opacity: 1; transform: none; }
+.bd-nick { margin-bottom: 14px; }
+.bd-brain { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-bottom: 18px; color: var(--fg, #e6eee8); font: 500 18px/1.3 var(--font-display, sans-serif); }
+.bd-brain img { width: 28px; height: 28px; }
+.bd-brain .ds-label { color: var(--tc); --g: var(--tc); }
+.bd-jobout { color: var(--fg-2, #a6b2ab); font: 400 16px/1.6 var(--font-text, Inter, sans-serif); max-width: 52ch; margin-bottom: 24px; }
+.bd-jobout .ds-label { display: flex; margin-bottom: 6px; }
+.bd-act { margin-bottom: 14px; }
+
+.bd-honest ul { margin: 18px 0 0; padding-left: 18px; }
+.bd-honest li { margin-bottom: 10px; }
+.bd-honest b { color: var(--fg, #e6eee8); font-weight: 600; }
+
+@media (max-width: 700px) {
+  .bd-stage { grid-template-columns: 1fr; gap: 20px; justify-items: start; }
+  #cr { width: 176px; height: 144px; }
+  .bd-row .ds-btn { width: 100%; justify-content: center; }
+}
+@media (prefers-reduced-motion: reduce) { #cr.egg, #cr.born { animation: none; } .bd-card > * { transition: none; } }
+.bd-hd .ds-h1 { margin-bottom: 20px; }
+.bd-reveal { scroll-margin-top: 110px; }
+.bd-nick { margin-bottom: 22px; }
+@media (max-width: 700px) { .bd-job textarea { min-height: 4.4em; font-size: 18px; } }

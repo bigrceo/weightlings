@@ -1,0 +1,576 @@
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600&display=swap');
+/* ============================================================================================
+   WEIGHTLINGS · DESIGN SYSTEM  ·  "THE SIGNAL FIELD"                                      ds.css
+   --------------------------------------------------------------------------------------------
+   ONE-PAGE GUIDE FOR PAGE BUILDERS (read this before touching a page)
+
+   THE IDEA
+   Everything on the site is a reading taken from a living field. 160 small creatures carry the
+   published numbers of real open models; those numbers fall through every page as a slow rain of
+   pixel digits (art.js) and, where the visitor's cursor goes, the digits resolve into creatures
+   and link up into a neural net. The interface is DRAWN on top of that field the way an
+   instrument is etched: hairlines, corner brackets, dotted rules, scanlines, chamfered cuts.
+   Nothing is a soft rounded card floating on blur. Nothing is a coloured pill.
+
+   PRINCIPLES
+   1. Drawn, not boxed. A container is shown by its corners (brackets) and its rules (dotted
+      hairlines), never by a filled rounded rectangle. Radius is 0 everywhere. No backdrop-filter.
+   2. Signal colour means life. --sig (phosphor mint) = alive / go / the meadow. --die (pink) =
+      removed / killed / losing. --clock (amber) = time and the sealed minute. --mut (violet) =
+      mutation. Tier colours only ever mark a creature's rarity. Never use colour as decoration.
+   3. One display face, one text face. Chakra Petch (display: headings, figures, the nav mark),
+      Inter (everything you read). Pixelify Sans is retired; keep it only for in-world signage
+      painted inside the meadow canvas, if anywhere.
+   4. Numbers are instruments. Every figure on the site is real data. It is set in the display
+      face with tabular digits and carries a drawn underline whose length MEANS something
+      (--v: 0..1, e.g. the share that died). Hero figures (round number, the toll) are drawn on
+      canvas as chamfered segment numerals with their unlit segments still faintly visible.
+   5. Everything arrives by being drawn. Frames stroke themselves in, headings resolve out of
+      noise, numbers count up, rules extend. Then it holds still. Motion is slow, ambient
+      and reserved; a page never jiggles while you read it.
+   6. The meadow is the destination. Every page offers "Meadow" as the first, lit nav item and
+      every hero has one primary (.ds-btn--sig) action, which is usually the meadow.
+   7. Performance is part of the look. One rAF loop (art.js). Canvas DPR capped at 2 (the rain
+      runs at 1). Animate transform/opacity/clip-path only. Reduced motion = a still frame.
+
+   DO                                                 DON'T
+   - corner brackets, dotted rules, hairlines         - border-radius, pills, chips, badges
+   - Inter 600 capitals for labels, with a glyph      - backdrop-filter blur, glass cards
+   - display-face figures with a meaningful underline - default bold Inter numbers
+   - a creature glyph / tick / cross as status        - coloured status pills, glowing dots
+   - one primary action per view (.ds-btn--sig)       - rows of equal-weight buttons
+   - copy that says "simulated" where it is           - claim the open models run, or real money
+   - mint for life, pink for death, amber for time    - gradients as decoration, rainbow text
+
+   WHICH COMPONENT FOR WHAT
+   .ds-nav ............ site navigation (replaces .nav). Transparent, a signal line underneath
+                        with a live pulse that speeds up as the trial nears. Meadow first.
+   .ds-btn ............ every button/link-as-button. Variants: --sig (primary, filled),
+                        --die (destructive / "dies"), --sm, --lg, --block. Hover draws the frame.
+   .ds-label .......... small capitals labels and section heads (replaces .lab/.xlab/.eyebrow).
+                        Variants: --cr (creature glyph), --rule (trailing dotted rule),
+                        --sig/--die/--clock (glyph colour).
+   .ds-kicker ......... the page kicker row above an h1 (replaces .xk).
+   .ds-h1/.ds-h2/.ds-h3 display headings; .ds-lede for the intro paragraph; .ds-body for copy.
+   .ds-num ............ any figure (replaces .num, .xs b, Pixelify numbers). Sizes --xl/--lg/
+                        --md/--sm; colour --sig/--die/--clock/--mut; style="--v:.35" sets the
+                        underline length; data-count="160" counts it up on reveal.
+   .ds-seg ............ hero figures only, drawn on canvas: <span class="ds-seg" data-seg="40">40</span>
+   .ds-stat ........... a figure + its label stacked (replaces .xs > div). Put several in .ds-stats.
+   .ds-panel .......... any grouped content (replaces .gl, .glass, .card, .win look). Brackets,
+                        scan texture, no blur. Add data-draw="frame" to stroke its frame in.
+                        .ds-panel__hd = header row (label + rule + meta).
+   .ds-frame .......... brackets only, for images / canvases / the creature brain.
+   .ds-plate .......... a specimen plate: framed canvas area with dot grid and crosshairs,
+                        for the brain preview inside the creature card and share cards.
+   .ds-rule ........... dotted hairline divider. .ds-rule--solid for a trace line.
+   .ds-row ............ a table/list row (dotted separator, hover = signal tick + sweep).
+   .ds-meter .......... a segmented bar (replaces .bar/.dbar). <i style="--v:.6"></i> inside.
+   .ds-mark ........... status glyph: --alive (creature), --dead (creature upside down),
+                        --tick, --cross, --node (blinking pixel), --live (pixel + drawn ring).
+   .ds-tag ............ a status word with its glyph and a dotted underline (replaces .chip).
+   .ds-field .......... text input with a prompt glyph and a drawn underline.
+   .ds-tabs ........... text tabs, the active one is underlined by a drawn rule.
+   .ds-page ........... page container that clears the nav. .ds-sec = a section with spacing.
+   .ds-sr ............. visually hidden text for screen readers.
+
+   REVEAL HOOKS (art.js; elements are only hidden before reveal when html.art is present, so a
+   page without art.js still shows everything)
+   data-draw ............ clip-wipe in from the top through scanlines
+   data-draw="frame" .... stroke a drawn frame around the element, then fade content in
+   data-draw="text" ..... the text resolves out of noise, left to right
+   data-draw="line" ..... rules / meters extend from the left
+   data-count="1.300" ... counts up to the value (decimals inferred), data-prefix / data-suffix
+   data-seg="40" ........ draw as segment numerals (canvas)
+   style="--i:3" ........ stagger index (70 ms per step)
+
+   LOAD ORDER (every page)
+   <head> ... style.css, page css ... <link rel="stylesheet" href="/ds.css">  (LAST stylesheet)
+          <script src="/art.js"></script>  (in <head>, not deferred: it adds html.art before the
+          first paint so reveals do not flash; it boots itself on DOMContentLoaded)
+   Keep <link href="/fx.css"> and <script src="/fx.js" defer> as they are.
+   Optional body attributes: data-art-rain="dim|off|full" (default "on"; /app turns itself off).
+   Legacy bridge: add class "ds" to <body> to restyle the old .nav/.btn/.cta/.cbtn/.gl/.glass/
+   .lab/.xk/.xs/.chip/.strip/.modal markup in this language while a page is being rebuilt.
+   ============================================================================================ */
+
+/* Display face: Chakra Petch. Not monospace. Its 45-degree chamfered terminals are the same cut
+   as every frame, button and bracket in this system, so type and drawing read as one hand; it
+   feels engineered and signal-like without imitating a terminal, it has real italics and five
+   weights, and its figures are distinctive at 200px. Text face: Inter, for reading. */
+
+/* ---------------------------------------------------------------- tokens */
+@property --tk { syntax: '<length-percentage>'; inherits: true; initial-value: 7px; }
+@property --ds-scan { syntax: '<length>'; inherits: false; initial-value: 0px; }
+:root {
+  /* ink: near-black with a green cast, like a dark phosphor screen */
+  --ink-0: #020403;            /* page */
+  --ink-1: #050907;            /* panel fill */
+  --ink-2: #0a110d;            /* raised / hover */
+  --ink-3: #121b16;            /* pressed */
+  --trace: rgba(140, 255, 200, .12);   /* hairlines, dotted rules */
+  --trace-2: rgba(140, 255, 200, .26); /* brackets, active rules */
+  --trace-3: rgba(140, 255, 200, .5);
+  --scan: rgba(140, 255, 200, .035);   /* scan texture lines */
+  /* text */
+  --fg: #e6eee8;
+  --fg-2: #a6b2ab;
+  --fg-3: #6b7770;
+  --fg-4: #3e4842;
+  /* meaning */
+  --sig: #5cf2a8;      /* alive, go, the meadow */
+  --sig-hi: #d2ffe8;   /* the head of a signal */
+  --sig-lo: rgba(92, 242, 168, .14);
+  --die: #ff3f8e;      /* removed, killed, losing */
+  --die-lo: rgba(255, 63, 142, .14);
+  --clock: #ffb81f;    /* time, the sealed minute */
+  --mut: #b98cff;      /* mutation */
+  /* tiers: identical to server/models.mjs TIERS, use only to mark rarity */
+  --t-legendary: #ffb81f; --t-epic: #b056ff; --t-rare: #2a7bff; --t-uncommon: #2fc46b; --t-common: #b9bcc4;
+
+  /* type */
+  --font-display: 'Chakra Petch', Inter, system-ui, sans-serif;
+  --font-text: Inter, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --fs-hero: clamp(44px, 7.2vw, 108px);
+  --fs-h1: clamp(36px, 5.2vw, 72px);
+  --fs-h2: clamp(28px, 3.4vw, 48px);
+  --fs-h3: clamp(20px, 1.9vw, 26px);
+  --fs-lede: clamp(16px, 1.25vw, 18px);
+  --fs-body: 15px;
+  --fs-sm: 13px;
+  --fs-xs: 11.5px;
+  --fs-label: 10.5px;
+  --track-label: .2em;
+  --lh-tight: 1.02;
+  --lh-body: 1.62;
+
+  /* space (4px base) */
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 24px; --s-6: 32px; --s-7: 48px; --s-8: 72px; --s-9: 120px;
+  --gutter: clamp(16px, 5vw, 88px);
+  --page-max: 1200px;
+  --strip-h: 30px;   /* the round strip (#strip) */
+  --nav-h: 54px;
+  --top: calc(var(--strip-h) + var(--nav-h));
+
+  /* drawing */
+  --hair: 1px;
+  --tick: 7px;       /* corner tick length on buttons */
+  --bracket: 14px;   /* corner bracket length on panels */
+  --chamfer: 8px;    /* the 45-degree cut */
+  --dots: linear-gradient(90deg, var(--trace-2) 0 1px, transparent 1px) 0 50% / 4px 1px repeat-x;
+
+  /* motion */
+  --t-fast: 140ms;
+  --t-med: 320ms;
+  --t-slow: 900ms;
+  --t-draw: 1200ms;
+  --t-ambient: 6s;
+  --e-out: cubic-bezier(.16, 1, .3, 1);     /* things arriving */
+  --e-in: cubic-bezier(.7, 0, .84, 0);      /* things leaving */
+  --e-io: cubic-bezier(.65, 0, .35, 1);     /* things moving across */
+  --e-step: steps(4, end);                  /* signal glitches */
+  --stagger: 70ms;
+
+  /* the pixel creature, as a mask (same bitmap as common.js BIRD) */
+  --ds-bird: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2011%209%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20d%3D%22M1%200h1v1H1zM9%200h1v1H9zM2%201h1v1H2zM8%201h1v1H8zM3%202h5v1H3zM2%203h7v1H2zM1%204h2v1H1zM4%204h3v1H4zM8%204h2v1H8zM1%205h9v1H1zM1%206h4v1H1zM6%206h4v1H6zM2%207h7v1H2zM3%208h1v1H3zM7%208h1v1H7z%22%2F%3E%3C%2Fsvg%3E");
+  --ds-tick: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2010%2010%22%3E%3Cpath%20d%3D%22M1%205.2%203.9%208%209%201.6%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22square%22%2F%3E%3C%2Fsvg%3E");
+  --ds-cross: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2010%2010%22%3E%3Cpath%20d%3D%22M2%202l6%206M8%202%202%208%22%20stroke%3D%22%23000%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22square%22%2F%3E%3C%2Fsvg%3E");
+  --ds-ecg: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22120%22%20height%3D%2216%22%20viewBox%3D%220%200%20120%2016%22%3E%3Cpath%20d%3D%22M0%2015.5h38l4-6%204%206h6l5-15%206%2015%204-4%203%204h50%22%20fill%3D%22none%22%20stroke%3D%22%235cf2a8%22%20stroke-opacity%3D%22.55%22%20stroke-width%3D%221%22%2F%3E%3C%2Fsvg%3E");
+}
+
+/* ---------------------------------------------------------------- base */
+html { background: var(--ink-0); color-scheme: dark; }
+html.art body { background: transparent; }            /* lets the signal rain (z-index -1) show */
+::selection { background: var(--sig); color: var(--ink-0); }
+.ds-sr { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+:where(.ds-page, .ds) :focus-visible { outline: 1px solid var(--sig); outline-offset: 3px; }
+
+/* the signal rain canvas and transition overlay (created by art.js) */
+.art-rain { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; image-rendering: pixelated; opacity: var(--art-rain, .55); transition: opacity 1.2s var(--e-out); }
+body[data-art-rain="dim"] .art-rain { --art-rain: .32; }
+body[data-art-rain="full"] .art-rain { --art-rain: .9; }
+.art-wipe { position: fixed; inset: 0; z-index: 9995; pointer-events: none; background: var(--ink-0); opacity: 0;
+  -webkit-mask: repeating-linear-gradient(to bottom, #000 0 var(--ds-scan), transparent var(--ds-scan) 4px); mask: repeating-linear-gradient(to bottom, #000 0 var(--ds-scan), transparent var(--ds-scan) 4px);
+  transition: --ds-scan 220ms var(--e-in), opacity 120ms linear; }
+.art-wipe.on { opacity: 1; --ds-scan: 4px; }
+.art-wipe::after { content: ''; position: absolute; left: 0; right: 0; height: 2px; top: 0; background: var(--sig); box-shadow: 0 0 18px var(--sig); opacity: 0; }
+.art-wipe.on::after { opacity: .8; animation: ds-sweep-y 220ms var(--e-in) both; }
+@keyframes ds-sweep-y { from { transform: translateY(0); } to { transform: translateY(100vh); } }
+
+/* cross-document page transition (Chrome 126+, Safari 18.2+): old page darkens, new page
+   resolves through thickening scanlines. art.js only fakes the exit where this is missing. */
+@view-transition { navigation: auto; }
+::view-transition-old(root) { animation: ds-vt-out 260ms var(--e-in) both; }
+::view-transition-new(root) { animation: ds-vt-in 520ms var(--e-out) both; }
+@keyframes ds-vt-out { to { opacity: 0; filter: brightness(.4); } }
+@keyframes ds-vt-in {
+  from { --ds-scan: 0px; opacity: .2; -webkit-mask-image: repeating-linear-gradient(to bottom, #000 0 var(--ds-scan), transparent var(--ds-scan) 4px); mask-image: repeating-linear-gradient(to bottom, #000 0 var(--ds-scan), transparent var(--ds-scan) 4px); }
+  70% { opacity: 1; }
+  to { --ds-scan: 4px; -webkit-mask-image: repeating-linear-gradient(to bottom, #000 0 var(--ds-scan), transparent var(--ds-scan) 4px); mask-image: repeating-linear-gradient(to bottom, #000 0 var(--ds-scan), transparent var(--ds-scan) 4px); }
+}
+
+/* ---------------------------------------------------------------- type */
+.ds-h1, .ds-h2, .ds-h3, .ds-hero { font-family: var(--font-display); font-weight: 600; color: var(--fg); letter-spacing: -.012em; text-wrap: balance; margin: 0; }
+.ds-hero { font-size: var(--fs-hero); line-height: .98; font-weight: 600; }
+.ds-h1 { font-size: var(--fs-h1); line-height: var(--lh-tight); }
+.ds-h2 { font-size: var(--fs-h2); line-height: 1.06; }
+.ds-h3 { font-size: var(--fs-h3); line-height: 1.15; font-weight: 600; letter-spacing: 0; }
+:is(.ds-hero, .ds-h1, .ds-h2) em { font-style: italic; font-weight: 500; color: var(--sig); }
+:is(.ds-hero, .ds-h1, .ds-h2) em.die { color: var(--die); }
+.ds-lede { font: 400 var(--fs-lede)/1.6 var(--font-text); color: var(--fg-2); max-width: 62ch; text-wrap: pretty; margin: 0; }
+.ds-body { font: 400 var(--fs-body)/var(--lh-body) var(--font-text); color: var(--fg-2); max-width: 66ch; text-wrap: pretty; }
+.ds-body b, .ds-lede b { color: var(--fg); font-weight: 600; }
+.ds-body a, .ds-lede a, .ds-link { color: var(--fg); text-decoration: none; background: linear-gradient(90deg, var(--trace-3) 0 1px, transparent 1px) 0 100% / 3px 1px repeat-x; padding-bottom: 1px; transition: color var(--t-fast); }
+.ds-body a:hover, .ds-lede a:hover, .ds-link:hover { color: var(--sig); background-image: linear-gradient(var(--sig), var(--sig)); background-size: 100% 1px; }
+.ds-fine { font: 400 var(--fs-xs)/1.5 var(--font-text); color: var(--fg-3); }
+
+/* ---------------------------------------------------------------- labels */
+.ds-label { display: inline-flex; align-items: center; gap: 9px; font: 600 var(--fs-label)/1.4 var(--font-text); letter-spacing: var(--track-label); text-transform: uppercase; color: var(--fg-3); white-space: nowrap; --g: var(--sig); }
+.ds-label::before { content: ''; flex: none; width: 13px; height: 5px; background: linear-gradient(currentColor 0 0) 0 50% / 8px 1px no-repeat, linear-gradient(var(--g) 0 0) 100% 50% / 3px 3px no-repeat; opacity: .9; }
+.ds-label--bare::before { display: none; }
+.ds-label--cr::before { width: 11px; height: 9px; background: var(--g); -webkit-mask: var(--ds-bird) center / contain no-repeat; mask: var(--ds-bird) center / contain no-repeat; }
+.ds-label--rule { display: flex; width: 100%; }
+.ds-label--rule::after { content: ''; flex: 1; min-width: 24px; height: 1px; background: var(--dots); }
+.ds-label--rule > em { order: 2; font-style: normal; color: var(--fg-4); letter-spacing: .16em; }
+.ds-label--sig { --g: var(--sig); } .ds-label--die { --g: var(--die); } .ds-label--clock { --g: var(--clock); } .ds-label--mut { --g: var(--mut); }
+.ds-label b { color: var(--fg); font-weight: 600; }
+.ds-label i { font-style: normal; color: var(--g); }
+
+/* the page kicker: glyph, words, right-aligned meta */
+.ds-kicker { display: flex; align-items: center; gap: 12px; font: 600 11px/1.4 var(--font-text); letter-spacing: .26em; text-transform: uppercase; color: var(--fg-2); margin-bottom: var(--s-5); }
+.ds-kicker::before { content: ''; flex: none; width: 11px; height: 9px; background: var(--sig); -webkit-mask: var(--ds-bird) center / contain no-repeat; mask: var(--ds-bird) center / contain no-repeat; animation: ds-blink 2.8s var(--e-step) infinite; }
+.ds-kicker::after { content: ''; flex: 1; height: 1px; background: var(--dots); min-width: 20px; }
+.ds-kicker em { order: 2; font-style: normal; color: var(--fg-4); letter-spacing: .18em; text-align: right; }
+@media (max-width: 600px) { .ds-kicker { flex-wrap: wrap; gap: 8px 12px; letter-spacing: .2em; } .ds-kicker em { order: 3; flex-basis: 100%; text-align: left; padding-left: 23px; } }
+@keyframes ds-blink { 0%, 62%, 100% { opacity: 1; } 70% { opacity: .2; } 78% { opacity: 1; } 86% { opacity: .35; } }
+
+/* ---------------------------------------------------------------- numbers */
+.ds-num { position: relative; display: inline-block; font-family: var(--font-display); font-weight: 500; font-size: var(--fs, 28px); line-height: 1; letter-spacing: -.01em; color: var(--c, var(--fg)); font-variant-numeric: tabular-nums lining-nums; font-feature-settings: 'tnum' 1, 'lnum' 1; padding-bottom: .26em; white-space: nowrap; }
+.ds-num::before, .ds-num::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; }
+.ds-num::before { background: linear-gradient(90deg, var(--trace-2) 0 1px, transparent 1px) 0 0 / 3px 1px repeat-x; }
+.ds-num::after { background: currentColor; transform-origin: 0 50%; transform: scaleX(var(--v, 1)); transition: transform var(--t-draw) var(--e-out); transition-delay: calc(var(--i, 0) * var(--stagger)); }
+.ds-num--plain::before, .ds-num--plain::after { display: none; }
+.ds-num--plain { padding-bottom: 0; }
+.ds-num small, .ds-num .u { font: 600 .3em/1 var(--font-text); letter-spacing: .16em; text-transform: uppercase; color: var(--fg-3); margin-left: .45em; vertical-align: .55em; }
+.ds-num--xl { --fs: clamp(48px, 6.4vw, 96px); font-weight: 500; }
+.ds-num--lg { --fs: clamp(34px, 3.8vw, 54px); }
+.ds-num--md { --fs: 28px; }
+.ds-num--sm { --fs: 18px; font-weight: 600; padding-bottom: .3em; }
+.ds-num--sig { --c: var(--sig); } .ds-num--die { --c: var(--die); } .ds-num--clock { --c: var(--clock); } .ds-num--mut { --c: var(--mut); } .ds-num--dim { --c: var(--fg-3); }
+.ds-stats { display: flex; flex-wrap: wrap; gap: var(--s-5) var(--s-8); }
+.ds-stat { display: flex; flex-direction: column; gap: 12px; min-width: 92px; }
+.ds-stat > .ds-label { --g: var(--fg-4); }
+/* hero figures: segment numerals drawn by art.js. Size with font-size; colour with color. */
+.ds-seg { display: inline-block; position: relative; font-family: var(--font-display); font-size: clamp(96px, 18vw, 260px); line-height: 1; color: var(--fg); font-variant-numeric: tabular-nums; }
+.ds-seg > canvas { display: block; height: 1em; width: auto; }
+
+/* ---------------------------------------------------------------- buttons */
+.ds-btn { --tk: var(--tick); --tc: var(--trace-3); --bg: transparent; --scanc: var(--scan); --fgc: var(--fg);
+  position: relative; isolation: isolate; display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 44px; padding: 13px 20px 12px; margin: 0; border: 0; border-radius: 0; cursor: pointer; text-decoration: none; white-space: nowrap;
+  font: 600 11.5px/1 var(--font-text); letter-spacing: .18em; text-transform: uppercase; color: var(--fgc);
+  background: repeating-linear-gradient(to bottom, var(--scanc) 0 1px, transparent 1px 3px), var(--bg);
+  transition: --tk var(--t-med) var(--e-out), color var(--t-fast), background-color var(--t-med); -webkit-tap-highlight-color: transparent; }
+/* corner ticks; on hover they grow until they meet: the frame is drawn */
+.ds-btn::before { content: ''; position: absolute; inset: var(--out, 0); z-index: -1; pointer-events: none;
+  background:
+    linear-gradient(var(--tc) 0 0) 0 0 / var(--tk) 1px, linear-gradient(var(--tc) 0 0) 0 0 / 1px var(--tk),
+    linear-gradient(var(--tc) 0 0) 100% 0 / var(--tk) 1px, linear-gradient(var(--tc) 0 0) 100% 0 / 1px var(--tk),
+    linear-gradient(var(--tc) 0 0) 0 100% / var(--tk) 1px, linear-gradient(var(--tc) 0 0) 0 100% / 1px var(--tk),
+    linear-gradient(var(--tc) 0 0) 100% 100% / var(--tk) 1px, linear-gradient(var(--tc) 0 0) 100% 100% / 1px var(--tk);
+  background-repeat: no-repeat; }
+/* the signal sweep: a bright band crosses the button once (background-position, so it stays inside) */
+.ds-btn::after { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: 0;
+  background: linear-gradient(90deg, transparent 38%, var(--sweep, rgba(140,255,200,.24)) 50%, transparent 62%) 100% 0 / 300% 100% no-repeat; }
+.ds-btn:hover { --tk: 51%; --tc: var(--sig); color: var(--fg); }
+.ds-btn:hover::after { opacity: 1; animation: ds-sweep 620ms var(--e-io) both; }
+.ds-btn:active { --bg: var(--ink-3); }
+.ds-btn:focus-visible { outline: 1px solid var(--sig); outline-offset: 4px; }
+@keyframes ds-sweep { from { background-position: 100% 0; } to { background-position: 0 0; } }
+.ds-btn .arr { display: inline-block; width: 14px; height: 7px; flex: none; background: linear-gradient(currentColor 0 0) 0 50% / 100% 1px no-repeat; position: relative; transition: transform var(--t-med) var(--e-out); }
+.ds-btn .arr::after { content: ''; position: absolute; right: 0; top: 50%; width: 5px; height: 5px; border-top: 1px solid currentColor; border-right: 1px solid currentColor; transform: translate(0, -50%) rotate(45deg); }
+.ds-btn:hover .arr { transform: translateX(4px); }
+/* primary: a filled, scanned block with its brackets floating outside */
+.ds-btn--sig { --bg: var(--sig); --fgc: #02140b; --scanc: rgba(0, 30, 14, .2); --tc: var(--sig); --out: -5px; --sweep: rgba(255,255,255,.55); }
+.ds-btn--sig:hover { --tc: var(--sig-hi); color: #02140b; --bg: #7dffbf; }
+.ds-btn--die { --tc: rgba(255, 63, 142, .55); --fgc: #ffd0e2; --sweep: rgba(255, 63, 142, .3); }
+.ds-btn--die:hover { --tc: var(--die); color: #fff; --bg: var(--die-lo); }
+.ds-btn--die.is-on { --bg: var(--die); --fgc: #fff; --scanc: rgba(0,0,0,.18); }
+.ds-btn--sig-o:hover, .ds-btn.is-on { --bg: var(--sig-lo); }
+.ds-btn--sm { min-height: 34px; padding: 9px 13px 8px; font-size: 10.5px; --tk: 5px; }
+.ds-btn--lg { min-height: 54px; padding: 18px 28px 17px; font-size: 12.5px; letter-spacing: .22em; --tk: 9px; }
+.ds-btn--block { display: flex; width: 100%; }
+.ds-btn--icon { min-width: 40px; min-height: 40px; padding: 0; }
+.ds-btn--icon svg { width: 15px; height: 15px; }
+.ds-btn:disabled, .ds-btn[aria-disabled="true"] { opacity: .32; cursor: default; pointer-events: none; }
+.ds-btns { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 18px; }
+
+/* ---------------------------------------------------------------- navigation */
+.ds-nav { position: fixed; z-index: 50; top: var(--strip-h); left: 0; right: 0; height: var(--nav-h); display: flex; align-items: center; gap: clamp(14px, 2.2vw, 30px); padding: 0 var(--gutter);
+  background: linear-gradient(to bottom, rgba(2, 4, 3, .94), rgba(2, 4, 3, .72) 70%, rgba(2, 4, 3, 0)); animation: ds-nav-in 900ms var(--e-out) both 120ms; --pulse: var(--t-ambient); --pc: var(--sig); }
+@keyframes ds-nav-in { from { opacity: 0; transform: translateY(-10px); } }
+.ds-nav a, .ds-nav button { color: inherit; text-decoration: none; }
+.ds-nav__mark { display: inline-flex; align-items: center; gap: 11px; flex: none; color: var(--fg); }
+.ds-nav__mark svg { width: 24px; height: 20px; flex: none; }
+.ds-nav__mark svg rect { fill: currentColor; }
+.ds-nav__mark b { font: 600 15px/1 var(--font-display); letter-spacing: .14em; text-transform: uppercase; }
+.ds-nav__mark:hover svg { animation: ds-hop 420ms steps(2) 2; }
+@keyframes ds-hop { 50% { transform: translateY(-3px); } }
+/* the meadow: first, lit, with a live count */
+.ds-nav__go { position: relative; display: inline-flex; align-items: center; gap: 9px; flex: none; padding: 8px 2px 7px; font: 600 11px/1 var(--font-text); letter-spacing: .2em; text-transform: uppercase; color: var(--sig); }
+.ds-nav__go::before { content: ''; width: 11px; height: 9px; background: currentColor; -webkit-mask: var(--ds-bird) center / contain no-repeat; mask: var(--ds-bird) center / contain no-repeat; animation: ds-hop 900ms steps(2) infinite; }
+.ds-nav__go em { font: 500 12px/1 var(--font-display); font-style: normal; letter-spacing: .04em; color: var(--fg-2); font-variant-numeric: tabular-nums; }
+.ds-nav__go em:empty { display: none; }
+.ds-nav__go::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: currentColor; transform: scaleX(.35); transform-origin: 0 50%; transition: transform var(--t-med) var(--e-out); }
+.ds-nav__go:hover::after, .ds-nav__go[aria-current="page"]::after { transform: none; }
+.ds-nav__links { display: flex; align-items: center; gap: clamp(12px, 1.8vw, 26px); min-width: 0; flex: 1; }
+.ds-nav__links a, .ds-nav__links button { position: relative; padding: 8px 0 7px; border: 0; background: none; cursor: pointer; font: 600 10.5px/1 var(--font-text); letter-spacing: .18em; text-transform: uppercase; color: var(--fg-3); white-space: nowrap; transition: color var(--t-fast); }
+.ds-nav__links a:hover, .ds-nav__links button:hover { color: var(--fg); }
+/* the current page: a lit node on the signal line under it */
+.ds-nav__links a[aria-current="page"] { color: var(--fg); }
+.ds-nav__links a[aria-current="page"]::after { content: ''; position: absolute; left: 50%; bottom: -12px; width: 3px; height: 3px; margin-left: -1.5px; background: var(--sig); box-shadow: 0 0 0 3px rgba(92,242,168,.14); }
+.ds-nav__act { margin-left: auto; flex: none; }
+.ds-nav__act ~ .ds-nav__act { margin-left: 0; }
+/* the signal line: a dotted trace, an ECG blip, and a pulse that runs along it */
+.ds-nav__line { position: absolute; left: var(--gutter); right: var(--gutter); bottom: 0; height: 16px; pointer-events: none; overflow: hidden; }
+.ds-nav__line::before { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: linear-gradient(90deg, var(--trace-2) 0 1px, transparent 1px) 0 0 / 4px 1px repeat-x; }
+.ds-nav__line::after { content: ''; position: absolute; bottom: 0; left: 12%; width: 120px; height: 16px; background: var(--ds-ecg) 0 0 / 120px 16px no-repeat; opacity: .9; }
+.ds-nav__line i { position: absolute; bottom: 0; left: 0; width: 160px; height: 1px; background: linear-gradient(90deg, transparent, var(--pc) 80%, #fff); box-shadow: 0 0 10px var(--pc); animation: ds-pulse var(--pulse) linear infinite; will-change: transform; }
+.ds-nav__line i::after { content: ''; position: absolute; right: -1px; top: -1px; width: 3px; height: 3px; background: #fff; }
+@keyframes ds-pulse { from { transform: translateX(-180px); } to { transform: translateX(calc(100vw)); } }
+.ds-nav.is-soon { --pc: var(--clock); }
+.ds-nav.is-final { --pc: var(--die); }
+/* the Index menu: every page and section, one drawn panel; opens on hover (pointer) or click (common.js toggles .open) */
+.ds-nav__dd { position: relative; flex: none; }
+.ds-nav__dd > button { display: inline-flex; align-items: center; gap: 7px; padding: 8px 0 7px; border: 0; background: none; cursor: pointer; font: 600 10.5px/1 var(--font-text); letter-spacing: .18em; text-transform: uppercase; color: var(--fg-3); transition: color var(--t-fast); }
+.ds-nav__dd > button:hover, .ds-nav__dd.open > button { color: var(--fg); }
+.ds-nav__dd > button svg { width: 10px; transition: transform var(--t-med) var(--e-out); }
+.ds-nav__dd.open > button svg { transform: rotate(180deg); }
+.ds-nav__menu { position: absolute; top: calc(100% + 16px); right: 0; width: 340px; padding: 8px; transform: translateY(-6px); opacity: 0; pointer-events: none; transition: opacity var(--t-med) var(--e-out), transform var(--t-med) var(--e-out);
+  background: repeating-linear-gradient(to bottom, var(--scan) 0 1px, transparent 1px 3px), rgba(4, 8, 6, .97); }
+.ds-nav__menu::before { content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(var(--trace-2) 0 0) 0 0 / 12px 1px, linear-gradient(var(--trace-2) 0 0) 0 0 / 1px 12px, linear-gradient(var(--trace-2) 0 0) 100% 0 / 12px 1px, linear-gradient(var(--trace-2) 0 0) 100% 0 / 1px 12px,
+    linear-gradient(var(--trace-2) 0 0) 0 100% / 12px 1px, linear-gradient(var(--trace-2) 0 0) 0 100% / 1px 12px, linear-gradient(var(--trace-2) 0 0) 100% 100% / 12px 1px, linear-gradient(var(--trace-2) 0 0) 100% 100% / 1px 12px; background-repeat: no-repeat; }
+.ds-nav__menu::after { content: ''; position: absolute; left: 0; right: 0; top: -16px; height: 16px; } /* hover bridge */
+.ds-nav__dd.open .ds-nav__menu, .ds-nav__dd:focus-within .ds-nav__menu { opacity: 1; pointer-events: auto; transform: none; }
+@media (hover: hover) { .ds-nav__dd:hover .ds-nav__menu { opacity: 1; pointer-events: auto; transform: none; } .ds-nav__dd:hover > button { color: var(--fg); } }
+.ds-nav__menu a { position: relative; display: block; padding: 10px 12px 10px 18px; transition: background-color var(--t-fast); }
+.ds-nav__menu a::before { content: ''; position: absolute; left: 6px; top: 18px; width: 5px; height: 1px; background: var(--sig); transform: scaleX(0); transform-origin: 0 50%; transition: transform var(--t-med) var(--e-out); }
+.ds-nav__menu a:hover { background: var(--ink-2); } .ds-nav__menu a:hover::before { transform: none; }
+.ds-nav__menu b { display: block; font: 600 15px/1.3 var(--font-display); color: var(--fg); }
+.ds-nav__menu span { display: block; font: 400 12.5px/1.45 var(--font-text); color: var(--fg-3); margin-top: 2px; }
+.ds-nav__links .show-m { display: none; }
+/* room for the fixed sound toggle on pages that have one */
+@media (min-width: 861px) { body:where(:has(> #sound)) .ds-nav { padding-right: max(var(--gutter), 68px); } }
+/* between tablet and wide desktop the secondary links fold into the Index menu */
+@media (max-width: 1240px) and (min-width: 861px) { .ds-nav__links .ds-nav__sec, .ds-nav__links .hide-m { display: none; } }
+@media (max-width: 860px) {
+  .ds-nav { gap: 14px; padding: 0 16px; }
+  .ds-nav__mark b { display: none; }
+  .ds-nav__links .show-m { display: inline-block; color: var(--fg-2); }
+  .ds-nav__dd { display: none; }
+  .ds-nav__links { overflow-x: auto; scrollbar-width: none; -webkit-mask: linear-gradient(90deg, #000 85%, transparent); mask: linear-gradient(90deg, #000 85%, transparent); padding-right: 24px; }
+  .ds-nav__links::-webkit-scrollbar { display: none; }
+  .ds-nav__links .hide-m { display: none; }
+  .ds-nav__line { left: 16px; right: 16px; }
+  .ds-nav__act.hide-m { display: none; }
+}
+
+/* ---------------------------------------------------------------- panels and frames */
+.ds-panel, .ds-frame { position: relative; --bc: var(--trace-2); --bl: var(--bracket); }
+.ds-panel { padding: var(--s-5); background: repeating-linear-gradient(to bottom, var(--scan) 0 1px, transparent 1px 3px), rgba(5, 9, 7, .86); }
+.ds-panel::before, .ds-frame::before { content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 1;
+  background:
+    linear-gradient(var(--bc) 0 0) 0 0 / var(--bl) 1px, linear-gradient(var(--bc) 0 0) 0 0 / 1px var(--bl),
+    linear-gradient(var(--bc) 0 0) 100% 0 / var(--bl) 1px, linear-gradient(var(--bc) 0 0) 100% 0 / 1px var(--bl),
+    linear-gradient(var(--bc) 0 0) 0 100% / var(--bl) 1px, linear-gradient(var(--bc) 0 0) 0 100% / 1px var(--bl),
+    linear-gradient(var(--bc) 0 0) 100% 100% / var(--bl) 1px, linear-gradient(var(--bc) 0 0) 100% 100% / 1px var(--bl);
+  background-repeat: no-repeat; }
+/* a dotted top rule between the brackets */
+.ds-panel::after { content: ''; position: absolute; left: calc(var(--bl) + 8px); right: calc(var(--bl) + 8px); top: 0; height: 1px; background: linear-gradient(90deg, var(--trace) 0 1px, transparent 1px) 0 0 / 4px 1px repeat-x; pointer-events: none; }
+.ds-panel--quiet { background: none; padding: 0; }
+.ds-panel--quiet::after { display: none; }
+.ds-panel--sig { --bc: rgba(92, 242, 168, .6); }
+.ds-panel--die { --bc: rgba(255, 63, 142, .6); }
+.ds-panel--tight { padding: var(--s-4); }
+.ds-panel__hd { display: flex; align-items: center; gap: 12px; margin: -4px 0 var(--s-4); }
+.ds-panel__hd::after { content: ''; flex: 1; height: 1px; background: var(--dots); min-width: 16px; }
+.ds-panel__hd > :last-child:not(:first-child) { order: 2; }
+/* the stroked frame added by Art.drawFrame */
+.art-frame { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 1; }
+.art-frame path { fill: none; stroke: var(--fc, var(--trace)); stroke-width: 1; vector-effect: non-scaling-stroke; stroke-dasharray: 1; stroke-dashoffset: 0; }
+html.art .art-frame path { stroke-dashoffset: 1; transition: stroke-dashoffset var(--t-draw) var(--e-io); }
+html.art .is-drawn > .art-frame path { stroke-dashoffset: 0; }
+.art-frame .hd { stroke: var(--sig); stroke-width: 1.5; stroke-dasharray: .02 .98; opacity: 0; }
+html.art .is-drawn > .art-frame .hd { opacity: 1; animation: ds-head var(--t-draw) var(--e-io) both; }
+@keyframes ds-head { from { stroke-dashoffset: 1.02; } to { stroke-dashoffset: .02; opacity: 0; } }
+
+/* specimen plate: framed canvas with a dot grid, crosshairs, caption */
+.ds-plate { position: relative; aspect-ratio: var(--ar, 16 / 10); background: radial-gradient(circle, rgba(140,255,200,.16) .7px, transparent 1px) 0 0 / 14px 14px, var(--ink-1); overflow: hidden; --bc: var(--trace-2); --bl: 12px; }
+.ds-plate::before { content: ''; position: absolute; inset: 8px; pointer-events: none; z-index: 2;
+  background:
+    linear-gradient(var(--bc) 0 0) 0 0 / var(--bl) 1px, linear-gradient(var(--bc) 0 0) 0 0 / 1px var(--bl),
+    linear-gradient(var(--bc) 0 0) 100% 0 / var(--bl) 1px, linear-gradient(var(--bc) 0 0) 100% 0 / 1px var(--bl),
+    linear-gradient(var(--bc) 0 0) 0 100% / var(--bl) 1px, linear-gradient(var(--bc) 0 0) 0 100% / 1px var(--bl),
+    linear-gradient(var(--bc) 0 0) 100% 100% / var(--bl) 1px, linear-gradient(var(--bc) 0 0) 100% 100% / 1px var(--bl),
+    linear-gradient(var(--trace) 0 0) 50% 0 / 1px 6px, linear-gradient(var(--trace) 0 0) 50% 100% / 1px 6px,
+    linear-gradient(var(--trace) 0 0) 0 50% / 6px 1px, linear-gradient(var(--trace) 0 0) 100% 50% / 6px 1px;
+  background-repeat: no-repeat; }
+.ds-plate > canvas, .ds-plate > img, .ds-plate > svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.ds-plate__cap { position: absolute; left: 14px; right: 14px; bottom: 10px; z-index: 3; display: flex; justify-content: space-between; gap: 10px; font: 600 9.5px/1.3 var(--font-text); letter-spacing: .18em; text-transform: uppercase; color: var(--fg-3); pointer-events: none; }
+.ds-plate__cap b { color: var(--fg-2); font-weight: 600; }
+.ds-plate.is-loading::after { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 30%; z-index: 1; background: linear-gradient(to bottom, transparent, rgba(92,242,168,.08), transparent); animation: ds-scanpass 1.4s var(--e-io) infinite; }
+@keyframes ds-scanpass { from { transform: translateY(-100%); } to { transform: translateY(340%); } }
+
+/* ---------------------------------------------------------------- rules, rows, meters */
+.ds-rule { height: 1px; border: 0; margin: var(--s-6) 0; background: linear-gradient(90deg, var(--trace-2) 0 1px, transparent 1px) 0 0 / 4px 1px repeat-x; transform-origin: 0 50%; }
+.ds-rule--solid { background: var(--trace); }
+.ds-row { position: relative; padding: 16px 6px; transition: background-color var(--t-med); }
+.ds-row::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: linear-gradient(90deg, var(--trace) 0 1px, transparent 1px) 0 0 / 3px 1px repeat-x; }
+.ds-row::before { content: ''; position: absolute; left: -10px; top: 50%; width: 5px; height: 1px; background: var(--sig); transform: scaleX(0); transform-origin: 0 50%; transition: transform var(--t-med) var(--e-out); }
+a.ds-row, .ds-row--hover { cursor: pointer; display: block; color: inherit; text-decoration: none; }
+a.ds-row:hover, .ds-row--hover:hover, .ds-row.is-on { background-color: rgba(140, 255, 200, .025); }
+a.ds-row:hover::before, .ds-row--hover:hover::before, .ds-row.is-on::before { transform: none; }
+.ds-row--head { font: 600 var(--fs-label)/1.4 var(--font-text); letter-spacing: var(--track-label); text-transform: uppercase; color: var(--fg-4); padding-bottom: 12px; }
+.ds-row--head::after { background: var(--trace); }
+.ds-meter { position: relative; height: 6px; background: repeating-linear-gradient(90deg, var(--trace) 0 3px, transparent 3px 5px); }
+.ds-meter > i { position: absolute; left: 0; top: 0; bottom: 0; width: calc(var(--v, 0) * 100%); background: repeating-linear-gradient(90deg, var(--c, var(--sig)) 0 3px, transparent 3px 5px); transition: width var(--t-draw) var(--e-out); transition-delay: calc(var(--i, 0) * var(--stagger)); }
+.ds-meter--thin { height: 3px; }
+.ds-meter--die > i { --c: var(--die); } .ds-meter--clock > i { --c: var(--clock); } .ds-meter--mut > i { --c: var(--mut); }
+/* a split: survivors in mint from the left, the dead in pink from the right */
+.ds-meter--split { background: repeating-linear-gradient(90deg, var(--die) 0 3px, transparent 3px 5px); }
+
+/* ---------------------------------------------------------------- status */
+.ds-mark { display: inline-block; flex: none; width: 11px; height: 9px; vertical-align: -1px; background: var(--c, currentColor); -webkit-mask: var(--m, var(--ds-bird)) center / contain no-repeat; mask: var(--m, var(--ds-bird)) center / contain no-repeat; }
+.ds-mark--alive { --c: var(--sig); animation: ds-hop 1.1s steps(2) infinite; }
+.ds-mark--dead { --c: var(--fg-3); transform: rotate(180deg); }
+.ds-mark--dead.die { --c: var(--die); }
+.ds-mark--tick { --m: var(--ds-tick); width: 10px; height: 10px; --c: var(--sig); }
+.ds-mark--cross { --m: var(--ds-cross); width: 10px; height: 10px; --c: var(--die); }
+.ds-mark--node { width: 4px; height: 4px; -webkit-mask: none; mask: none; --c: var(--sig); animation: ds-blink 2.4s var(--e-step) infinite; vertical-align: 1px; }
+.ds-mark--live { width: 4px; height: 4px; -webkit-mask: none; mask: none; --c: var(--sig); position: relative; vertical-align: 1px; overflow: visible; }
+.ds-mark--live::after { content: ''; position: absolute; inset: -4px; border: 1px solid var(--c); opacity: 0; animation: ds-ring 2s var(--e-out) infinite; }
+@keyframes ds-ring { from { opacity: .9; transform: scale(.4); } to { opacity: 0; transform: scale(1.6); } }
+.ds-mark--clock { --c: var(--clock); } .ds-mark--die { --c: var(--die); } .ds-mark--mut { --c: var(--mut); }
+.ds-tag { display: inline-flex; align-items: center; gap: 7px; padding-bottom: 3px; font: 600 10px/1.2 var(--font-text); letter-spacing: .18em; text-transform: uppercase; color: var(--c, var(--fg-2)); background: linear-gradient(90deg, currentColor 0 1px, transparent 1px) 0 100% / 3px 1px repeat-x; white-space: nowrap; }
+.ds-tag--sig { --c: var(--sig); } .ds-tag--die { --c: var(--die); } .ds-tag--clock { --c: var(--clock); } .ds-tag--mut { --c: var(--mut); } .ds-tag--dim { --c: var(--fg-3); }
+.ds-tag .ds-mark { --c: currentColor; }
+
+/* ---------------------------------------------------------------- inputs and tabs */
+.ds-field { position: relative; display: flex; align-items: center; gap: 12px; padding: 12px 2px 11px; background: linear-gradient(90deg, var(--trace-2) 0 1px, transparent 1px) 0 100% / 4px 1px repeat-x; }
+.ds-field::before { content: '\203A'; font: 500 20px/1 var(--font-display); color: var(--sig); flex: none; }
+.ds-field::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: var(--sig); transform: scaleX(0); transform-origin: 0 50%; transition: transform var(--t-med) var(--e-out); }
+.ds-field:focus-within::after { transform: none; }
+.ds-field input, .ds-field textarea, .ds-field select { flex: 1; min-width: 0; border: 0; outline: none; background: none; color: var(--fg); font: 400 16px/1.4 var(--font-text); padding: 0; }
+.ds-field input::placeholder, .ds-field textarea::placeholder { color: var(--fg-4); }
+.ds-field select option { background: var(--ink-1); }
+.ds-field .ds-btn { margin: -6px 0; }
+.ds-tabs { display: flex; flex-wrap: wrap; gap: 4px 22px; }
+.ds-tabs button, .ds-tabs a { position: relative; padding: 8px 0; border: 0; background: none; cursor: pointer; text-decoration: none; font: 600 10.5px/1 var(--font-text); letter-spacing: .18em; text-transform: uppercase; color: var(--fg-3); transition: color var(--t-fast); }
+.ds-tabs button::after, .ds-tabs a::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: var(--sig); transform: scaleX(0); transform-origin: 0 50%; transition: transform var(--t-med) var(--e-out); }
+.ds-tabs button:hover, .ds-tabs a:hover { color: var(--fg); }
+.ds-tabs .on, .ds-tabs [aria-selected="true"] { color: var(--fg); }
+.ds-tabs .on::after, .ds-tabs [aria-selected="true"]::after { transform: none; }
+
+/* ---------------------------------------------------------------- layout */
+.ds-page { position: relative; max-width: var(--page-max); margin: 0 auto; padding: calc(var(--top) + clamp(48px, 9vh, 96px)) var(--gutter) var(--s-9); }
+.ds-page--wide { --page-max: 1320px; }
+.ds-sec { margin-top: clamp(56px, 9vh, 104px); }
+.ds-grid { display: grid; gap: var(--s-6); grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--min, 280px)), 1fr)); }
+@media (max-width: 600px) { .ds-stats { gap: var(--s-5) var(--s-6); } .ds-panel { padding: var(--s-4); } }
+
+/* ---------------------------------------------------------------- reveal states (only with art.js) */
+html.art [data-draw]:not(.is-drawn) { opacity: 0; }
+html.art [data-draw] { transition: opacity var(--t-slow) var(--e-out), clip-path var(--t-slow) var(--e-out); transition-delay: calc(var(--i, 0) * var(--stagger)); }
+html.art [data-draw=""]:not(.is-drawn), html.art [data-draw="wipe"]:not(.is-drawn) { clip-path: inset(0 0 100% 0); }
+html.art [data-draw=""].is-drawn, html.art [data-draw="wipe"].is-drawn { clip-path: inset(0 0 0 0); }
+html.art [data-draw="text"]:not(.is-drawn) { opacity: 0; }
+html.art [data-draw="text"] { transition: opacity 160ms linear; }
+html.art [data-draw="line"]:not(.is-drawn) { opacity: 1; transform: scaleX(0); }
+html.art [data-draw="line"] { transform-origin: 0 50%; transition: transform var(--t-draw) var(--e-out); transition-delay: calc(var(--i, 0) * var(--stagger)); }
+html.art [data-draw="frame"]:not(.is-drawn) { opacity: 1; }
+html.art [data-draw="frame"] > :not(.art-frame) { transition: opacity var(--t-slow) var(--e-out) 380ms; }
+html.art [data-draw="frame"]:not(.is-drawn) > :not(.art-frame) { opacity: 0; }
+html.art [data-draw="frame"]::before { transition: opacity var(--t-med) linear 900ms; }
+html.art [data-draw="frame"]:not(.is-drawn)::before { opacity: 0; }
+html.art .ds-num:not(.is-drawn)::after { transform: scaleX(0); }
+html.art .ds-meter:not(.is-drawn) > i { width: 0; }
+
+/* ---------------------------------------------------------------- reduced motion: a still frame */
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
+  .ds-nav, .ds-nav__line i, .ds-kicker::before, .ds-mark--alive, .ds-mark--node, .ds-mark--live::after, .ds-nav__go::before, .ds-plate.is-loading::after { animation: none !important; }
+  .ds-nav__line i { display: none; }
+  .ds-btn, .ds-btn::before, .ds-btn::after, .ds-num::after, .ds-meter > i, .art-frame path, [data-draw] { transition: none !important; }
+  .ds-btn:hover::after { animation: none; opacity: 0; }
+  .art-wipe { display: none; }
+}
+
+/* ============================================================================================
+   LEGACY BRIDGE  ·  body.ds  ·  restyles the old markup in this language while pages are rebuilt.
+   Remove a rule here once its page uses the .ds-* component instead.
+   ============================================================================================ */
+/* nav: no white box. Full-width transparent bar with the signal line drawn by ::after */
+.ds .nav { top: var(--strip-h); left: 0; right: 0; transform: none; height: var(--nav-h); padding: 0 var(--gutter); gap: clamp(10px, 1.6vw, 24px); border-radius: 0; box-shadow: none; color: var(--fg-3);
+  background: linear-gradient(to bottom, rgba(2, 4, 3, .94), rgba(2, 4, 3, .7) 70%, rgba(2, 4, 3, 0)); animation: ds-nav-in 900ms var(--e-out) both 120ms; }
+.ds .nav::after { content: ''; position: absolute; left: var(--gutter); right: var(--gutter); bottom: 0; height: 1px; background: linear-gradient(90deg, var(--trace-2) 0 1px, transparent 1px) 0 0 / 4px 1px repeat-x; pointer-events: none; }
+.ds .nav::before { content: ''; position: absolute; bottom: 0; left: 0; width: 160px; height: 1px; background: linear-gradient(90deg, transparent, var(--sig) 80%, #fff); box-shadow: 0 0 10px var(--sig); animation: ds-pulse var(--pulse, 6s) linear infinite; pointer-events: none; }
+.ds .nav.is-soon::before { background: linear-gradient(90deg, transparent, var(--clock) 80%, #fff); box-shadow: 0 0 10px var(--clock); }
+.ds .nav.is-final::before { background: linear-gradient(90deg, transparent, var(--die) 80%, #fff); box-shadow: 0 0 10px var(--die); }
+.ds .nav .logo { width: auto; height: auto; background: none; border-radius: 0; margin-right: 8px; transform: none; }
+.ds .nav .logo svg { width: 24px; height: 20px; }
+.ds .nav a.l, .ds .nav .dd > button { font: 600 10.5px/1 var(--font-text); letter-spacing: .18em; text-transform: uppercase; padding: 8px 0 7px; border-radius: 0; color: var(--fg-3); background: none; transition: color var(--t-fast); }
+.ds .nav a.l:hover, .ds .nav .dd > button:hover { background: none; color: var(--fg); }
+.ds .nav a.l[aria-current="page"] { color: var(--fg); }
+.ds .nav a.l[href="/app"], .ds .nav a.l[href="/app/"] { color: var(--sig); display: inline-flex; gap: 8px; align-items: center; order: -1; }
+.ds .nav .logo { order: -2; }
+.ds .nav a.l[href="/app"]::before { content: ''; width: 11px; height: 9px; background: currentColor; -webkit-mask: var(--ds-bird) center / contain no-repeat; mask: var(--ds-bird) center / contain no-repeat; animation: ds-hop 900ms steps(2) infinite; }
+.ds .nav .sep { width: 1px; height: 14px; background: var(--trace-2); margin: 0 2px; }
+.ds .nav .cta, .ds .nav button.cta { margin-left: auto; background: none; color: var(--fg); border-radius: 0; font: 600 10.5px/1 var(--font-text); letter-spacing: .18em; text-transform: uppercase; padding: 10px 14px 9px; transition: box-shadow var(--t-med), color var(--t-fast); }
+.ds .nav .cta:hover { color: var(--sig); }
+.ds .nav .menu { background: rgba(4, 8, 6, .97); border-radius: 0; box-shadow: inset 0 0 0 1px var(--trace); padding: 8px; }
+.ds .nav .menu a { border-radius: 0; } .ds .nav .menu a:hover { background: var(--ink-2); }
+.ds .nav .menu b { font: 600 15px var(--font-display); color: var(--fg); } .ds .nav .menu span { color: var(--fg-3); }
+.ds .sound { border-radius: 0; border: 0; background: rgba(2, 4, 3, .8); color: var(--fg-2); }
+@media (min-width: 861px) { .ds .sound { top: calc(var(--strip-h) + 11px); } }
+.ds .sound:hover { color: var(--sig); }
+.ds .strip { background: var(--ink-0); border-bottom: 0; color: var(--fg-3); -webkit-backdrop-filter: none; backdrop-filter: none; }
+.ds .strip .sdot { width: 11px; height: 9px; background: var(--clock); box-shadow: none; -webkit-mask: var(--ds-bird) center / contain no-repeat; mask: var(--ds-bird) center / contain no-repeat; }
+.ds .strip .clock { font-family: var(--font-display); font-weight: 600; letter-spacing: .06em; }
+/* buttons */
+.ds .btn, .ds .cbtn, .ds .bk-go, .ds .bk-b { border-radius: 0; font: 600 11px/1 var(--font-text); letter-spacing: .18em; text-transform: uppercase; background: repeating-linear-gradient(to bottom, var(--scan) 0 1px, transparent 1px 3px); color: var(--fg); box-shadow: inset 0 0 0 1px var(--trace-2); transform: none; transition: box-shadow var(--t-med), color var(--t-fast), background-color var(--t-med); }
+.ds .btn:hover, .ds .cbtn:hover, .ds .bk-go:hover:not(:disabled), .ds .bk-b:hover { transform: none; box-shadow: inset 0 0 0 1px var(--sig); color: var(--sig); }
+.ds .cbtn:not(.ghost):not(.pink), .ds .ask0 button, .ds .ask button.send { background: repeating-linear-gradient(to bottom, rgba(0,30,14,.2) 0 1px, transparent 1px 3px), var(--sig); color: #02140b; border-radius: 0; box-shadow: none; }
+.ds .cbtn.pink { background: none; color: var(--die); box-shadow: inset 0 0 0 1px rgba(255,63,142,.55); }
+.ds .btn.dark { background: none; border: 0; }
+/* type and figures */
+.ds .xh h1, .ds h2, .ds .ch h1, .ds .hour-beat b, .ds .h3, .ds .cta-end h3, .ds .docs h4 { font-family: var(--font-display); font-weight: 600; letter-spacing: -.012em; }
+.ds .lab, .ds .xlab, .ds .eyebrow { font-family: var(--font-text); font-weight: 600; letter-spacing: var(--track-label); }
+.ds .xk > i { width: 11px; height: 9px; background: var(--sig); box-shadow: none; -webkit-mask: var(--ds-bird) center / contain no-repeat; mask: var(--ds-bird) center / contain no-repeat; }
+.ds .xk::after { content: ''; flex: 1; height: 1px; background: var(--dots); order: 1; min-width: 20px; }
+.ds .xk em { order: 2; }
+.ds .num, .ds .xs b, .ds .pbig, .ds .rnum, .ds .hc .q b, .ds #cnt, .ds .statbar b, .ds .hour-clock, .ds .trial .tn span { font-family: var(--font-display); font-weight: 500; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.ds .xs b { position: relative; padding-bottom: .26em; }
+.ds .xs b::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: linear-gradient(90deg, currentColor 0 1px, transparent 1px) 0 0 / 3px 1px repeat-x; opacity: .7; }
+/* panels: no glass */
+.ds .gl, .ds .glass, .ds .drawer, .ds .modal .box, .ds .win { border-radius: 0; -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none; border: 0;
+  background: repeating-linear-gradient(to bottom, var(--scan) 0 1px, transparent 1px 3px), rgba(4, 8, 6, .9); outline: 1px solid var(--trace); outline-offset: -1px; }
+.ds .modal { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(1, 3, 2, .86); }
+.ds .win .bar { background: none; color: var(--fg-2); border-bottom: 1px solid var(--trace); border-radius: 0; }
+.ds .win .bar .b { background: none; border: 0; box-shadow: inset 0 0 0 1px var(--trace-2); color: var(--fg-2); }
+.ds .win .bar .grip { background: linear-gradient(90deg, var(--trace-2) 0 1px, transparent 1px) 0 50% / 4px 1px repeat-x; opacity: 1; }
+.ds .statbar { border-radius: 0; -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(2, 4, 3, .9); border: 0; outline: 1px solid var(--trace); }
+.ds .ask0 { border-radius: 0; -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(2, 4, 3, .9); border: 0; box-shadow: inset 0 0 0 1px var(--trace-2); }
+/* chips and pills become text tags */
+.ds .chip, .ds .ch .chips a, .ds .hr .chips button, .ds .chips a { border: 0; border-radius: 0; background: linear-gradient(90deg, currentColor 0 1px, transparent 1px) 0 100% / 3px 1px repeat-x; padding: 4px 0 3px; color: var(--fg-2); }
+.ds .ch .chips a:hover, .ds .chips a:hover { background: linear-gradient(var(--sig), var(--sig)) 0 100% / 100% 1px no-repeat; color: var(--sig); }
+.ds .bk-amt, .ds .bk-amt button { border-radius: 0; }
+.ds .cell { border-radius: 0; }
+@media (max-width: 860px) {
+  .ds .nav { padding: 0 12px; gap: 12px; max-width: none; }
+  .ds .nav::after { left: 12px; right: 12px; }
+  .ds .nav .cta { padding: 9px 10px 8px; font-size: 9.5px; letter-spacing: .14em; }
+  .ds .nav a.l, .ds .nav .dd > button { font-size: 9.5px; letter-spacing: .14em; }
+}
+@media (max-width: 420px) { .ds .nav { gap: 10px; } .ds .nav a.l, .ds .nav .dd > button { letter-spacing: .08em; } .ds .nav .sep { display: none; } .ds .nav .logo { margin-right: 0; } }
+@media (prefers-reduced-motion: reduce) { .ds .nav, .ds .nav::before, .ds .nav a.l[href="/app"]::before { animation: none !important; } .ds .nav::before { display: none; } }
