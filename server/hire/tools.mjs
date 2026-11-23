@@ -18,9 +18,9 @@ for (const [a, p] of [['0.0.0.0', 8], ['10.0.0.0', 8], ['100.64.0.0', 10], ['127
   ['192.168.0.0', 16], ['198.18.0.0', 15], ['198.51.100.0', 24], ['203.0.113.0', 24], ['224.0.0.0', 4], ['240.0.0.0', 4]]) BLOCK.addSubnet(a, p, 'ipv4');
 for (const [a, p] of [['::', 128], ['::1', 128], ['64:ff9b::', 96], ['100::', 64], ['2001:db8::', 32], ['2002::', 16], ['fc00::', 7], ['fe80::', 10], ['ff00::', 8]]) BLOCK.addSubnet(a, p, 'ipv6');
 // (IPv4-mapped IPv6 addresses, ::ffff:a.b.c.d, are matched by the IPv4 rules above)
-const publicIp = (ip, fam) => !BLOCK.check(ip, fam === 6 || ip.includes(':') ? 'ipv6' : 'ipv4');
+export const publicIp = (ip, fam) => !BLOCK.check(ip, fam === 6 || ip.includes(':') ? 'ipv6' : 'ipv4');
 // The address is checked when the socket connects (not before), so a name that resolves to a private address at the last moment is still refused.
-function safeLookup(host, opts, cb) {
+export function safeLookup(host, opts, cb) {
   dns.lookup(host, { all: true, verbatim: true }, (err, addrs) => {
     if (err) return cb(err);
     if (!addrs.length || addrs.some((a) => !publicIp(a.address, a.family))) return cb(Object.assign(new Error('that host resolves to a private address'), { code: 'EBLOCKED' }));

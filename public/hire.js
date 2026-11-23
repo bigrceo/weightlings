@@ -602,7 +602,23 @@
     const c = current(), task = q('#task').value.trim().slice(0, MAXLEN);
     if (!c || !c.alive || task.length < 4) return gate();
     running = true; gate(); q('#herr').textContent = ''; const btn = q('#hireB'); btn.textContent = 'Hiring…';
-    const r = await j('/api/hire', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ creatureId: c.id, task, pid: visitor() }) });
+    const body = JSON.stringify({ creatureId: c.id, task, pid: visitor() });
+    let r = await j('/api/hire', { method: 'POST', headers: { 'content-type': 'application/json' }, body });
+    if (r.status === 402 && r.data && r.data.sign && r.data.sign.typedData) {
+      // paid hire: the visitor signs a USDG ReceiveWithAuthorization (no gas); the operator submits it
+      try {
+        const eth = window.ethereum; if (!eth) throw new Error(`This hire costs ${r.data.price?.usdg || ''} USDG on Robinhood Chain. Open this page in a wallet browser (MetaMask, Rabby, Phantom) to pay. Nothing was charged.`);
+        btn.textContent = `Pay ${r.data.price?.usdg || ''} USDG…`;
+        const [from] = await eth.request({ method: 'eth_requestAccounts' });
+        try { await eth.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x1237' }] }); }
+        catch (er) { if (er && er.code === 4902) await eth.request({ method: 'wallet_addEthereumChain', params: [{ chainId: '0x1237', chainName: 'Robinhood Chain', nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 }, rpcUrls: ['https://rpc.mainnet.chain.robinhood.com'] }] }); else throw er; }
+        const td = r.data.sign.typedData; td.message = { ...td.message, from };
+        const signature = await eth.request({ method: 'eth_signTypedData_v4', params: [from, JSON.stringify(td)] });
+        const pay = btoa(JSON.stringify({ x402Version: 1, scheme: 'exact', network: 'eip155:4663', payload: { form: 'receive', authorization: td.message, signature } }));
+        btn.textContent = 'Hiring…';
+        r = await j('/api/hire', { method: 'POST', headers: { 'content-type': 'application/json', 'x-payment': pay }, body });
+      } catch (er) { r = { ok: false, status: 402, data: { error: (er && er.code === 4001) ? 'You declined the payment. Nothing was charged.' : (er && er.message) || 'The payment was not signed. Nothing was charged.' } }; }
+    }
     const id = r.ok && pick(r.data, 'id', 'hire_id', 'hire.id');
     if (!id) {
       running = false; drawWho(); gate();

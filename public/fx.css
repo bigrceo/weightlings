@@ -121,3 +121,6 @@ body .fx-final.done .hide, body .fx-final:not(.on) .hide { display: none; }
   .fx-final, .fx-final.on, .fx-hud, .fx-hud .last { transition: none; }
 }
 body.culling .fx-final { opacity: 0 !important; }
+
+/* sober pass: no scanline veil, no tearing glitch */
+.fx-scan, .fx-tear { display: none !important; }

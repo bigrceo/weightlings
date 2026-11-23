@@ -33,7 +33,7 @@
       ? `${jobs.get(String(a.w || a.wallet || '').toLowerCase()) ? `<p class="hd-job"><span class="ds-label ds-label--sig">${esc(jobs.get(String(a.w || a.wallet).toLowerCase()).title || 'Job')}</span> ${esc(jobs.get(String(a.w || a.wallet).toLowerCase()).job)}</p>` : ''}<p>Give <b>${esc(nick)}</b> a real task: read a page, read Robinhood Chain, write something. Claude does the work through our API key; ${esc(model)} is its brain in the game.</p>
          <div class="hd-f"><textarea maxlength="2000" placeholder="What should ${esc(nick)} do?" aria-label="Task for ${esc(nick)}"></textarea></div>
          <div class="hd-row"><button class="ds-btn ds-btn--sig ds-btn--sm" type="button">Hire ${esc(nick)}<i class="arr"></i></button><a class="hd-link" href="/hire?c=${id}">Open the hire page</a></div>
-         <p class="hd-free">Free at launch: the operator pays the model. Every hire streams live and ends with a signed receipt. A finished hire feeds the creature.</p>`
+         <p class="hd-free">Paid in USDG, signed once, no gas. The creature keeps what it earns. Every hire streams live and ends with a signed receipt. A finished hire feeds the creature.</p>`
       : `<p class="hd-dead">${esc(nick)} is dead. Only living creatures can be hired.</p><div class="hd-row"><a class="hd-link" href="/hire">Hire another creature</a></div>`}</div>`;
     const wl = String(a.w || a.wallet || '').toLowerCase();
     if (/^0x[0-9a-f]{40}$/.test(wl) && !jobs.has(wl)) { jobs.set(wl, null); fetch('/api/build/' + wl).then((r) => (r.ok ? r.json() : null)).then((x) => { if (x && x.job) { jobs.set(wl, x); mountHire(slot, a); } }).catch(() => {}); }

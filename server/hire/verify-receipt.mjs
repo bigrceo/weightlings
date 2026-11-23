@@ -12,6 +12,8 @@
 //   4. systemHash == sha256(system prompt)
 //   5. costUsd == the price formula applied to the token usage, with the prices written in the receipt
 //   6. whether an OpenTimestamps proof exists (download it at /api/ots/<receiptHash>.ots and check it with the `ots` tool)
+//   (an outside agent's hire, kind "agent": 3-5 are replaced by: sha256(request body) == request.hash, the request carries
+//    this task and hire id, sha256(response body) == response.hash, costUsd == 0)
 //   7. a paid hire: workHash == sha256(canonical(receipt without `settlement`)); with --rpc <Robinhood Chain RPC URL>, also that
 //      the pay transaction holds Paid(runId, payer, price) from the creature wallet and the settlement transaction holds
 //      Charged(runId, cost, fee, treasury, workHash), both mined and successful
@@ -60,16 +62,27 @@ if (k) {
 }
 ok('Ed25519 signature', sigOk);
 const outs = h.outputs || [];
-ok('tool outputs present', outs.length === r.steps.length, `${r.steps.length} step(s)`);
-r.steps.forEach((s, i) => ok(`step ${i + 1} ${s.tool} output hash`, outs[i] !== undefined && sha(outs[i]) === s.outputHash));
-if (h.system !== undefined) ok('system prompt hash', sha(h.system) === r.systemHash);
-const p = r.prices.perMTok, u = r.usage;
-const cost = +(((u.input_tokens * p.input + u.cache_creation_input_tokens * p.cacheWrite + u.cache_read_input_tokens * p.cacheRead + u.output_tokens * p.output) / 1e6)).toFixed(6);
-ok('cost from usage and prices', Math.abs(cost - r.costUsd) <= 0.000002 * Math.max(1, u.calls), `$${r.costUsd} (recomputed $${cost}; per-call rounding allowed)`);
+const isAgent = r.kind === 'agent' || r.v === 'weightlings.agent-hire.v1';
+if (isAgent) {
+  // an outside agent's hire: outputs = [the exact request body sent to the agent, the exact response body it gave]
+  ok('request body present and hashed', outs[0] !== undefined && sha(outs[0]) === r.request.hash, r.request.hash);
+  let sent = null; try { sent = JSON.parse(outs[0]); } catch {}
+  ok('request body carries this task and hire id', !!sent && sent.task === r.task && sent.hireId === r.id);
+  if (r.response.hash) ok('response body hashed', outs[1] !== undefined && sha(outs[1]) === r.response.hash, `${r.response.bytes} bytes, HTTP ${r.response.status}, ${r.response.latencyMs} ms`);
+  else console.log('INFO  no response body (the agent could not be reached or timed out)');
+  ok('no model cost', r.costUsd === 0);
+} else {
+  ok('tool outputs present', outs.length === r.steps.length, `${r.steps.length} step(s)`);
+  r.steps.forEach((s, i) => ok(`step ${i + 1} ${s.tool} output hash`, outs[i] !== undefined && sha(outs[i]) === s.outputHash));
+  if (h.system !== undefined) ok('system prompt hash', sha(h.system) === r.systemHash);
+  const p = r.prices.perMTok, u = r.usage;
+  const cost = +(((u.input_tokens * p.input + u.cache_creation_input_tokens * p.cacheWrite + u.cache_read_input_tokens * p.cacheRead + u.output_tokens * p.output) / 1e6)).toFixed(6);
+  ok('cost from usage and prices', Math.abs(cost - r.costUsd) <= 0.000002 * Math.max(1, u.calls), `$${r.costUsd} (recomputed $${cost}; per-call rounding allowed)`);
+}
 if (r.settlement) {
   const { settlement: st, ...core } = r;
   ok('paid hire: workHash = sha256(canonical(receipt without settlement))', sha(canonical(core)) === st.workHash, st.workHash);
-  console.log(`INFO  paid ${r.paidBy?.amount} into creature wallet ${r.paidBy?.wallet} in ${r.paidBy?.payTx}; ${st.kind} in ${st.tx || '(pending: see settlementLate)'}: ${st.note || st.error || ''}`);
+  console.log(`INFO  paid ${r.paidBy?.amount} into ${isAgent ? 'agent' : 'creature'} wallet ${r.paidBy?.wallet} in ${r.paidBy?.payTx}; ${st.kind} in ${st.tx || '(pending: see settlementLate)'}: ${st.note || st.error || ''}`);
   if (rpcUrl && st.tx) {
     const call = async (method, params) => { const x = await fetch(rpcUrl, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }) }).then((y) => y.json()); if (x.error) throw new Error(x.error.message); return x.result; };
     const PAID = '0x408247e89d39871c0cb4768c90199873315688a638cb09e6f8eeb7a32a5cf1eb', CHARGED = '0xfadbc2931392d9d570a587fe9e4709595e8d26fb463f098bc02b0197fdfa2cbf';
@@ -82,7 +95,8 @@ if (r.settlement) {
   }
 }
 console.log(`INFO  OpenTimestamps: ${h.ots?.stamped ? `stamped via ${h.ots.calendar}, proof at ${base}${h.ots.proof}` : 'not stamped yet'}`);
-console.log(`INFO  ${r.creature.nick} (brain in game: ${r.creature.brain.name}) worked through ${r.model}; status ${r.status}; paid by ${typeof r.paidBy === 'string' ? r.paidBy : `${r.paidBy?.amount || ''} from ${r.paidBy?.payer || 'unknown'}`}; Anthropic message ids ${r.messageIds.join(', ')}`);
+if (isAgent) console.log(`INFO  agent "${r.agent.name}" at ${r.agent.endpoint} (owner ${r.agent.owner}); status ${r.status}; paid by ${typeof r.paidBy === 'string' ? r.paidBy : `${r.paidBy?.amount || ''} from ${r.paidBy?.payer || 'unknown'}`}`);
+else console.log(`INFO  ${r.creature.nick} (brain in game: ${r.creature.brain.name}) worked through ${r.model}; status ${r.status}; paid by ${typeof r.paidBy === 'string' ? r.paidBy : `${r.paidBy?.amount || ''} from ${r.paidBy?.payer || 'unknown'}`}; Anthropic message ids ${r.messageIds.join(', ')}`);
 console.log(`INFO  ${r.disclosure}`);
 const all = results.every(Boolean);
 console.log(all ? 'RECEIPT VERIFIED' : 'RECEIPT DOES NOT VERIFY');

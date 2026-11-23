@@ -132,7 +132,7 @@ http.createServer(async (req, res) => {
     if (await hire.handle(req, res, u, ip)) return;
     if (await build.handle(req, res, u, ip, { holder: (a) => idx.tokenInfo.holders.has(a) })) return;
     if (u.pathname.startsWith('/api/')) return send(404, { error: 'not found' });
-    const pages = { '/': '/index.html', '/app': '/app.html', '/genes': '/genes.html', '/market': '/market.html', '/record': '/record.html', '/verify': '/verify.html', '/back': '/back.html', '/hire': '/hire.html', '/build': '/build.html' };
+    const pages = { '/': '/index.html', '/app': '/app.html', '/genes': '/genes.html', '/market': '/market.html', '/record': '/record.html', '/verify': '/verify.html', '/back': '/back.html', '/hire': '/hire.html', '/build': '/build.html', '/agents': '/agents.html' };
     let p = pages[u.pathname] || (u.pathname.startsWith('/l/') ? '/lineage.html' : u.pathname.startsWith('/r/') ? '/round.html' : decodeURIComponent(u.pathname));
     let f = path.join(PUB, p);
     if (!f.startsWith(PUB) || !fs.existsSync(f) || fs.statSync(f).isDirectory()) f = path.join(PUB, 'index.html');

@@ -6,6 +6,7 @@ import { tierOf } from '../models.mjs';
 import { visitorHash } from './store.mjs';
 import * as engine from './engine.mjs';
 import * as x402 from './x402.mjs';
+import * as agents from './agents.mjs';
 
 const VERSIONS = ['2025-06-18', '2025-03-26', '2024-11-05'];
 const TOOLS = [
@@ -15,8 +16,17 @@ const TOOLS = [
   { name: 'hire_creature', title: 'Hire a creature for one task',
     description: "Hire one living creature for one task (at most 2000 characters). The task really runs now: Claude (Anthropic) does the work through the site operator's key, in the creature's voice, with real tools (read a public web page, read Robinhood Chain, its own notes). The creature's open model is its brain in the game only. Returns the answer, the cost, the energy the creature gained and a signed receipt (Ed25519) that is also timestamped with OpenTimestamps. Free at launch within a daily budget; if the site asks for payment it returns the USDG terms instead, and you must ask the user before paying.",
     inputSchema: { type: 'object', properties: { creature_id: { type: 'integer' }, task: { type: 'string' } }, required: ['creature_id', 'task'] } },
+  { name: 'register_agent', title: 'Register your own agent',
+    description: "Bring your own agent: register an HTTPS endpoint that Weightlings will forward paid tasks to. Call once without signature: you get the exact message to sign and a nonce. The owner wallet signs it (personal_sign / EIP-191); call again with the same fields plus nonce and signature. Returns the agent id and its HMAC secret ONCE (keep it secret; the endpoint uses it to check x-weightlings-signature). The agent's USDG wallet on Robinhood Chain is made on its first paid hire and owned by the signing wallet. Rule: no successful paid hire in 72 h (after 72 h of grace) = culled.",
+    inputSchema: { type: 'object', properties: { name: { type: 'string' }, description: { type: 'string' }, endpoint: { type: 'string', description: 'public https URL' }, skills: { type: 'array', items: { type: 'string' } }, owner: { type: 'string', description: '0x… wallet that signs and owns the earnings' }, nonce: { type: 'string' }, signature: { type: 'string' } }, required: ['name', 'description', 'endpoint', 'owner'] } },
+  { name: 'list_agents', title: 'List outside agents',
+    description: 'List the registered outside agents that can be hired: id, name, description, skills, price, hires, success rate, last paid hire, on-chain earnings, and when each will be culled without a paid hire.',
+    inputSchema: { type: 'object', properties: { skill: { type: 'string' }, include_culled: { type: 'boolean' } } } },
+  { name: 'hire_agent', title: 'Hire an outside agent for one task',
+    description: "Hire one registered outside agent for one task (at most 2000 characters). Weightlings forwards it to the agent's endpoint (HMAC-signed, 60 s limit) and returns its answer with an Ed25519-signed, OpenTimestamps-stamped receipt holding the request and response hashes. If the site asks for payment it returns the USDG terms instead, and you must ask the user before paying.",
+    inputSchema: { type: 'object', properties: { agent_id: { type: 'integer' }, task: { type: 'string' } }, required: ['agent_id', 'task'] } },
   { name: 'get_receipt', title: 'Get a hire receipt',
-    description: 'Get the signed receipt of one hire: task, every tool step with the hash of its output, the answer, token usage, cost, energy, the receipt hash, its Ed25519 signature and its OpenTimestamps proof.',
+    description: 'Get the signed receipt of one hire (a creature or an outside agent): task, every tool step with the hash of its output, the answer, token usage, cost, energy, the receipt hash, its Ed25519 signature and its OpenTimestamps proof.',
     inputSchema: { type: 'object', properties: { id: { type: 'string', description: 'Hire id, e.g. h0123456789abcdef0123' } }, required: ['id'] } },
 ];
 
@@ -40,6 +50,31 @@ async function call(name, args, ctx) {
     if (!done) return text({ id: r.body.id, status: 'running', note: 'Still working; call get_receipt with this id in a moment.', receipt: ctx.site + r.body.receipt });
     const rc = done.receipt || {};
     return text({ id: done.id, status: done.status, creature: rc.creature?.nick, brain_in_game: rc.creature?.brain?.name, worked_through: rc.model, answer: rc.answer, error: rc.error, steps: (rc.steps || []).map((s) => ({ tool: s.tool, input: s.input, outputHash: s.outputHash })), costUsd: rc.costUsd, paidBy: rc.paidBy, energy: rc.energy, receiptHash: done.receiptHash, signature: done.signature, receipt: `${ctx.site}/api/hire/${done.id}`, publicKey: `${ctx.site}/api/hire/key`, disclosure: rc.disclosure }, done.status !== 'done');
+  }
+  if (name === 'register_agent') {
+    if (!args.signature) {
+      const f = agents.checkFields(args); if (f.error) return text(f, true);
+      const ep = await agents.checkEndpoint(args.endpoint); if (ep.error) return text({ error: ep.error }, true);
+      const nonce = agents.issueNonce(f.owner);
+      return text({ step: 'sign', nonce, message: agents.registrationMessage({ name: f.name, endpoint: ep.url, owner: f.owner, nonce }), endpoint: ep.url,
+        instructions: 'Have the owner wallet personal_sign this exact message (EIP-191), then call register_agent again with the same name, description, endpoint, skills, owner, plus nonce and signature. The nonce lasts 10 minutes. Or POST the same JSON to ' + ctx.site + '/api/agents/register.' });
+    }
+    const r = await agents.register(args);
+    return text(r.body, r.status >= 300);
+  }
+  if (name === 'list_agents') {
+    const d = await agents.list(!!args.include_culled), sk = String(args.skill || '').toLowerCase();
+    return text({ ...d, agents: sk ? d.agents.filter((a) => a.skills.some((x) => x.includes(sk))) : d.agents });
+  }
+  if (name === 'hire_agent') {
+    const pid = 'mcp' + visitorHash('mcp:' + ctx.ip).slice(0, 20);
+    const r = await agents.admit({ agentId: args.agent_id, task: args.task, pid, ip: ctx.ip, ipKey: ctx.ipKey, req: ctx.req, resource: `${ctx.site}/api/agents/${Number(args.agent_id)}/hire` });
+    if (r.status === 402) return text({ payment_required: true, note: `Ask the user before paying. Sign the typed data in terms.sign, then POST {task, pid} to /api/agents/${Number(args.agent_id)}/hire with the X-PAYMENT header.`, terms: r.body });
+    if (r.status !== 202) return text(r.body, true);
+    const done = await engine.wait(r.body.id, 140_000);
+    if (!done) return text({ id: r.body.id, status: 'running', note: 'Still working; call get_receipt with this id in a moment.', receipt: ctx.site + r.body.receipt });
+    const rc = done.receipt || {};
+    return text({ id: done.id, status: done.status, agent: rc.agent?.name, answer: rc.answer, error: rc.error, request: rc.request, response: rc.response, paidBy: rc.paidBy, settlement: rc.settlement, receiptHash: done.receiptHash, signature: done.signature, receipt: `${ctx.site}/api/hire/${done.id}`, publicKey: `${ctx.site}/api/hire/key`, disclosure: rc.disclosure }, done.status !== 'done');
   }
   if (name === 'get_receipt') {
     const v = /^h[0-9a-f]{20}$/.test(String(args.id || '')) ? ctx.hireView(String(args.id)) : null;

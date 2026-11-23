@@ -115,7 +115,23 @@ export function budgetOf(priceUnits, markupBps, runCapUsd) {
   return Math.max(1, Math.min(byPrice, Math.floor(runCapUsd * 1e6)));
 }
 export const runIdOf = (hireId) => '0x' + createHash('sha256').update('weightlings.hire.run|' + hireId).digest('hex');
-const specHashOf = (b) => '0x' + createHash('sha256').update(canonical({ v: 'weightlings.creature.v1', creatureId: b.id, lineage: b.w.toLowerCase(), brain: b.m.id, gen: b.gen })).digest('hex');
+// b.spec: an outside agent (server/hire/agents.mjs) passes its own spec; a creature's is made from its lineage and brain
+const specHashOf = (b) => b.spec || '0x' + createHash('sha256').update(canonical({ v: 'weightlings.creature.v1', creatureId: b.id, lineage: b.w.toLowerCase(), brain: b.m.id, gen: b.gen })).digest('hex');
+
+
+// ---------- the coin gate: only agents whose lineage wallet holds the coin take paid work ----------
+// TOKEN unset (before launch): no gate. Set: the lineage wallet must hold at least HOLDER_MIN whole tokens (default 1),
+// read live from the token contract on Robinhood Chain at quote time and again at payment time. Anyone can check it.
+export function holderRule() { const t = process.env.TOKEN || ''; return t ? { on: true, token: t, ticker: process.env.TICKER || '', min: String(process.env.HOLDER_MIN || '1'), rule: 'Only agents whose lineage wallet holds the coin take paid work. Checked on chain at quote and at payment.' } : { on: false }; }
+export async function holderCheck(owner) {
+  const r = holderRule(); if (!r.on) return { ok: true, rule: r };
+  let bal;
+  try { [bal] = await chain.read(r.token, 'function balanceOf(address) view returns (uint256)', [owner]); } catch { return { ok: false, status: 503, error: 'Robinhood Chain could not be read to check the holder rule. Nothing was charged; try again.' }; }
+  const need = BigInt(Math.round(Number(r.min) * 1e6)) * 10n ** 12n, have = BigInt(bal);
+  const info = { token: r.token, owner, balance: (Number(have / 10n ** 12n) / 1e6).toString(), min: r.min };
+  if (have < need) return { ok: false, status: 403, error: `This agent cannot take paid work: the wallet that owns its lineage (${owner}) holds less than ${r.min} ${r.ticker ? '$' + r.ticker : 'of the coin'}. Hold the coin and your agents earn. Nothing was charged.`, holder: info };
+  return { ok: true, holder: info };
+}
 
 // ---------- 1. the creature's wallet, made on its first paid hire ----------
 let making = Promise.resolve();
@@ -164,6 +180,8 @@ function authDigest(domainSeparator, form, a) {
 /** 402 terms for a paid hire of creature b. Makes its wallet first if it has none. */
 export async function quote(b, { resource, runCapUsd }) {
   const f = await deployment();
+  const hc = await holderCheck(checksum(b.w));
+  if (!hc.ok) throw Object.assign(new Error(hc.error), { status: hc.status });
   const w = await ensureWallet(b);
   const markupBps = await markupOf(w.wallet);
   const price = priceOf(b.m.tier), budget = budgetOf(price, markupBps, runCapUsd), now = Math.floor(Date.now() / 1000);
@@ -171,7 +189,7 @@ export async function quote(b, { resource, runCapUsd }) {
   const domain = { name: process.env.USDG_NAME || 'Global Dollar', version: process.env.USDG_VERSION || '1', chainId: chain.CHAIN_ID(), verifyingContract: f.usdg };
   const body = {
     x402Version: 1, error: 'Payment required',
-    accepts: [{ scheme: 'exact', network: NETWORK, maxAmountRequired: price, resource, description: `Hire creature #${b.id} for one task`, mimeType: 'application/json', payTo: w.wallet, maxTimeoutSeconds: 600, asset: f.usdg, extra: { name: domain.name, version: domain.version, receiveWithAuthorization: true } }],
+    accepts: [{ scheme: 'exact', network: NETWORK, maxAmountRequired: price, resource, description: `Hire ${b.label || 'creature #' + b.id} for one task`, mimeType: 'application/json', payTo: w.wallet, maxTimeoutSeconds: 600, asset: f.usdg, extra: { name: domain.name, version: domain.version, receiveWithAuthorization: true } }],
     price: { units: price, usdg: usd(price) },
     creatureWallet: { address: w.wallet, owner: w.owner, ownerIs: "the wallet that founded this creature's lineage", made: w.tx },
     split: { budgetUnits: String(budget), markupBps, rule: 'model cost + markup go to the treasury; the rest stays in the creature wallet; a failed hire is refunded in full' },
@@ -205,6 +223,8 @@ export async function collect(req, b, { hireId, runCapUsd }) {
   if (f.problems.length) return fail(503, 'Payments are misconfigured on this server: ' + f.problems.join('; '));
   const w = walletOf(b.id);
   if (!w) return fail(409, 'This creature has no wallet yet: POST without payment first to get the terms.');
+  const hc = await holderCheck(w.owner || checksum(b.w));
+  if (!hc.ok) return fail(hc.status, hc.error);
   const p = decodeHeader(raw), pl = p?.payload || p, a = pl?.authorization, sig = pl?.signature;
   if (!a || !sig) return fail(400, 'The payment must carry payload.authorization and payload.signature.');
   for (const k of ['from', 'to']) if (!isAddress(a[k])) return fail(400, `authorization.${k} is not an address.`);
@@ -289,7 +309,7 @@ const view = (row, kind, s, workHash, how) => {
 export async function settle(hireId, receiptCore) {
   const row = q.run.get(hireId); if (!row || row.status !== 'held') return null;
   const kind = receiptCore.status === 'done' ? 'charge' : 'refund';
-  const costUnits = Math.min(Number(row.budget), Math.max(1, Math.ceil(Number(receiptCore.costUsd || 0) * 1e6)));
+  const costUnits = Math.min(Number(row.budget), Math.max(1, Math.ceil(Number(receiptCore.costUsd || 0) * 1e6) + Number(receiptCore.platformFeeUnits || 0)));
   const workHash = receiptHashOf(receiptCore), cost = kind === 'charge' ? String(costUnits) : '0';
   // take the run for this settlement; if the sweep already took it, it settles it and publishes the transaction late
   if (q.claim.run(kind, cost, workHash, hireId, 'held').changes !== 1) return null;
@@ -395,7 +415,7 @@ export async function earnings() {
       const owner = o[6] instanceof Error || !o[6] ? null : chain.addrTopic(o[6]);
       const being = nick.get(r.creature_id) || {}, c = counts.get(r.creature_id) || {};
       const u = (x) => (x == null ? null : { units: x.toString(), usdg: usd(x) });
-      return { creatureId: r.creature_id, nick: being.nick || null, alive: being.died == null, wallet: r.wallet, owner, lineageWallet: being.wallet ? checksum(being.wallet) : null,
+      return { creatureId: r.creature_id, kind: r.creature_id < 0 ? 'agent' : 'creature', ...(r.creature_id < 0 ? { agentId: -r.creature_id } : {}), nick: being.nick || null, alive: being.died == null, wallet: r.wallet, owner, lineageWallet: being.wallet ? checksum(being.wallet) : null,
         ownerIsLineage: owner && being.wallet ? owner.toLowerCase() === being.wallet.toLowerCase() : null,
         earned: u(income), cost: u(charged), profit: u(profit), withdrawable: u(withdrawable), refunded: u(refunded), held: u(held),
         runs: { charged: Number(c.charged || 0), refunded: Number(c.refunded || 0), open: Number(c.open || 0) }, made: { tx: r.tx, block: r.block } };

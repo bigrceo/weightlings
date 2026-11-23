@@ -9,7 +9,8 @@
 //   GET  /api/hire/creature/:id   what hiring this creature means: persona, model, allowance, price, recent hires
 //   GET  /api/earnings            per creature wallet: earned, cost, profit, runs, owner (chain reads, cached 60 s); { live:false } while payments are off
 //   GET  /api/earnings/total      the same, summed
-//   POST /mcp                     MCP over streamable HTTP (list_creatures, hire_creature, get_receipt)
+//   POST /mcp                     MCP over streamable HTTP (list_creatures, hire_creature, get_receipt, register_agent, list_agents, hire_agent)
+//   /api/agents…                  bring your own agent: register, registry, hire (agents.mjs)
 import net from 'node:net';
 import * as sim from '../sim.mjs';
 import { tierOf } from '../models.mjs';
@@ -21,6 +22,7 @@ import * as wallets from './wallets.mjs';
 import { keyDoc, keyFor, otsOf } from './receipts.mjs';
 import { recall } from './tools.mjs';
 import * as mcp from './mcp.mjs';
+import * as agents from './agents.mjs';
 import { jobOf } from '../build.mjs';
 
 const PER_PID = () => Math.max(1, Number(process.env.HIRE_PER_HOUR || 5));
@@ -119,6 +121,7 @@ export async function admit({ creatureId, task, pid, ip, req, resource }) {
 
 export function config() {
   return {
+    holders: wallets.holderRule(),
     payments: wallets.enabled() ? wallets.describe() : x402.on() ? { on: true, configured: x402.configured(), network: 'eip155:4663', asset: process.env.USDG || null, payTo: process.env.PAY_TO || null, prices: Object.fromEntries(['common', 'uncommon', 'rare', 'epic', 'legendary'].map((t) => [t, x402.priceOf(t)])) } : { on: false, paidBy: 'operator (launch)' },
     budget: store.budget(), running: engine.runningCount(),
     limits: { perVisitorPerHour: PER_PID(), perConnectionPerHour: PER_IP(), connectionShareOfDailyBudget: VISITOR_SHARE(), allVisitorsPer10Min: GLOBAL_10MIN(), runningPerConnection: RUNNING_PER_IP(), notesPerVisitorPerCreaturePerDay: Number(process.env.HIRE_NOTES_PER_VISITOR_DAY ?? 2), maxSteps: engine.LIMITS.maxSteps, maxRunTokens: engine.LIMITS.maxRunTokens, runUsd: engine.LIMITS.runUsd, taskChars: engine.LIMITS.taskChars, concurrency: engine.LIMITS.concurrency, feedsPerHour: engine.LIMITS.feedsPerHour },
@@ -156,7 +159,8 @@ export function hireView(id) {
 
 export async function handle(req, res, u, ip) {
   const p = u.pathname, m = req.method;
-  if (p === '/mcp') { await mcp.handle(req, res, ip, { admit, hireView, siteOf, readBody }); return true; }
+  if (p === '/mcp') { await mcp.handle(req, res, ip, { admit, hireView, siteOf, readBody, ipKey }); return true; }
+  if (p.startsWith('/api/agents')) return agents.handle(req, res, u, ip, { readBody, siteOf, ipKey });
   if ((p === '/api/earnings' || p === '/api/earnings/total') && m === 'GET') {
     try { json(res, 200, p === '/api/earnings' ? await wallets.earnings() : await wallets.earningsTotal(), { 'cache-control': 'public, max-age=30' }); }
     catch (e) { console.warn('[earnings]', e.message); json(res, 503, { live: true, error: 'Robinhood Chain could not be read just now. Try again in a minute.' }); }

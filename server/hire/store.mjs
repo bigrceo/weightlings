@@ -76,7 +76,8 @@ export const q = {
   get: db.prepare('SELECT * FROM hires WHERE id=?'),
   // the public lists show delivered hires only: a refused or failed task never reaches the floor, and the operator can hide any hire
   byCreature: db.prepare("SELECT * FROM hires WHERE creature_id=? AND receipt_hash IS NOT NULL AND status='done' AND COALESCE(hidden,0)=0 ORDER BY started_at DESC LIMIT ?"),
-  recent: db.prepare("SELECT * FROM hires WHERE receipt_hash IS NOT NULL AND status='done' AND COALESCE(hidden,0)=0 ORDER BY started_at DESC LIMIT ?"),
+  // creature_id < 0: a hire of an outside agent (agents.mjs), listed on /api/agents, not on the creature floor
+  recent: db.prepare("SELECT * FROM hires WHERE creature_id > 0 AND receipt_hash IS NOT NULL AND status='done' AND COALESCE(hidden,0)=0 ORDER BY started_at DESC LIMIT ?"),
   visitorSpent: db.prepare('SELECT COALESCE(SUM(cost_micros),0) m FROM hires WHERE ip_h=? AND started_at >= ?'),
   runningBy: db.prepare("SELECT COUNT(*) n FROM hires WHERE ip_h=? AND status='running'"),
   memByVisitor: db.prepare('SELECT COUNT(*) n FROM hire_memory m JOIN hires h ON h.id = m.hire_id WHERE m.creature_id=? AND h.ip_h=? AND m.at >= ?'),
