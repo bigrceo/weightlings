@@ -26,6 +26,7 @@ import { canonical, receiptHashOf, seal, publicKey } from './receipts.mjs';
 import * as chain from './chain.mjs';
 import { recoverAddress, keccak256, encodeArgs, isAddress, checksum } from './evm.mjs';
 import { priceOf } from './x402.mjs';
+import { token as coinToken, ticker as coinTicker } from '../token.mjs';
 
 const NETWORK = 'eip155:4663';
 const num = (v, d) => (v != null && v !== '' && Number.isFinite(Number(v)) ? Number(v) : d);
@@ -122,7 +123,7 @@ const specHashOf = (b) => b.spec || '0x' + createHash('sha256').update(canonical
 // ---------- the coin gate: only agents whose lineage wallet holds the coin take paid work ----------
 // TOKEN unset (before launch): no gate. Set: the lineage wallet must hold at least HOLDER_MIN whole tokens (default 1),
 // read live from the token contract on Robinhood Chain at quote time and again at payment time. Anyone can check it.
-export function holderRule() { const t = process.env.TOKEN || ''; return t ? { on: true, token: t, ticker: process.env.TICKER || '', min: String(process.env.HOLDER_MIN || '1'), rule: 'Only agents whose lineage wallet holds the coin take paid work. Checked on chain at quote and at payment.' } : { on: false }; }
+export function holderRule() { const t = coinToken(); return t ? { on: true, token: t, ticker: coinTicker(), min: String(process.env.HOLDER_MIN || '1'), rule: 'Only agents whose lineage wallet holds the coin take paid work. Checked on chain at quote and at payment.' } : { on: false }; }
 export async function holderCheck(owner) {
   const r = holderRule(); if (!r.on) return { ok: true, rule: r };
   let bal;

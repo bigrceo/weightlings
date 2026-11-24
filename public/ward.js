@@ -105,7 +105,7 @@
       <dt>Last 24 h</dt><dd>${day.length} rounds · ${dd} died · ${dm} mutants</dd>
       <dt>Meadow</dt><dd>${st.alive} alive · ${st.lineages} lineages · generation ${st.maxGen + 1}</dd>
       ${L ? `<dt>Dominant</dt><dd>${esc(L.dominant.name)}</dd>` : ''}</dl>
-      <div class="ds-btns lp-wl__btns"><a class="ds-btn ds-btn--sig" href="/app">Watch the meadow<i class="arr"></i></a><button class="ds-btn" data-h>Hatch your lineage</button><a class="ds-btn" href="/market">Paper exchange</a></div>`;
+      <div class="ds-btns lp-wl__btns"><a class="ds-btn ds-btn--sig" href="/app">Watch the meadow<i class="arr"></i></a><a class="ds-btn" href="/build">Build your agent</a><a class="ds-btn" href="/market">Market</a></div>`;
     if (wlHtml !== lastWl) { lastWl = wlHtml; $('#wardLive').innerHTML = wlHtml; $('[data-h]').onclick = openSummon; } // rebuilt only when a figure changed, so nothing recounts for nothing
     if (key !== lastKey) {
       $('#trials').innerHTML = tr.map((t, i) => `<div class="lp-trial ds-panel ds-panel--tight" data-draw="frame" style="--i:${i}"><div class="ds-label ds-label--bare">${Object.keys(t.w).join(' · ')}</div><b>${esc(t.name)}</b><p>${esc(t.what)}</p><div class="lp-trial__n"><span class="ds-num ds-num--lg ds-num--die" data-count="${t.killed}">${t.killed}</span><small>killed in ${t.rounds} rounds</small></div>${t.deadliestFor ? `<div class="ds-label ds-label--die">Deadliest for ${esc(t.deadliestFor.name)}</div>` : ''}</div>`).join('');
@@ -114,9 +114,10 @@
     lastKey = key;
     // stat bar
     const top = [...mk.markets].sort((a, z) => z.change24 - a.change24)[0];
-    $('#sbTop').textContent = top ? top.name : '—'; $('#sbTopC').textContent = top ? `${top.price.toFixed(3)} · ${top.change24 >= 0 ? '+' : ''}${(top.change24 * 100).toFixed(1)}% 24h · paper` : '';
+    $('#sbTop').textContent = top ? top.name : '—'; $('#sbTopC').textContent = top ? `${top.price.toFixed(3)} · ${top.change24 >= 0 ? '+' : ''}${(top.change24 * 100).toFixed(1)}% 24h` : '';
     const sa = $('#sbAlive'); if (sa.dataset.v !== String(st.alive)) { sa.dataset.v = st.alive; sa.textContent = '0'; count(sa, st.alive); }
     $('#sbLin').textContent = `${st.lineages} lineages`;
+    document.querySelector('.lp-stats')?.classList.add('is-ready');
     if (L) {
       const sd = $('#sbDied'); sd.style.setProperty('--v', (L.died / Math.max(1, L.population)).toFixed(3));
       if (sd.dataset.v !== String(L.died)) { sd.dataset.v = L.died; sd.textContent = '0'; count(sd, L.died); }
@@ -218,12 +219,12 @@
   // ---------------------------------------------------------------- hire band: the latest signed receipts (if any) and today's count
   async function loadHires() {
     const log = $('#hireLog'); if (!log) return;
-    const h = await api('/api/hires?limit=3').catch(() => null); if (!h) return;
+    const h = await api('/api/hires?limit=5').catch(() => null); if (!h) return;
     const n = h.budget && typeof h.budget.hiresToday === 'number' ? h.budget.hiresToday : null;
-    $('#hireN').textContent = n != null ? `${n} hire${n === 1 ? '' : 's'} started today` : '';
+    $("#hireN").textContent = n >= 3 ? `${n} hire${n === 1 ? '' : 's'} started today` : '';
     const list = Array.isArray(h.hires) ? h.hires.filter((x) => x && x.task) : [];
-    log.innerHTML = `<div class="ds-panel__hd"><span class="ds-label">Latest signed receipts</span></div>` + (list.length ? list.map((x, i) => `<a class="ds-row lp-hrow" href="/hire" data-draw style="--i:${i}"><span class="ds-label ds-label--cr ds-label--sig">${esc(x.nick || 'Creature ' + x.creatureId)}${x.brain ? ` · <i>${esc(x.brain)}</i>` : ''}</span><b>${esc(x.task.length > 120 ? x.task.slice(0, 118) + '…' : x.task)}</b><span class="ds-fine">${x.tools && x.tools.length ? `${x.tools.length} tool call${x.tools.length === 1 ? '' : 's'} · ` : ''}receipt ${esc(String(x.receiptHash || '').slice(0, 12))}…</span></a>`).join('')
-      : `<div class="lp-hsteps">${[['01', 'Pick a living creature', 'Its open model stays its brain in the game; its name and line go on the receipt.'], ['02', 'Claude does the work, in the open', 'Every step streams as it happens: the thinking, each tool call with its exact input, the answer.'], ['03', 'A signed receipt', 'Our server signs the run; your own browser checks the signature.']].map(([n, b, t], i) => `<div class="ds-row" data-draw style="--i:${i}"><span class="ds-num ds-num--sm ds-num--sig ds-num--plain">${n}</span><div><b>${b}</b><p class="ds-fine">${t}</p></div></div>`).join('')}</div><p class="ds-fine lp-hire__none">No public receipt yet today. The first hire run shows here, with every step it took.</p>`);
+    log.innerHTML = `<div class="ds-panel__hd"><span class="ds-label">Latest signed receipts</span></div>` + (list.length >= 5 ? list.map((x, i) => `<a class="ds-row lp-hrow" href="/hire" data-draw style="--i:${i}"><span class="ds-label ds-label--cr ds-label--sig">${esc(x.nick || 'Creature ' + x.creatureId)}${x.brain ? ` · <i>${esc(x.brain)}</i>` : ''}</span><b>${esc(x.task.length > 120 ? x.task.slice(0, 118) + '…' : x.task)}</b><span class="ds-fine">${x.tools && x.tools.length ? `${x.tools.length} tool call${x.tools.length === 1 ? '' : 's'} · ` : ''}receipt ${esc(String(x.receiptHash || '').slice(0, 12))}…</span></a>`).join('')
+      : `<div class="lp-hsteps">${[['01', 'Pick a living creature', 'Its open model stays its brain in the game; its name and line go on the receipt.'], ['02', 'Claude does the work, in the open', 'Every step streams as it happens: the thinking, each tool call with its exact input, the answer.'], ['03', 'A signed receipt', 'Our server signs the run; your own browser checks the signature.']].map(([n, b, t], i) => `<div class="ds-row" data-draw style="--i:${i}"><span class="ds-num ds-num--sm ds-num--sig ds-num--plain">${n}</span><div><b>${b}</b><p class="ds-fine">${t}</p></div></div>`).join('')}</div>`);
   }
 
   const safeDead = () => loadDead().catch(() => {});

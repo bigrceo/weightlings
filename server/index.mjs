@@ -10,11 +10,12 @@ import * as bets from './bets.mjs';
 import { MODELS, TIERS, byId } from './models.mjs';
 import * as hire from './hire/routes.mjs';
 import * as build from './build.mjs';
+import * as coin from './token.mjs';
 
 const PORT = Number(process.env.PORT || 4091);
 const PUB = path.resolve('public');
 const POP = Number(process.env.POP_SEED || 140);
-const CFG = () => ({ brand: process.env.BRAND || 'WEIGHTLINGS', ticker: process.env.TICKER || '', token: process.env.TOKEN || '', ponsUrl: process.env.TOKEN ? `https://pons.fun/token/${process.env.TOKEN}` : '', xUrl: process.env.X_URL || '', site: process.env.SITE || '' });
+const CFG = () => ({ brand: process.env.BRAND || 'WEIGHTLINGS', ticker: coin.ticker(), token: coin.token(), ponsUrl: coin.token() ? `https://pons.fun/token/${coin.token()}` : '', xUrl: process.env.X_URL || '', site: process.env.SITE || '' });
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.mp4': 'video/mp4', '.json': 'application/json', '.ico': 'image/x-icon' };
 const rl = new Map();
 function limited(ip, key, max, winMs) { const k = ip + key, t = Date.now(); const a = (rl.get(k) || []).filter((x) => t - x < winMs); if (a.length >= max) return true; a.push(t); rl.set(k, a); return false; }
@@ -54,6 +55,7 @@ setInterval(seeHead, 5000).unref();
 
 const routes = {
   'GET /api/config': () => CFG(),
+  'GET /api/proof': () => { try { const r = db.prepare("SELECT COUNT(*) n, COALESCE(SUM(CAST(value AS INTEGER) - CAST(COALESCE(cost,'0') AS INTEGER) - CAST(COALESCE(fee,'0') AS INTEGER)),0) kept FROM pay_runs WHERE status='charged'").get(); return { paidHires: r.n, usdgEarned: r.kept / 1e6 }; } catch { return { paidHires: 0, usdgEarned: 0 }; } },
   'GET /api/models': () => ({ models: MODELS, tiers: TIERS }),
   'GET /api/world': () => sim.snapshot(),
   'GET /api/scene': () => sim.scene(),
@@ -110,6 +112,7 @@ http.createServer(async (req, res) => {
     const rec = req.method === 'GET' && /^\/api\/round\/(\d+)\/record$/.exec(u.pathname);
     if (rec) { const r = sim.record(Number(rec[1])); return r ? send(200, r) : send(404, { error: 'not found' }); }
     if (req.method === 'GET' && u.pathname.startsWith('/api/round/')) { const g = sim.gen(Number(u.pathname.split('/').pop())); return g ? send(200, g) : send(404, { error: 'not found' }); }
+    if (k === 'POST /api/admin/token') { const r = coin.setFromAdmin(req, await body(req)); return send(r.status, r.body); }
     if (k === 'POST /api/swap') {
       const { pid, gave, got, amt } = await body(req);
       if (!/^[a-z0-9]{8,40}$/.test(pid || '')) return send(400, { error: 'bad session' });

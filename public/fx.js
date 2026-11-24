@@ -112,7 +112,7 @@
       const prev = round;
       if (typeof r.now === 'number') skew = r.now - Date.now();
       round = r;
-      if (prev && prev.n !== r.n) complete(r, prev.upcoming && prev.upcoming.name);
+      // no full-screen round banner: visitors may land mid-countdown
     }
     let polling = false;
     async function poll() { if (polling) return; polling = true; try { setRound(await get('/api/round')); } finally { polling = false; } }
@@ -182,13 +182,13 @@
         const h = sealed();
         const sub = (ms > 0 ? `ROUND ${esc(round.n + 1)}` : 'WAITING FOR THE SEED BLOCK') + (h ? ` · SEALED · <i>${esc(h.slice(0, 10))}…${esc(h.slice(-6))}</i>` : '');
         if (fSub.dataset.s !== sub) { fSub.dataset.s = sub; fSub.innerHTML = sub; }
-        fin.classList.add('on');
+        // countdown overlay disabled
       } else if (fin.classList.contains('on')) fin.classList.remove('on');
       // cull cue: sound swell lands on zero, then the flash
       if (ms <= 2200 && ms > 0 && culledFor !== round.n) { culledFor = round.n; try { window.wlAudio && window.wlAudio.cull(ms / 1000); } catch {} }
       if (ms <= 0 && ms > -3000 && flashedFor !== round.n) {
         flashedFor = round.n;
-        if (!reduce && hiddenFor !== round.n && !D.hidden) { flash.classList.remove('go'); void flash.offsetWidth; flash.classList.add('go'); }
+        // no flash
       }
     }
     setInterval(() => { try { tick(); } catch {} }, 250);

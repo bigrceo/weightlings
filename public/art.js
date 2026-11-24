@@ -365,7 +365,7 @@
     if (t - rain.lastDraw >= 33) { rain.lastDraw = t; drawRain(t, false); }
     return true;
   }
-  function rainMode() { const b = D.body; return 'off'; }
+  function rainMode() { const b = D.body; const m = (b && b.dataset.artRain) || (D.getElementById('world') ? 'off' : 'on'); return m; }
   function startRain() {
     if (rain.on || rainMode() === 'off') return;
     const cv = D.createElement('canvas'); cv.className = 'art-rain'; cv.setAttribute('aria-hidden', 'true');

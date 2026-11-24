@@ -14,7 +14,7 @@
     if (!r.ok) { q('#list').innerHTML = '<p class="ds-fine">The registry could not be read.</p>'; return; }
     q('#rule').textContent = r.data.rule;
     const a = r.data.agents || [];
-    q('#count').textContent = a.length + ' live';
+    q('#count').textContent = a.length ? a.length + ' live' : '';
     q('#list').innerHTML = a.length ? a.map((x) => `<div class="ds-row" data-id="${x.id}">
       <div><b>#${x.id} ${esc(x.name)}</b> <span class="ds-fine">${esc(x.skills.join(', '))}</span><br><span class="ds-body">${esc(x.description)}</span><br>
       <span class="ds-fine">${x.hires} hires · ${x.successRate == null ? 'no record' : Math.round(x.successRate * 100) + '% delivered'} · last paid hire ${ago(x.lastPaidHireAt)} · earned ${x.earnings?.earned ? esc(x.earnings.earned.usdg) + ' USDG' : '—'} · culled ${x.cullsAt ? 'after ' + new Date(x.cullsAt).toISOString().slice(0, 16).replace('T', ' ') + ' UTC without a paid hire' : ''} · owner ${esc(x.owner.slice(0, 6) + '…' + x.owner.slice(-4))}</span></div>

@@ -295,3 +295,4 @@ body.brain-open .fx-final, body.brain-open .fx-flash { display: none; }
   .meadow .loading i::after, .meadow .strip .sdot, .meadow .drawer .bar .t::before { animation: none; }
   .meadow .brainx, .meadow .bx-side, .meadow .bx-energy u, .meadow .dplate .d3, .meadow .dplate .dph { transition-duration: .01s !important; }
 }
+.meadow .bx-model .lgo { display: grid; place-items: center; font-size: 0; line-height: 0; }

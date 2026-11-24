@@ -39,9 +39,8 @@
   const RM = (() => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch { return false; } })();
   const col3 = (r, gg, b) => { const a = [r, gg, b]; a.css = `rgb(${r},${gg},${b})`; return a; };
   // calm palette: one hue family (mint) by rarity brightness; only legendary keeps a warm accent
-  // sober palette: greys by rarity, mint only for the live accent
-  const TIER = { legendary: col3(92, 242, 168), epic: col3(200, 200, 196), rare: col3(160, 160, 156), uncommon: col3(120, 120, 117), common: col3(84, 84, 82) };
-  const PINK = col3(110, 110, 107), MINT = col3(92, 242, 168), AMBER = col3(190, 190, 186), VIOLET = col3(150, 150, 146), WHITE = col3(236, 236, 232), DARK = col3(52, 52, 50), GHOST = col3(80, 80, 78), HI = col3(236, 236, 232);
+  const TIER = { legendary: col3(255, 196, 84), epic: col3(150, 255, 204), rare: col3(92, 242, 168), uncommon: col3(64, 178, 126), common: col3(96, 122, 110) };
+  const PINK = col3(255, 63, 142), MINT = col3(92, 242, 168), AMBER = col3(255, 184, 31), VIOLET = col3(185, 140, 255), WHITE = col3(232, 255, 244), DARK = col3(62, 72, 66), GHOST = col3(70, 120, 98), HI = col3(210, 255, 232);
   const KIND = { duel: AMBER, share: MINT, hatch: WHITE, round: PINK, seal: VIOLET };
   const KIND_WORD = { duel: 'Duel', share: 'Share', hatch: 'Hatch', round: 'Round', seal: 'Seal' };
   const F = 3.1;                                   // camera distance, in brain radii
@@ -53,7 +52,7 @@
     let s = sprites.get(rgb); if (s) return s;
     s = document.createElement('canvas'); s.width = s.height = 48; const x = s.getContext('2d');
     const gr = x.createRadialGradient(24, 24, 0, 24, 24, 24), [r, gg, b] = rgb;
-    gr.addColorStop(0, `rgba(${r},${gg},${b},.28)`); gr.addColorStop(0.18, `rgba(${r},${gg},${b},.08)`); gr.addColorStop(0.5, `rgba(${r},${gg},${b},.015)`); gr.addColorStop(1, `rgba(${r},${gg},${b},0)`);
+    gr.addColorStop(0, `rgba(${r},${gg},${b},.55)`); gr.addColorStop(0.25, `rgba(${r},${gg},${b},.2)`); gr.addColorStop(0.6, `rgba(${r},${gg},${b},.05)`); gr.addColorStop(1, `rgba(${r},${gg},${b},0)`);
     x.fillStyle = gr; x.fillRect(0, 0, 48, 48); sprites.set(rgb, s); return s;
   }
   // ---- the creature glyph per colour (the hovered neuron shows what it is) ----
@@ -82,7 +81,7 @@
     LX = Math.min(CX + R * AX * 1.12, W - 210 * D);
     LY0 = leg ? (leg.getBoundingClientRect().bottom - cr.top + 34) * D : CY - R;
     LY1 = win ? (win.getBoundingClientRect().top - cr.top - 26) * D : CY + R;
-    FONT_A = `600 ${Math.round(9.5 * D)}px Inter, system-ui, sans-serif`; FONT_B = `500 ${Math.round(13 * D)}px Inter, sans-serif`; FONT_C = `600 ${Math.round(12.5 * D)}px Inter, system-ui, sans-serif`;
+    FONT_A = `600 ${Math.round(9.5 * D)}px Inter, system-ui, sans-serif`; FONT_B = `500 ${Math.round(13 * D)}px 'Chakra Petch', Inter, sans-serif`; FONT_C = `600 ${Math.round(12.5 * D)}px Inter, system-ui, sans-serif`;
   }
   let rz = 0; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(fit, 120); }, { passive: true }); fit();
   addEventListener('load', fit); if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
@@ -260,9 +259,9 @@
     }
 
     // the cortex: gyri contours, two depth passes (back faint, front brighter)
-    g.strokeStyle = WHITE.css; g.lineWidth = lw;
+    g.strokeStyle = MINT.css; g.lineWidth = lw;
     for (let pass = 0; pass < 2; pass++) {
-      g.globalAlpha = (pass ? 0.1 : 0.035) * dim * (real ? 1 : 0.7); g.beginPath();
+      g.globalAlpha = (pass ? 0.2 : 0.06) * dim * (real ? 1 : 0.7); g.beginPath();
       for (let k = 0; k < NG; k++) {
         for (let i = 0; i < GS; i++) {
           const a0 = k * GS + i, a1 = k * GS + ((i + 1) % GS);
@@ -300,7 +299,7 @@
 
     // synapses, batched: one path per lobe colour, plus one for the kill zone and one for lineage threads
     for (let i = 0; i < LA.length; i++) {
-      const L = LA[i]; g.strokeStyle = L.col.css; g.globalAlpha = (0.05 + 0.03 * beat) * dim * (real ? 1 : 0.6); g.beginPath(); let any = false;
+      const L = LA[i]; g.strokeStyle = L.col.css; g.globalAlpha = (0.09 + 0.07 * beat) * dim * (real ? 1 : 0.6); g.beginPath(); let any = false;
       const ls = L.syn || syn0; for (let j = 0; j < ls.length; j++) { const s = ls[j], A = s[0], B = s[1]; if (A.L !== L || A.dead || B.dead || A.kz || B.kz || A.a < 0.3 || B.a < 0.3) continue; g.moveTo(A.sx, A.sy); g.lineTo(B.sx, B.sy); any = true; }
       if (any) g.stroke();
     }
@@ -329,7 +328,7 @@
       }
       if (n.newborn && t - n.born < 1.6 && t > n.born) { const k = (t - n.born) / 1.6; g.globalAlpha = (1 - k) * dim; g.strokeStyle = MINT.css; g.lineWidth = lw; const s = core * (2 + 9 * k); g.strokeRect(n.sx - s, n.sy - s, s * 2, s * 2); }
       if (n.kz) { col = PINK; if (urg > 0.4) { const s = core * (2.2 + 0.5 * Math.sin(t * 2.6 + n.ph)); g.globalAlpha = n.a * n.d * dim * urg * 0.6; g.strokeStyle = PINK.css; g.lineWidth = lw; g.strokeRect((n.sx - s) | 0, (n.sy - s) | 0, s * 2, s * 2); } }
-      const halo = size * 5; g.globalAlpha = Math.min(1, al * 0.18 + n.flash * 0.2); g.drawImage(sprite(col), n.sx - halo, n.sy - halo, halo * 2, halo * 2);
+      const halo = size * 5; g.globalAlpha = Math.min(1, al * 0.45 + n.flash * 0.4); g.drawImage(sprite(col), n.sx - halo, n.sy - halo, halo * 2, halo * 2);
       g.globalAlpha = Math.min(1, al + n.flash * 0.5); g.fillStyle = n.flash > 0.4 ? HI.css : col.css; const s = Math.max(lw, size); g.fillRect((n.sx - s / 2) | 0, (n.sy - s / 2) | 0, Math.ceil(s), Math.ceil(s));
     }
 
@@ -339,11 +338,11 @@
       const A = s.a, B = s.b; if (q > 1.6 || A.sx == null || B.sx == null) { sig.splice(i, 1); continue; }
       const cxp = (A.x + B.x) * 0.25, cyp = (A.y + B.y) * 0.25, czp = (A.z + B.z) * 0.25, same = A.L === B.L;
       const fade = q < 1 ? 1 : Math.max(0, 1 - (q - 1) / 0.6), head = RM ? 1 : Math.min(1, q * q * (3 - 2 * q));
-      g.globalAlpha = 0.4 * fade * dim; g.strokeStyle = s.col.css; g.lineWidth = Math.max(1, D * 0.8); g.beginPath();
+      g.globalAlpha = 0.55 * fade * dim; g.strokeStyle = s.col.css; g.lineWidth = Math.max(1, D * 1.1); g.beginPath();
       for (let j = 0; j <= 16; j++) { const u = (j / 16) * head; if (same) P(A.x + (B.x - A.x) * u, A.y + (B.y - A.y) * u, A.z + (B.z - A.z) * u); else P(qb(A.x, cxp, B.x, u), qb(A.y, cyp, B.y, u), qb(A.z, czp, B.z, u)); if (j) g.lineTo(PX, PY); else g.moveTo(PX, PY); }
       g.stroke();
       if (q < 1) {
-        for (let j = 0; j < 6; j++) { const u = head - j * 0.03; if (u < 0) break; if (same) P(A.x + (B.x - A.x) * u, A.y + (B.y - A.y) * u, A.z + (B.z - A.z) * u); else P(qb(A.x, cxp, B.x, u), qb(A.y, cyp, B.y, u), qb(A.z, czp, B.z, u)); const sz = D * (4 - j * 0.5); g.globalAlpha = (1 - j * 0.16) * dim; g.fillStyle = j ? s.col.css : HI.css; g.fillRect(PX - sz / 2, PY - sz / 2, sz, sz); if (!j) { const hr = D * 16; g.globalAlpha = 0.3 * dim; g.drawImage(sprite(s.col), PX - hr, PY - hr, hr * 2, hr * 2); } }
+        for (let j = 0; j < 6; j++) { const u = head - j * 0.03; if (u < 0) break; if (same) P(A.x + (B.x - A.x) * u, A.y + (B.y - A.y) * u, A.z + (B.z - A.z) * u); else P(qb(A.x, cxp, B.x, u), qb(A.y, cyp, B.y, u), qb(A.z, czp, B.z, u)); const sz = D * (4 - j * 0.5); g.globalAlpha = (1 - j * 0.16) * dim; g.fillStyle = j ? s.col.css : HI.css; g.fillRect(PX - sz / 2, PY - sz / 2, sz, sz); if (!j) { const hr = D * 16; g.globalAlpha = 0.8 * dim; g.drawImage(sprite(s.col), PX - hr, PY - hr, hr * 2, hr * 2); } }
         if (!s.lit) { s.lit = 1; A.flash = Math.max(A.flash, 0.9); }
       } else if (!s.hit) { s.hit = 1; B.flash = Math.max(B.flash, 1.5); }
     }
@@ -367,8 +366,8 @@
         const o = LBL[i], L = o.L, y1 = o.ty, xk = LX - 18 * D;
         g.globalAlpha = 0.3 * L.la; g.strokeStyle = L.col.css; g.beginPath(); g.moveTo(L.sx, L.sy); g.lineTo(xk, y1); g.lineTo(LX - 6 * D, y1); g.stroke();
         g.globalAlpha = 0.9 * L.la; g.fillStyle = L.col.css; g.fillRect((L.sx - 2 * D) | 0, (L.sy - 2 * D) | 0, 4 * D, 4 * D); g.fillRect((LX - 6 * D) | 0, (y1 - 1.5 * D) | 0, 3 * D, 3 * D);
-        g.font = FONT_B; g.fillStyle = '#ededE8'; g.globalAlpha = 0.9 * L.la; g.fillText(L.num, LX + 2 * D, y1); const nw = g.measureText(L.num).width;
-        g.font = FONT_A; g.fillStyle = '#a3a3a0'; g.globalAlpha = 0.8 * L.la; g.fillText(L.label, LX + 10 * D + nw, y1);
+        g.font = FONT_B; g.fillStyle = '#e6eee8'; g.globalAlpha = 0.9 * L.la; g.fillText(L.num, LX + 2 * D, y1); const nw = g.measureText(L.num).width;
+        g.font = FONT_A; g.fillStyle = '#a6b2ab'; g.globalAlpha = 0.8 * L.la; g.fillText(L.label, LX + 10 * D + nw, y1);
       }
     }
 
@@ -381,10 +380,10 @@
       const m = MODELS[hot.model] || {}, l1 = hot.nick || '#' + hot.id, l2 = String((m.name || hot.model) + (hot.kz ? ' · in the kill zone' : '')).toUpperCase();
       g.font = FONT_C; const w1 = g.measureText(l1).width; g.font = FONT_A; const w2 = g.measureText(l2).width;
       const bw = Math.max(w1 + 22 * D, w2) + 24 * D, bh = 44 * D; let bx = x + 22 * D, by = y - bh / 2; if (bx + bw > W - 8 * D) bx = x - 22 * D - bw; by = Math.max(8 * D, Math.min(H - bh - 8 * D, by));
-      g.fillStyle = 'rgba(10,10,10,.94)'; g.fillRect(bx, by, bw, bh); g.fillStyle = hot.kz ? PINK.css : MINT.css; g.fillRect(bx, by, 2 * D, bh);
+      g.fillStyle = 'rgba(2,4,3,.92)'; g.fillRect(bx, by, bw, bh); g.fillStyle = hot.kz ? PINK.css : MINT.css; g.fillRect(bx, by, 2 * D, bh);
       g.imageSmoothingEnabled = false; g.drawImage(bird(hot.col), bx + 12 * D, by + 9 * D, 11 * Math.round(1.4 * D), 9 * Math.round(1.4 * D)); g.imageSmoothingEnabled = true;
-      g.textBaseline = 'alphabetic'; g.fillStyle = '#ededE8'; g.font = FONT_C; g.fillText(l1, bx + 34 * D, by + 19 * D);
-      g.fillStyle = hot.kz ? PINK.css : '#6e6e6b'; g.font = FONT_A; g.fillText(l2, bx + 12 * D, by + 35 * D);
+      g.textBaseline = 'alphabetic'; g.fillStyle = '#e6eee8'; g.font = FONT_C; g.fillText(l1, bx + 34 * D, by + 19 * D);
+      g.fillStyle = hot.kz ? PINK.css : '#6b7770'; g.font = FONT_A; g.fillText(l2, bx + 12 * D, by + 35 * D);
     }
     g.globalAlpha = 1;
     return true;

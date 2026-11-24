@@ -77,7 +77,7 @@ window.wlAudio = {
 window.blip = (f = 880) => { if (!actx || !master || !sndOn) return; const o = actx.createOscillator(), g = actx.createGain(); o.type = 'square'; o.frequency.value = f; g.gain.value = 0.04; g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime + 0.12); o.connect(g); g.connect(actx.destination); o.start(); o.stop(actx.currentTime + 0.13); };
 const sb = $('#sound');
 const sndIcon = () => { const w = $('#sw'); if (w) w.style.opacity = sndOn ? 1 : 0.35; if (sb) { sb.classList.toggle('on', sndOn); sb.setAttribute('aria-pressed', sndOn ? 'true' : 'false'); } };
-const sndSave = () => { try { localStorage.setItem('wlSound', sndOn ? '1' : '0'); } catch {} };
+const sndSave = () => { try { localStorage.setItem('wlSound2', sndOn ? '1' : '0'); } catch {} };
 function sndToggle() {
   try {
     if (!actx) soundOn();
@@ -88,7 +88,7 @@ function sndToggle() {
 if (sb) {
   sb.onclick = sndToggle; sb.setAttribute('aria-pressed', 'false');
   // the visitor turned sound on earlier: resume on their first gesture here (browsers need one), only where the toggle exists
-  let want = false; try { want = localStorage.getItem('wlSound') === '1'; } catch {}
+  let want = false; try { want = localStorage.getItem('wlSound2') === '1'; } catch {}
   if (want) { const first = (e) => { removeEventListener('pointerdown', first, true); removeEventListener('keydown', first, true); if (!actx && !(e.target && e.target.closest && e.target.closest('#sound'))) { try { soundOn(); } catch {} sndIcon(); } }; addEventListener('pointerdown', first, true); addEventListener('keydown', first, true); }
 }
 
